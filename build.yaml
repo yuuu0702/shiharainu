@@ -1,0 +1,40 @@
+targets:
+  $default:
+    builders:
+      freezed:
+        generate_for:
+          - lib/shared/models/*.dart
+          - lib/features/*/domain/entities/*.dart
+          - lib/features/*/data/models/*.dart
+        options:
+          # Generate copyWith method
+          copy_with: true
+          # Generate toString method
+          to_string: true
+          # Generate equality operator
+          equal: true
+          # Generate hashCode method
+          hash_code: true
+
+      json_serializable:
+        generate_for:
+          - lib/shared/models/*.dart
+          - lib/features/*/domain/entities/*.dart
+          - lib/features/*/data/models/*.dart
+        options:
+          # Generate toJson method
+          explicit_to_json: true
+          # Include fields with null values
+          include_if_null: false
+          # Generate fromJson constructor
+          create_to_json: true
+
+      riverpod_generator:
+        generate_for:
+          - lib/shared/providers/*.dart
+          - lib/features/*/domain/providers/*.dart
+          - lib/features/*/data/providers/*.dart
+          - lib/features/*/presentation/providers/*.dart
+        options:
+          # Generate keepAlive for providers
+          keep_alive: false
