@@ -1,11 +1,11 @@
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:shiharainu/features/auth/presentation/pages/login_page.dart';
-import 'package:shiharainu/features/dashboard/presentation/pages/dashboard_page.dart';
-import 'package:shiharainu/features/event_creation/presentation/pages/event_creation_page.dart';
-import 'package:shiharainu/features/payment/presentation/pages/payment_page.dart';
-import 'package:shiharainu/features/gamification/presentation/pages/gamification_page.dart';
-import 'package:shiharainu/features/secondary_event/presentation/pages/secondary_event_page.dart';
+import 'package:shiharainu/features/auth/views/login_page.dart';
+import 'package:shiharainu/features/dashboard/views/dashboard_page.dart';
+import 'package:shiharainu/features/event_creation/views/event_creation_page.dart';
+import 'package:shiharainu/features/payment/views/payment_page.dart';
+import 'package:shiharainu/features/gamification/views/gamification_page.dart';
+import 'package:shiharainu/features/secondary_event/views/secondary_event_page.dart';
 import 'package:shiharainu/shared/providers/auth_provider.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
