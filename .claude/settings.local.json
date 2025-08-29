@@ -4,20 +4,8 @@
       "Bash(flutter:*)",
       "Bash(find:*)",
       "Bash(mkdir:*)",
-      "Bash(dart run build_runner:*)",
-      "WebFetch(domain:github.com)",
-      "Bash(claude mcp:*)",
-      "Bash(for feature in dashboard event_creation payment gamification secondary_event)",
-      "Bash(do mkdir -p \"C:\\Users\\yudai\\Repositories\\shiharainu\\lib\\features$feature\\models\")",
-      "Bash(done)",
-      "Bash(mv:*)",
-      "Bash(fi)",
-      "Bash(cp:*)"
+      "Bash(dart run build_runner:*)"
     ],
     "deny": []
-  },
-  "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "github"
-  ]
+  }
 }
