@@ -1,212 +1,202 @@
 # CLAUDE.md
 
-このファイルは、Claude Code (claude.ai/code) がこのリポジトリでコードを扱う際のガイダンスを提供します。
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## プロジェクト概要
+## Project Overview
 
-**shiharainu** は、飲み会や企業イベント向けのイベント決済管理用Flutterアプリケーションです。主催者が簡単に支払いを管理し、比例配分を計算し、ゲーミフィケーション要素を含む支払い確認機能を提供します。
+**shiharainu** is a Flutter application for event payment management, particularly for drinking parties and corporate events. The app allows organizers to easily manage payments, calculate proportional splits, and confirm payments with gamification elements.
 
-### アプリケーションの目的
-- 自動比例配分計算による イベント決済管理
-- 主催者向けリアルタイム支払いステータス追跡
-- 外部決済アプリ連携（PayPay、LINE Pay、楽天ペイ）
-- バッジとランキングのゲーミフィケーション機能
-- 二次会参加確認
+### Application Purpose
+- Event payment management with automatic proportional billing calculation
+- Real-time payment status tracking for organizers
+- External payment app integration (PayPay, LINE Pay, Rakuten Pay)
+- Gamification features with badges and rankings
+- Secondary event attendance confirmation
 
-## 一般的な開発コマンド
+## Common Development Commands
 
-### アプリケーションの実行
+### Running the Application
 ```bash
-# Chrome（Web）で実行
+# Run on Chrome (web)
 flutter run -d chrome
 
-# 接続されている全デバイスで実行
+# Run on all connected devices
 flutter run -d all
 
-# 特定のデバイスで実行
+# Run on specific device
 flutter run -d <device_id>
 
-# 利用可能デバイス一覧
+# List available devices
 flutter devices
 ```
 
-### ビルド
+### Building
 ```bash
-# Web用ビルド
+# Build for web
 flutter build web
 
-# Android用ビルド
+# Build for Android
 flutter build apk
 flutter build appbundle
 
-# iOS用ビルド
+# Build for iOS
 flutter build ios
 ```
 
-### テストと品質管理
+### Testing and Quality
 ```bash
-# 全テスト実行
+# Run all tests
 flutter test
 
-# 特定のテストファイル実行
+# Run specific test file
 flutter test test/widget_test.dart
 
-# リンティング問題チェック
+# Check for linting issues
 flutter analyze
 
-# 依存関係更新取得
+# Get dependency updates
 flutter pub get
 flutter pub outdated
 ```
 
-## アーキテクチャと構造
+## Architecture and Structure
 
-### 目標アーキテクチャ
-- **フロントエンド**: Flutter (マルチプラットフォーム: iOS, Android, Web)
-- **バックエンド**: Firebase または AWS Amplify
-- **決済連携**: PayPay、LINE Pay、楽天ペイ API
-- **通知**: Firebase Cloud Messaging (FCM)
-- **リアルタイム通信**: Firebase Realtime Database または Firestore
-- **認証**: 二要素認証
-- **データエクスポート**: CSV/Excel エクスポート機能
+### Target Architecture
+- **Frontend**: Flutter (multi-platform: iOS, Android, Web)
+- **Backend**: Firebase or AWS Amplify
+- **Payment Integration**: PayPay, LINE Pay, Rakuten Pay APIs
+- **Notifications**: Firebase Cloud Messaging (FCM)
+- **Real-time Communication**: Firebase Realtime Database or Firestore
+- **Authentication**: Two-factor authentication
+- **Data Export**: CSV/Excel export functionality
 
-### 現在の状態
-- **クリーンアーキテクチャ実装済み** - 機能別組織化
-- **Riverpod状態管理** - コード生成セットアップ済み
-- **Go Router ナビゲーション** - 認証ガード付き
-- **Material 3 テーマ** - ライト/ダークモード対応
-- **Freezed データモデル** - JSON シリアライゼーション付き
-- **マルチプラットフォーム対応** - Web、iOS、Android用設定済み
-- **デバッグ認証システム** - 現在実装中（Firebase はコメントアウト）
+### Current State
+- **Single-file architecture** with entry point at `lib/main.dart`
+- **Standard Flutter counter app** using Material Design (to be replaced)
+- **Stateful widget pattern** for UI state management (will evolve to state management solution)
+- **Multi-platform support** configured for web, iOS, and Android
 
-### 計画中のアプリケーション画面
+### Planned Application Screens
 
-#### 幹事画面
-1. **イベント作成画面** - QR/URL共有での新規イベント作成
-2. **管理ダッシュボード** - リアルタイム支払いステータス概観
-3. **比例パターン設定** - カスタム請求パターン設定
-4. **二次会確認** - フォローアップイベント出席管理
-5. **エクスポート画面** - CSV/Excel エクスポート機能
+#### Organizer (幹事) Screens
+1. **Event Creation Screen** - Create new events with QR/URL sharing
+2. **Management Dashboard** - Real-time payment status overview
+3. **Proportional Pattern Settings** - Configure custom billing patterns
+4. **Secondary Event Confirmation** - Manage attendance for follow-up events
+5. **Export Screen** - CSV/Excel export functionality
 
-#### 参加者画面
-1. **ユーザー登録画面** - URL/QRコードアクセスによるプロファイル設定
-2. **支払い金額確認** - 計算された比例金額の表示
-3. **外部決済連携** - 決済アプリへのリダイレクト
-4. **支払い完了確認** - 支払いステータス確認
-5. **二次会参加** - フォローアップイベント参加確認
-6. **ランキングとバッジ** - ゲーミフィケーション要素表示
+#### Participant (参加者) Screens
+1. **User Registration Screen** - Profile setup via URL/QR code access
+2. **Payment Amount Confirmation** - View calculated proportional amount
+3. **External Payment Integration** - Redirect to payment apps
+4. **Payment Completion Confirmation** - Confirm payment status
+5. **Secondary Event Participation** - Confirm attendance for follow-up events
+6. **Rankings and Badges** - Gamification elements display
 
-### 実装予定の主要機能
-- **比例請求アルゴリズム**: 役職、年齢、性別、飲酒状況に基づく自動計算
-- **リアルタイム支払い追跡**: 幹事向けリアルタイム更新
-- **外部決済連携**: 決済アプリへのシームレス遷移
-- **ゲーミフィケーションシステム**: スピード賞、スポンサーバッジ、ランキング
-- **ゲストモード**: 登録なし支払い
-- **自動リマインダー**: 支払い期限通知
+### Key Features to Implement
+- **Proportional Billing Algorithm**: Automatic calculation based on role, age, gender, drinking status
+- **Real-time Payment Tracking**: Live updates for organizers
+- **External Payment Integration**: Seamless transitions to payment apps
+- **Gamification System**: Speed awards, sponsor badges, rankings
+- **Guest Mode**: Payment without registration
+- **Automated Reminders**: Payment deadline notifications
 
-### 主要ディレクトリ
-- `lib/` - 機能別に整理されたメインアプリケーションコード
-- `lib/shared/` - 共有モデル、サービス、ルーティング、テーマ設定
-- `lib/features/` - 機能モジュール (auth, dashboard, payment など)
-- `test/` - ウィジェットと単体テスト
-- `android/` - Android固有の設定とビルドファイル
-- `ios/` - iOS固有の設定とXcodeプロジェクト
-- `web/` - Web固有のアセットと設定
+### Key Directories
+- `lib/` - Main application code (currently single file)
+- `test/` - Widget and unit tests
+- `android/` - Android-specific configuration and build files
+- `ios/` - iOS-specific configuration and Xcode project
+- `web/` - Web-specific assets and configuration
 
-### プラットフォーム設定
-- **Android**: Kotlin DSL使用Gradle、パッケージ名 `com.example.shiharainu`
-- **iOS**: Swift使用Xcodeプロジェクト、バンドル識別子設定可能
-- **Web**: manifest.json付きPWA対応、青テーマ (#0175C2)
+### Platform Configuration
+- **Android**: Uses Gradle with Kotlin DSL, package name `com.example.shiharainu`
+- **iOS**: Xcode project with Swift, bundle identifier configurable
+- **Web**: PWA-ready with manifest.json, blue theme (#0175C2)
 
-## 開発ワークフロー
+## Development Workflow
 
-### 現在の依存関係
+### Dependencies
 - **Flutter SDK**: ^3.8.1
-- **状態管理**: flutter_riverpod ^2.4.9, hooks_riverpod ^2.4.9
-- **データモデル**: freezed ^2.4.6, json_annotation ^4.8.1
-- **ルーティング**: go_router ^12.1.3
-- **UI**: flutter_svg, cached_network_image, qr_flutter, mobile_scanner
-- **ユーティリティ**: uuid, intl, url_launcher, csv, excel
-- **開発ツール**: build_runner ^2.4.7, flutter_lints ^5.0.0
-- **Firebase**: バージョン競合により現在コメントアウト
+- **Core dependency**: cupertino_icons ^1.0.8
+- **Dev dependencies**: flutter_test, flutter_lints ^5.0.0
 
-### コード品質
-- 推奨リンティングルールに `flutter_lints` パッケージを使用
-- `analysis_options.yaml` で解析オプション設定
-- ウィジェットテスト付き標準Flutter テストセットアップ
+### Code Quality
+- Uses `flutter_lints` package for recommended linting rules
+- Analysis options configured in `analysis_options.yaml`
+- Standard Flutter testing setup with widget tests
 
-### プロジェクト状況
-- **バージョン**: 1.0.0+1
-- **公開**: プライベート (publish_to: 'none')
-- **現在の状態**: 機能ベースクリーンアーキテクチャで実装済み
+### Project Status
+- **Version**: 1.0.0+1
+- **Publish**: Private (publish_to: 'none')
+- **Clean state**: Standard Flutter template with minimal customization
 
-## アーキテクチャ拡張メモ
+## Architecture Expansion Notes
 
-### 現在の技術スタック
+### Current Technology Stack
 
-#### コアフレームワーク
-- **Flutter SDK**: ^3.8.1 (マルチプラットフォーム: iOS, Android, Web)
-- **Dart**: 最新安定版
+#### Core Framework
+- **Flutter SDK**: ^3.8.1 (Multi-platform: iOS, Android, Web)
+- **Dart**: Latest stable version
 
-#### 状態管理とアーキテクチャ
-- **flutter_riverpod**: ^2.4.9 - リアクティブ状態管理
-- **hooks_riverpod**: ^2.4.9 - Flutter Hooks との Riverpod 統合
-- **flutter_hooks**: ^0.20.3 - Flutter 向け React ライクフック
-- **riverpod_annotation**: ^2.3.3 - コード生成アノテーション
-- **riverpod_generator**: ^2.3.9 - 自動プロバイダーコード生成
+#### State Management & Architecture
+- **flutter_riverpod**: ^2.4.9 - Reactive state management
+- **hooks_riverpod**: ^2.4.9 - Riverpod integration with Flutter Hooks
+- **flutter_hooks**: ^0.20.3 - React-like hooks for Flutter
+- **riverpod_annotation**: ^2.3.3 - Code generation annotations
+- **riverpod_generator**: ^2.3.9 - Automatic provider code generation
 
-#### データモデルとシリアライゼーション
-- **freezed**: ^2.4.6 - コード生成付きイミュータブルデータクラス
-- **freezed_annotation**: ^2.4.1 - Freezed アノテーション
-- **json_annotation**: ^4.8.1 - JSON シリアライゼーションアノテーション
-- **json_serializable**: ^6.7.1 - JSON シリアライゼーションコード生成
+#### Data Models & Serialization
+- **freezed**: ^2.4.6 - Immutable data classes with code generation
+- **freezed_annotation**: ^2.4.1 - Freezed annotations
+- **json_annotation**: ^4.8.1 - JSON serialization annotations
+- **json_serializable**: ^6.7.1 - JSON serialization code generation
 
-#### ルーティングとナビゲーション
-- **go_router**: ^12.1.3 - 宣言的ルーティングソリューション
+#### Routing & Navigation
+- **go_router**: ^12.1.3 - Declarative routing solution
 
-#### Firebase 統合
-- **firebase_core**: ^2.24.2 - Firebase コア機能
-- **firebase_auth**: ^4.15.3 - 認証
-- **cloud_firestore**: ^4.13.6 - NoSQL データベース
-- **firebase_messaging**: ^14.7.10 - プッシュ通知
+#### Firebase Integration
+- **firebase_core**: ^2.24.2 - Firebase core functionality
+- **firebase_auth**: ^4.15.3 - Authentication
+- **cloud_firestore**: ^4.13.6 - NoSQL database
+- **firebase_messaging**: ^14.7.10 - Push notifications
 
-#### 決済と外部統合
-- **url_launcher**: ^6.2.2 - 外部決済アプリ起動
+#### Payment & External Integration
+- **url_launcher**: ^6.2.2 - Launch external payment apps
 
-#### QRコードとスキャン
-- **qr_flutter**: ^4.1.0 - QRコード生成
-- **mobile_scanner**: ^3.5.7 - QRコードスキャン
+#### QR Code & Scanning
+- **qr_flutter**: ^4.1.0 - QR code generation
+- **mobile_scanner**: ^3.5.7 - QR code scanning
 
-#### エクスポートとファイル生成
-- **csv**: ^5.0.2 - CSV ファイル生成
-- **excel**: ^4.0.2 - Excel ファイル生成
+#### Export & File Generation
+- **csv**: ^5.0.2 - CSV file generation
+- **excel**: ^4.0.2 - Excel file generation
 
-#### UI とアセット
-- **flutter_svg**: ^2.0.9 - SVG レンダリング
-- **cached_network_image**: ^3.3.0 - 画像キャッシング
+#### UI & Assets
+- **flutter_svg**: ^2.0.9 - SVG rendering
+- **cached_network_image**: ^3.3.0 - Image caching
 
-#### ユーティリティ
-- **uuid**: ^4.2.1 - UUID 生成
-- **intl**: ^0.18.1 - 国際化
+#### Utilities
+- **uuid**: ^4.2.1 - UUID generation
+- **intl**: ^0.18.1 - Internationalization
 
-#### 開発ツール
-- **build_runner**: ^2.4.7 - コード生成ランナー
-- **custom_lint**: ^0.5.7 - カスタムリンティングルール
-- **riverpod_lint**: ^2.3.7 - Riverpod 固有リンティング
-- **flutter_lints**: ^5.0.0 - Flutter 推奨リント
+#### Development Tools
+- **build_runner**: ^2.4.7 - Code generation runner
+- **custom_lint**: ^0.5.7 - Custom linting rules
+- **riverpod_lint**: ^2.3.7 - Riverpod-specific linting
+- **flutter_lints**: ^5.0.0 - Flutter recommended lints
 
-### 実装済みアーキテクチャパターン
+### Implemented Architecture Pattern
 
-#### 現在のフォルダ構造
+#### Current Folder Structure
 ```
 lib/
-  app.dart                      # ルーティング付きメインアプリウィジェット
-  main.dart                     # ProviderScope 付きエントリーポイント
+  app.dart                      # Main app widget with routing
+  main.dart                     # Entry point with ProviderScope
   features/
     auth/
-      data/                     # データソース、リポジトリ
-      domain/                   # エンティティ、ユースケース
-      presentation/             # ページ、ウィジェット、プロバイダー
+      data/                     # Data sources, repositories
+      domain/                   # Entities, use cases
+      presentation/             # Pages, widgets, providers
     event_creation/
       data/
       domain/
@@ -229,212 +219,212 @@ lib/
       presentation/
   shared/
     constants/
-      app_theme.dart           # アプリテーマ設定
+      app_theme.dart           # App theme configuration
     models/
-      user_model.dart          # Freezed 使用ユーザーデータモデル
-      event_model.dart         # Freezed 使用イベントデータモデル
-      payment_model.dart       # Freezed 使用決済データモデル
+      user_model.dart          # User data model with Freezed
+      event_model.dart         # Event data model with Freezed
+      payment_model.dart       # Payment data model with Freezed
     routing/
-      app_router.dart          # Go Router 設定
-    services/                  # 共有サービス
-    utils/                     # ユーティリティ関数
-    widgets/                   # 再利用可能ウィジェット
+      app_router.dart          # Go Router configuration
+    services/                  # Shared services
+    utils/                     # Utility functions
+    widgets/                   # Reusable widgets
 ```
 
-#### アーキテクチャ原則
-- **クリーンアーキテクチャ**: データ、ドメイン、プレゼンテーション層の関心事の分離
-- **機能ベース組織化**: 各機能が自己完結
-- **状態管理**: 型安全性のためのコード生成付き Riverpod
-- **イミュータブルデータ**: すべてのデータモデルに Freezed 使用
-- **依存性注入**: サービス注入のための Riverpod プロバイダー
-- **リポジトリパターン**: Firebase 統合のための抽象データ層
+#### Architecture Principles
+- **Clean Architecture**: Separation of concerns with data, domain, and presentation layers
+- **Feature-based organization**: Each feature is self-contained
+- **State management**: Riverpod with code generation for type safety
+- **Immutable data**: Freezed for all data models
+- **Dependency injection**: Riverpod providers for service injection
+- **Repository pattern**: Abstract data layer for Firebase integration
 
-#### コード生成セットアップ
-- **build.yaml**: Freezed、JSON シリアライゼーション、Riverpod 用設定済み
-- **ビルドランナーコマンド**:
+#### Code Generation Setup
+- **build.yaml**: Configured for Freezed, JSON serialization, and Riverpod
+- **Build runner commands**:
   ```bash
-  # 一度だけコード生成
+  # Generate code once
   flutter packages pub run build_runner build
   
-  # 変更監視して自動再構築
+  # Watch for changes and rebuild
   flutter packages pub run build_runner watch
   
-  # 生成ファイル削除
+  # Clean generated files
   flutter packages pub run build_runner clean
   ```
 
-### セキュリティとパフォーマンス考慮事項
-- **暗号化**: 個人情報（特に口座番号）は暗号化が必須
-- **リアルタイム更新**: 最大100同時ユーザーサポート
-- **決済セキュリティ**: アプリ内にカード情報は保存せず、外部API統合のみ
-- **二要素認証**: セキュリティコンプライアンスのため必須
+### Security and Performance Considerations
+- **Encryption**: Personal information (especially account numbers) must be encrypted
+- **Real-time updates**: Support for up to 100 concurrent users
+- **Payment security**: No card information stored in app, external API integration only
+- **Two-factor authentication**: Required for security compliance
 
-### 開発ガイドライン - Effective Dart
+### Development Guidelines - Effective Dart
 
-Effective Dart ガイドライン (https://dart.dev/effective-dart) に従う:
+Follow Effective Dart guidelines (https://dart.dev/effective-dart):
 
-#### スタイル
-- 識別子に `lowerCamelCase` を使用
-- 型名に `UpperCamelCase` を使用
-- ライブラリ名に `lowercase_with_underscores` を使用
-- 可能な場合は `var` より `final` を優先
+#### Style
+- Use `lowerCamelCase` for identifiers
+- Use `UpperCamelCase` for types
+- Use `lowercase_with_underscores` for library names
+- Prefer `final` over `var` when possible
 
-#### ドキュメンテーション
-- パブリック API には `///` を使用
-- 明確で簡潔なドキュメントを記述
-- 複雑な関数には例を含める
+#### Documentation
+- Use `///` for public APIs
+- Write clear, concise documentation
+- Include examples for complex functions
 
-#### 使用方法
-- 可能な場合は `const` コンストラクタを使用
-- null 合体には条件式より `??` を優先
-- コンストラクタよりコレクションリテラルを使用
-- 必要でない限り `dynamic` の使用を避ける
+#### Usage
+- Use `const` constructors when possible
+- Prefer `??` over conditional expressions for null coalescing
+- Use collection literals over constructors
+- Avoid using `dynamic` unless necessary
 
-#### 設計
-- 継承より合成を優先
-- 可能な場合はクラスをイミュータブルにする
-- 明確性のためnamed constructorを使用
-- 単一責任原則に従う
+#### Design
+- Prefer composition over inheritance
+- Make classes immutable when possible
+- Use named constructors for clarity
+- Follow the single responsibility principle
 
-### 非機能要件
-- **対象ユーザー**: 20-50歳のビジネスプロフェッショナル
-- **同時ユーザー**: 最大100同時ユーザー
-- **UI/UX**: 最小タップ要件の直感的でシンプルなデザイン
-- **パフォーマンス**: リアルタイム支払いステータス更新
-- **アクセシビリティ**: 様々な画面サイズとアクセシビリティ機能のサポート
+### Non-Functional Requirements
+- **Target Users**: Business professionals aged 20-50
+- **Concurrent Users**: Up to 100 simultaneous users
+- **UI/UX**: Intuitive, simple design with minimal tap requirements
+- **Performance**: Real-time payment status updates
+- **Accessibility**: Support for various screen sizes and accessibility features
 
-### 将来の拡張計画
-- AI駆動の最適比例パターン推奨
-- 飲み会以外の様々なイベントタイプサポート
-- 高度な分析・レポート機能
+### Future Expansion Plans
+- AI-powered optimal proportional pattern recommendations
+- Support for various event types beyond drinking parties
+- Advanced analytics and reporting features
 
-## 開発ワークフローとGit戦略
+## Development Workflow and Git Strategy
 
-### ブランチ戦略 (Git Flow)
+### Branch Strategy (Git Flow)
 
-#### メインブランチ
-- **main**: プロダクション準備完了コード、常にデプロイ可能
-- **develop**: 機能統合ブランチ、最新の開発変更
+#### Main Branches
+- **main**: Production-ready code, always deployable
+- **develop**: Integration branch for features, latest development changes
 
-#### サポートブランチ
-- **feature/**: 機能開発ブランチ
-  - 命名规則: `feature/auth-implementation`, `feature/payment-integration`
-  - 分岐元: `develop`
-  - マージ先: `develop`
+#### Supporting Branches
+- **feature/**: Feature development branches
+  - Naming: `feature/auth-implementation`, `feature/payment-integration`
+  - Branch from: `develop`
+  - Merge to: `develop`
 
-- **hotfix/**: プロダクション緊急バグ修正
-  - 命名规則: `hotfix/payment-crash-fix`
-  - 分岐元: `main`
-  - マージ先: `main` および `develop`
+- **hotfix/**: Critical bug fixes for production
+  - Naming: `hotfix/payment-crash-fix`
+  - Branch from: `main`
+  - Merge to: `main` and `develop`
 
-- **release/**: リリース準備ブランチ
-  - 命名规則: `release/v1.0.0`
-  - 分岐元: `develop`
-  - マージ先: `main` および `develop`
+- **release/**: Release preparation branches
+  - Naming: `release/v1.0.0`
+  - Branch from: `develop`
+  - Merge to: `main` and `develop`
 
-#### ワークフロー
-1. `develop` から機能ブランチ作成
-2. 定期コミットで機能開発
-3. `develop` へのプルリクエスト作成
-4. コードレビューとマージ
-5. `develop` からステージングにデプロイ
-6. 準備完了時にリリースブランチ作成
-7. プロダクション用にリリースを `main` にマージ
+#### Workflow
+1. Create feature branch from `develop`
+2. Develop feature with regular commits
+3. Create pull request to `develop`
+4. Code review and merge
+5. Deploy to staging from `develop`
+6. Create release branch when ready
+7. Merge release to `main` for production
 
-### コミットメッセージ規約
+### Commit Message Conventions
 
-一貫性のあるコミットメッセージのために慣例的コミット仕様に従う:
+Follow conventional commits specification for consistent commit messages:
 
-#### フォーマット
+#### Format
 ```
 <type>(<scope>): <description>
 
-[オプション本文]
+[optional body]
 
-[オプションフッター]
+[optional footer]
 ```
 
-#### タイプ
-- **feat**: ユーザー向け新機能
-- **fix**: ユーザー向けバグ修正
-- **docs**: ドキュメンテーション変更
-- **style**: コードスタイル変更（フォーマット、セミコロン等）
-- **refactor**: 機能変更のないコードリファクタリング
-- **test**: テスト追加または更新
-- **chore**: メンテナンスタスク、依存関係更新
-- **perf**: パフォーマンス改善
-- **build**: ビルドシステムまたは外部依存関係
-- **ci**: 継続的統合設定
+#### Types
+- **feat**: New feature for the user
+- **fix**: Bug fix for the user
+- **docs**: Documentation changes
+- **style**: Code style changes (formatting, semicolons, etc.)
+- **refactor**: Code refactoring without changing functionality
+- **test**: Adding or updating tests
+- **chore**: Maintenance tasks, dependency updates
+- **perf**: Performance improvements
+- **build**: Build system or external dependencies
+- **ci**: Continuous integration configuration
 
-#### スコープ (オプション)
-- **auth**: 認証関連変更
-- **payment**: 決済機能
-- **dashboard**: ダッシュボード機能
-- **gamification**: ゲーミフィケーション機能
-- **ui**: ユーザーインターフェース変更
-- **api**: API 関連変更
-- **config**: 設定変更
+#### Scopes (Optional)
+- **auth**: Authentication related changes
+- **payment**: Payment functionality
+- **dashboard**: Dashboard features
+- **gamification**: Gamification features
+- **ui**: User interface changes
+- **api**: API related changes
+- **config**: Configuration changes
 
-#### 例
+#### Examples
 ```bash
-# 機能コミット
+# Feature commits
 feat(auth): add user login functionality
 feat(payment): integrate PayPay payment method
 feat(dashboard): add real-time payment status updates
 
-# バグ修正
+# Bug fixes
 fix(auth): resolve login form validation issue
 fix(payment): handle payment timeout errors
 fix(ui): fix responsive layout on mobile devices
 
-# ドキュメンテーション
+# Documentation
 docs(readme): update installation instructions
 docs(api): add payment API documentation
 
-# リファクタリング
+# Refactoring
 refactor(auth): extract user validation logic
 refactor(payment): simplify payment flow state management
 
-# テスト
+# Tests
 test(auth): add unit tests for login service
 test(payment): add integration tests for payment flow
 
-# 雑務
+# Chores
 chore(deps): update firebase dependencies
 chore(build): configure build optimization
 ```
 
-#### 破壊的変更
-破壊的変更には、タイプの後に `!` を追加し、フッターに `BREAKING CHANGE:` を含める:
+#### Breaking Changes
+For breaking changes, add `!` after the type and include `BREAKING CHANGE:` in the footer:
 ```
 feat(api)!: change user authentication flow
 
 BREAKING CHANGE: User authentication now requires email verification
 ```
 
-### Git 統合付き開発コマンド
+### Development Commands with Git Integration
 
-#### コード生成 + コミット
+#### Code Generation + Commit
 ```bash
-# コード生成とコミット
+# Generate code and commit
 flutter packages pub run build_runner build
 git add .
 git commit -m "build: generate code for new models"
 ```
 
-#### 機能開発ワークフロー
+#### Feature Development Workflow
 ```bash
-# 新機能開始
+# Start new feature
 git checkout develop
 git pull origin develop
 git checkout -b feature/payment-integration
 
-# 定期開発
+# Regular development
 git add .
 git commit -m "feat(payment): add PayPay integration"
 git push origin feature/payment-integration
 
-# 機能完成時
+# When feature is complete
 git checkout develop
 git pull origin develop
 git checkout feature/payment-integration
@@ -442,9 +432,9 @@ git rebase develop
 git push origin feature/payment-integration --force-with-lease
 ```
 
-### プリコミットフック (オプション)
-以下のプリコミットフックの追加を検討:
-- コードフォーマット (`dart format`)
-- リンティング (`flutter analyze`)
-- テスト (`flutter test`)
-- コード生成チェック
+### Pre-commit Hooks (Optional)
+Consider adding pre-commit hooks for:
+- Code formatting (`dart format`)
+- Linting (`flutter analyze`)
+- Tests (`flutter test`)
+- Code generation check
