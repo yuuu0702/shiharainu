@@ -132,126 +132,54 @@ flutter pub outdated
 
 ## Architecture Expansion Notes
 
-### Current Technology Stack
-
-#### Core Framework
-- **Flutter SDK**: ^3.8.1 (Multi-platform: iOS, Android, Web)
-- **Dart**: Latest stable version
-
-#### State Management & Architecture
-- **flutter_riverpod**: ^2.4.9 - Reactive state management
-- **hooks_riverpod**: ^2.4.9 - Riverpod integration with Flutter Hooks
-- **flutter_hooks**: ^0.20.3 - React-like hooks for Flutter
-- **riverpod_annotation**: ^2.3.3 - Code generation annotations
-- **riverpod_generator**: ^2.3.9 - Automatic provider code generation
-
-#### Data Models & Serialization
-- **freezed**: ^2.4.6 - Immutable data classes with code generation
-- **freezed_annotation**: ^2.4.1 - Freezed annotations
-- **json_annotation**: ^4.8.1 - JSON serialization annotations
-- **json_serializable**: ^6.7.1 - JSON serialization code generation
-
-#### Routing & Navigation
-- **go_router**: ^12.1.3 - Declarative routing solution
-
-#### Firebase Integration
-- **firebase_core**: ^2.24.2 - Firebase core functionality
-- **firebase_auth**: ^4.15.3 - Authentication
-- **cloud_firestore**: ^4.13.6 - NoSQL database
-- **firebase_messaging**: ^14.7.10 - Push notifications
-
-#### Payment & External Integration
-- **url_launcher**: ^6.2.2 - Launch external payment apps
-
-#### QR Code & Scanning
-- **qr_flutter**: ^4.1.0 - QR code generation
-- **mobile_scanner**: ^3.5.7 - QR code scanning
-
-#### Export & File Generation
-- **csv**: ^5.0.2 - CSV file generation
-- **excel**: ^4.0.2 - Excel file generation
-
-#### UI & Assets
-- **flutter_svg**: ^2.0.9 - SVG rendering
-- **cached_network_image**: ^3.3.0 - Image caching
-
-#### Utilities
-- **uuid**: ^4.2.1 - UUID generation
-- **intl**: ^0.18.1 - Internationalization
-
-#### Development Tools
-- **build_runner**: ^2.4.7 - Code generation runner
-- **custom_lint**: ^0.5.7 - Custom linting rules
-- **riverpod_lint**: ^2.3.7 - Riverpod-specific linting
-- **flutter_lints**: ^5.0.0 - Flutter recommended lints
-
-### Implemented Architecture Pattern
-
-#### Current Folder Structure
-```
-lib/
-  app.dart                      # Main app widget with routing
-  main.dart                     # Entry point with ProviderScope
-  features/
-    auth/
-      data/                     # Data sources, repositories
-      domain/                   # Entities, use cases
-      presentation/             # Pages, widgets, providers
-    event_creation/
-      data/
-      domain/
-      presentation/
-    payment/
-      data/
-      domain/
-      presentation/
-    dashboard/
-      data/
-      domain/
-      presentation/
-    gamification/
-      data/
-      domain/
-      presentation/
-    secondary_event/
-      data/
-      domain/
-      presentation/
-  shared/
-    constants/
-      app_theme.dart           # App theme configuration
-    models/
-      user_model.dart          # User data model with Freezed
-      event_model.dart         # Event data model with Freezed
-      payment_model.dart       # Payment data model with Freezed
-    routing/
-      app_router.dart          # Go Router configuration
-    services/                  # Shared services
-    utils/                     # Utility functions
-    widgets/                   # Reusable widgets
+### Required Dependencies for Target Application
+```yaml
+dependencies:
+  # State Management
+  provider: ^6.0.0  # or riverpod, bloc
+  
+  # Firebase Integration
+  firebase_core: ^2.0.0
+  firebase_auth: ^4.0.0
+  cloud_firestore: ^4.0.0
+  firebase_messaging: ^14.0.0
+  
+  # Payment Integration
+  url_launcher: ^6.0.0
+  
+  # QR Code
+  qr_flutter: ^4.0.0
+  mobile_scanner: ^3.0.0
+  
+  # Export Functionality
+  csv: ^5.0.0
+  excel: ^2.0.0
+  
+  # UI Components
+  flutter_svg: ^2.0.0
+  cached_network_image: ^3.0.0
 ```
 
-#### Architecture Principles
-- **Clean Architecture**: Separation of concerns with data, domain, and presentation layers
-- **Feature-based organization**: Each feature is self-contained
-- **State management**: Riverpod with code generation for type safety
-- **Immutable data**: Freezed for all data models
-- **Dependency injection**: Riverpod providers for service injection
-- **Repository pattern**: Abstract data layer for Firebase integration
-
-#### Code Generation Setup
-- **build.yaml**: Configured for Freezed, JSON serialization, and Riverpod
-- **Build runner commands**:
-  ```bash
-  # Generate code once
-  flutter packages pub run build_runner build
-  
-  # Watch for changes and rebuild
-  flutter packages pub run build_runner watch
-  
-  # Clean generated files
-  flutter packages pub run build_runner clean
+### Recommended Architecture Pattern
+- **Feature-based folder structure**:
   ```
+  lib/
+    features/
+      auth/
+      event_creation/
+      payment/
+      dashboard/
+      gamification/
+    shared/
+      widgets/
+      services/
+      models/
+      utils/
+  ```
+- **Layered architecture**: Presentation → Business Logic → Data Layer
+- **State management**: Provider or Riverpod for scalability
+- **Service locator pattern**: GetIt for dependency injection
+- **Repository pattern**: Abstract data layer for Firebase integration
 
 ### Security and Performance Considerations
 - **Encryption**: Personal information (especially account numbers) must be encrypted
@@ -297,144 +225,3 @@ Follow Effective Dart guidelines (https://dart.dev/effective-dart):
 - AI-powered optimal proportional pattern recommendations
 - Support for various event types beyond drinking parties
 - Advanced analytics and reporting features
-
-## Development Workflow and Git Strategy
-
-### Branch Strategy (Git Flow)
-
-#### Main Branches
-- **main**: Production-ready code, always deployable
-- **develop**: Integration branch for features, latest development changes
-
-#### Supporting Branches
-- **feature/**: Feature development branches
-  - Naming: `feature/auth-implementation`, `feature/payment-integration`
-  - Branch from: `develop`
-  - Merge to: `develop`
-
-- **hotfix/**: Critical bug fixes for production
-  - Naming: `hotfix/payment-crash-fix`
-  - Branch from: `main`
-  - Merge to: `main` and `develop`
-
-- **release/**: Release preparation branches
-  - Naming: `release/v1.0.0`
-  - Branch from: `develop`
-  - Merge to: `main` and `develop`
-
-#### Workflow
-1. Create feature branch from `develop`
-2. Develop feature with regular commits
-3. Create pull request to `develop`
-4. Code review and merge
-5. Deploy to staging from `develop`
-6. Create release branch when ready
-7. Merge release to `main` for production
-
-### Commit Message Conventions
-
-Follow conventional commits specification for consistent commit messages:
-
-#### Format
-```
-<type>(<scope>): <description>
-
-[optional body]
-
-[optional footer]
-```
-
-#### Types
-- **feat**: New feature for the user
-- **fix**: Bug fix for the user
-- **docs**: Documentation changes
-- **style**: Code style changes (formatting, semicolons, etc.)
-- **refactor**: Code refactoring without changing functionality
-- **test**: Adding or updating tests
-- **chore**: Maintenance tasks, dependency updates
-- **perf**: Performance improvements
-- **build**: Build system or external dependencies
-- **ci**: Continuous integration configuration
-
-#### Scopes (Optional)
-- **auth**: Authentication related changes
-- **payment**: Payment functionality
-- **dashboard**: Dashboard features
-- **gamification**: Gamification features
-- **ui**: User interface changes
-- **api**: API related changes
-- **config**: Configuration changes
-
-#### Examples
-```bash
-# Feature commits
-feat(auth): add user login functionality
-feat(payment): integrate PayPay payment method
-feat(dashboard): add real-time payment status updates
-
-# Bug fixes
-fix(auth): resolve login form validation issue
-fix(payment): handle payment timeout errors
-fix(ui): fix responsive layout on mobile devices
-
-# Documentation
-docs(readme): update installation instructions
-docs(api): add payment API documentation
-
-# Refactoring
-refactor(auth): extract user validation logic
-refactor(payment): simplify payment flow state management
-
-# Tests
-test(auth): add unit tests for login service
-test(payment): add integration tests for payment flow
-
-# Chores
-chore(deps): update firebase dependencies
-chore(build): configure build optimization
-```
-
-#### Breaking Changes
-For breaking changes, add `!` after the type and include `BREAKING CHANGE:` in the footer:
-```
-feat(api)!: change user authentication flow
-
-BREAKING CHANGE: User authentication now requires email verification
-```
-
-### Development Commands with Git Integration
-
-#### Code Generation + Commit
-```bash
-# Generate code and commit
-flutter packages pub run build_runner build
-git add .
-git commit -m "build: generate code for new models"
-```
-
-#### Feature Development Workflow
-```bash
-# Start new feature
-git checkout develop
-git pull origin develop
-git checkout -b feature/payment-integration
-
-# Regular development
-git add .
-git commit -m "feat(payment): add PayPay integration"
-git push origin feature/payment-integration
-
-# When feature is complete
-git checkout develop
-git pull origin develop
-git checkout feature/payment-integration
-git rebase develop
-git push origin feature/payment-integration --force-with-lease
-```
-
-### Pre-commit Hooks (Optional)
-Consider adding pre-commit hooks for:
-- Code formatting (`dart format`)
-- Linting (`flutter analyze`)
-- Tests (`flutter test`)
-- Code generation check
