@@ -59,20 +59,21 @@ class _PaymentManagementPageState extends State<PaymentManagementPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('支払い管理'),
-        leading: AppButton.icon(
+    return ResponsivePageScaffold(
+      title: '支払い管理',
+      navigationItems: AppBottomNavigationPresets.organizerItems,
+      currentRoute: '/payment-management',
+      actions: [
+        AppButton.icon(
           icon: const Icon(Icons.arrow_back, size: 20),
           onPressed: () => context.go('/dashboard'),
         ),
-        actions: [
-          AppButton.icon(
-            icon: const Icon(Icons.refresh, size: 20),
-            onPressed: _refreshPaymentStatus,
-          ),
-        ],
-      ),
+        const SizedBox(width: 8),
+        AppButton.icon(
+          icon: const Icon(Icons.refresh, size: 20),
+          onPressed: _refreshPaymentStatus,
+        ),
+      ],
       body: ResponsivePadding(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
