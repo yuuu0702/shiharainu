@@ -43,16 +43,6 @@ class DashboardFeatureCards extends StatelessWidget {
         ),
         _buildFeatureCard(
           context,
-          'ランキング',
-          Icons.leaderboard_outlined,
-          AppTheme.warningColor,
-          'バッジとランキング',
-          () {
-            // TODO: ランキング画面へ
-          },
-        ),
-        _buildFeatureCard(
-          context,
           '二次会管理',
           Icons.event_outlined,
           const Color(0xFF8B5CF6),
@@ -72,16 +62,6 @@ class DashboardFeatureCards extends StatelessWidget {
           '支払い金額を確認',
           () {
             // TODO: 支払い画面へ
-          },
-        ),
-        _buildFeatureCard(
-          context,
-          'ランキング',
-          Icons.leaderboard_outlined,
-          AppTheme.warningColor,
-          'バッジとランキング',
-          () {
-            // TODO: ランキング画面へ
           },
         ),
       ];

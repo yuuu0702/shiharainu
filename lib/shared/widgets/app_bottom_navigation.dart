@@ -121,11 +121,6 @@ class AppBottomNavigationPresets {
       route: '/payment-management',
     ),
     AppBottomNavigationItem(
-      label: 'ランキング',
-      icon: Icons.leaderboard_outlined,
-      route: '/gamification',
-    ),
-    AppBottomNavigationItem(
       label: '設定',
       icon: Icons.settings_outlined,
       route: '/settings',
@@ -142,11 +137,6 @@ class AppBottomNavigationPresets {
       label: '支払い',
       icon: Icons.payment_outlined,
       route: '/payment',
-    ),
-    AppBottomNavigationItem(
-      label: 'ランキング',
-      icon: Icons.leaderboard_outlined,
-      route: '/gamification',
     ),
     AppBottomNavigationItem(
       label: '設定',

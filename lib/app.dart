@@ -4,8 +4,11 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/pages/dashboard_page.dart';
 import 'package:shiharainu/pages/login_page.dart';
 import 'package:shiharainu/pages/event_creation_page.dart';
-import 'package:shiharainu/pages/payment_management_page.dart';
 import 'package:shiharainu/pages/component_showcase_page.dart';
+import 'package:shiharainu/pages/event_list_page.dart';
+import 'package:shiharainu/pages/event_detail_page.dart';
+import 'package:shiharainu/pages/event_payment_management_page.dart';
+import 'package:shiharainu/pages/event_settings_page.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -31,19 +34,48 @@ class App extends StatelessWidget {
         builder: (context, state) => const LoginPage(),
       ),
       GoRoute(
+        path: '/events',
+        name: 'events',
+        builder: (context, state) => const EventListPage(),
+        routes: [
+          GoRoute(
+            path: '/create',
+            name: 'event-creation',
+            builder: (context, state) => const EventCreationPage(),
+          ),
+          GoRoute(
+            path: '/:eventId',
+            name: 'event-detail',
+            builder: (context, state) {
+              final eventId = state.pathParameters['eventId']!;
+              return EventDetailPage(eventId: eventId);
+            },
+            routes: [
+              GoRoute(
+                path: '/payments',
+                name: 'event-payments',
+                builder: (context, state) {
+                  final eventId = state.pathParameters['eventId']!;
+                  return EventPaymentManagementPage(eventId: eventId);
+                },
+              ),
+              GoRoute(
+                path: '/settings',
+                name: 'event-settings',
+                builder: (context, state) {
+                  final eventId = state.pathParameters['eventId']!;
+                  return EventSettingsPage(eventId: eventId);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+      // デバッグ用：既存のダッシュボードを一時保持
+      GoRoute(
         path: '/dashboard',
         name: 'dashboard',
         builder: (context, state) => const DashboardPage(),
-      ),
-      GoRoute(
-        path: '/event-creation',
-        name: 'event-creation',
-        builder: (context, state) => const EventCreationPage(),
-      ),
-      GoRoute(
-        path: '/payment-management',
-        name: 'payment-management',
-        builder: (context, state) => const PaymentManagementPage(),
       ),
       GoRoute(
         path: '/components',
