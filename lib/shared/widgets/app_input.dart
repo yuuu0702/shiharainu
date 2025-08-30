@@ -46,27 +46,23 @@ class AppInput extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
-          Row(
-            children: [
-              Text(
-                label!,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+          RichText(
+            text: TextSpan(
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
               ),
-              if (isRequired) ...[
-                const SizedBox(width: 4),
-                const Text(
-                  '*',
-                  style: TextStyle(
-                    color: AppTheme.destructiveColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+              children: [
+                TextSpan(text: label!),
+                if (isRequired)
+                  const TextSpan(
+                    text: ' *',
+                    style: TextStyle(
+                      color: AppTheme.destructiveColor,
+                    ),
                   ),
-                ),
               ],
-            ],
+            ),
           ),
           const SizedBox(height: 8),
         ],
@@ -81,7 +77,7 @@ class AppInput extends StatelessWidget {
           maxLines: maxLines,
           maxLength: maxLength,
           readOnly: readOnly,
-          style: const TextStyle(fontSize: 14),
+          style: Theme.of(context).textTheme.bodyMedium,
           decoration: InputDecoration(
             hintText: placeholder,
             errorText: errorText,
@@ -127,27 +123,23 @@ class AppTextarea extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
-          Row(
-            children: [
-              Text(
-                label!,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+          RichText(
+            text: TextSpan(
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
               ),
-              if (isRequired) ...[
-                const SizedBox(width: 4),
-                const Text(
-                  '*',
-                  style: TextStyle(
-                    color: AppTheme.destructiveColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+              children: [
+                TextSpan(text: label!),
+                if (isRequired)
+                  const TextSpan(
+                    text: ' *',
+                    style: TextStyle(
+                      color: AppTheme.destructiveColor,
+                    ),
                   ),
-                ),
               ],
-            ],
+            ),
           ),
           const SizedBox(height: 8),
         ],
@@ -158,12 +150,14 @@ class AppTextarea extends StatelessWidget {
           minLines: minLines,
           maxLines: maxLines ?? minLines,
           maxLength: maxLength,
-          style: const TextStyle(fontSize: 14),
+          style: Theme.of(context).textTheme.bodyMedium,
           decoration: InputDecoration(
             hintText: placeholder,
             errorText: errorText,
             counterText: maxLength != null ? null : '',
             alignLabelWithHint: true,
+            // Figmaガイドライン: px-3 py-2 = 左右12px、上下8px
+            contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
           ),
         ),
       ],
@@ -197,27 +191,23 @@ class AppSelect<T> extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
-          Row(
-            children: [
-              Text(
-                label!,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+          RichText(
+            text: TextSpan(
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
               ),
-              if (isRequired) ...[
-                const SizedBox(width: 4),
-                const Text(
-                  '*',
-                  style: TextStyle(
-                    color: AppTheme.destructiveColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+              children: [
+                TextSpan(text: label!),
+                if (isRequired)
+                  const TextSpan(
+                    text: ' *',
+                    style: TextStyle(
+                      color: AppTheme.destructiveColor,
+                    ),
                   ),
-                ),
               ],
-            ],
+            ),
           ),
           const SizedBox(height: 8),
         ],
@@ -225,13 +215,13 @@ class AppSelect<T> extends StatelessWidget {
           value: value,
           items: items,
           onChanged: onChanged,
+          isExpanded: true, // オーバーフロー防止のため幅を最大化
           decoration: InputDecoration(
             hintText: placeholder,
             errorText: errorText,
           ),
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.black87,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
           ),
         ),
       ],

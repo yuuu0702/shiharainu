@@ -34,6 +34,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 setState(() {
                   isOrganizer = !isOrganizer;
                 });
+              } else if (value == 'components') {
+                context.go('/components');
               }
             },
             itemBuilder: (context) => [
@@ -42,6 +44,13 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: ListTile(
                   leading: Icon(Icons.swap_horiz),
                   title: Text('役割切り替え'),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'components',
+                child: ListTile(
+                  leading: Icon(Icons.palette),
+                  title: Text('コンポーネント素材集'),
                 ),
               ),
               const PopupMenuItem(
