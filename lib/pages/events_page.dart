@@ -105,12 +105,12 @@ class _EventsPageState extends State<EventsPage> {
               _buildEventSection('幹事として管理中', _organizerEvents),
               const SizedBox(height: AppTheme.spacing24),
             ],
-            
+
             // 参加者として入っているイベントリスト
             if (_participantEvents.isNotEmpty) ...[
               _buildEventSection('参加中', _participantEvents),
             ],
-            
+
             // 空状態
             if (_organizerEvents.isEmpty && _participantEvents.isEmpty)
               _buildEmptyEventState(),
@@ -133,7 +133,7 @@ class _EventsPageState extends State<EventsPage> {
             ),
           ),
           const SizedBox(height: AppTheme.spacing16),
-          
+
           // イベントカードリスト
           ...events.map((event) => _buildEventCard(event)).toList(),
         ],
@@ -154,10 +154,7 @@ class _EventsPageState extends State<EventsPage> {
             decoration: BoxDecoration(
               color: AppTheme.inputBackground,
               borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-              border: Border.all(
-                color: AppTheme.mutedColor,
-                width: 1,
-              ),
+              border: Border.all(color: AppTheme.mutedColor, width: 1),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,7 +189,9 @@ class _EventsPageState extends State<EventsPage> {
                       ),
                       decoration: BoxDecoration(
                         color: _getStatusColor(event).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusSmall,
+                        ),
                         border: Border.all(
                           color: _getStatusColor(event).withOpacity(0.3),
                         ),
@@ -248,12 +247,12 @@ class _EventsPageState extends State<EventsPage> {
   Color _getStatusColor(EventData event) {
     final now = DateTime.now();
     final eventDate = event.date;
-    
+
     // 開催日が過去の場合
     if (eventDate.isBefore(DateTime(now.year, now.month, now.day))) {
       return Colors.green;
     }
-    
+
     // 開催日が未来の場合
     return AppTheme.primaryColor;
   }
@@ -261,18 +260,20 @@ class _EventsPageState extends State<EventsPage> {
   String _getStatusText(EventData event) {
     final now = DateTime.now();
     final eventDate = event.date;
-    final difference = eventDate.difference(DateTime(now.year, now.month, now.day)).inDays;
-    
+    final difference = eventDate
+        .difference(DateTime(now.year, now.month, now.day))
+        .inDays;
+
     // 開催日が過去の場合
     if (difference < 0) {
       return '終了';
     }
-    
+
     // 開催日が今日の場合
     if (difference == 0) {
       return '本日開催';
     }
-    
+
     // 開催日が未来の場合
     return '開催日まであと${difference}日';
   }
@@ -283,17 +284,11 @@ class _EventsPageState extends State<EventsPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: AppTheme.spacing16),
-          Icon(
-            Icons.event_outlined,
-            size: 48,
-            color: AppTheme.mutedForeground,
-          ),
+          Icon(Icons.event_outlined, size: 48, color: AppTheme.mutedForeground),
           const SizedBox(height: AppTheme.spacing16),
           Text(
             'イベントがありません',
-            style: AppTheme.bodyLarge.copyWith(
-              color: AppTheme.mutedForeground,
-            ),
+            style: AppTheme.bodyLarge.copyWith(color: AppTheme.mutedForeground),
           ),
           const SizedBox(height: AppTheme.spacing8),
           Text(
@@ -319,7 +314,7 @@ class _EventsPageState extends State<EventsPage> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = date.difference(now).inDays;
-    
+
     if (difference == 0) {
       return '今日';
     } else if (difference == 1) {
@@ -353,13 +348,6 @@ class EventData {
   });
 }
 
-enum EventRole {
-  organizer,
-  participant,
-}
+enum EventRole { organizer, participant }
 
-enum EventStatus {
-  planning,
-  active,
-  completed,
-}
+enum EventStatus { planning, active, completed }

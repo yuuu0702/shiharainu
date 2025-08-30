@@ -7,14 +7,14 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/models/user_profile.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
 
-class UserProfileSetupPage extends StatefulWidget {
+class UserProfileSetupPage extends ConsumerStatefulWidget {
   const UserProfileSetupPage({super.key});
 
   @override
-  State<UserProfileSetupPage> createState() => _UserProfileSetupPageState();
+  ConsumerState<UserProfileSetupPage> createState() => _UserProfileSetupPageState();
 }
 
-class _UserProfileSetupPageState extends State<UserProfileSetupPage> {
+class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   String _selectedPosition = UserPositions.hierarchicalPositions.first;
@@ -126,12 +126,42 @@ class _UserProfileSetupPageState extends State<UserProfileSetupPage> {
     });
   }
 
+  Future<void> _waitForProfileUpdate() async {
+    // 最大5秒間、プロフィールが更新されるまで待機
+    const maxAttempts = 50; // 5秒間 (100ms x 50回)
+    int attempts = 0;
+    
+    while (attempts < maxAttempts) {
+      try {
+        final hasProfile = await ref.refresh(hasUserProfileProvider.future);
+        if (hasProfile) {
+          print('プロフィール情報の更新確認完了');
+          return;
+        }
+      } catch (e) {
+        print('プロフィール確認中にエラー: $e');
+      }
+      
+      // 100ms待機
+      await Future.delayed(const Duration(milliseconds: 100));
+      attempts++;
+    }
+    
+    print('プロフィール更新の待機タイムアウト（5秒）');
+  }
+
   void _handleSaveProfile() async {
     final name = _nameController.text.trim();
     final ageText = _ageController.text.trim();
 
+    print('=== プロフィール保存開始 ===');
+    print('名前: $name');
+    print('年齢: $ageText');
+    print('役職: $_selectedPosition');
+
     // バリデーション
     if (name.isEmpty) {
+      print('エラー: 名前が空です');
       setState(() {
         _errorMessage = '名前を入力してください';
       });
@@ -139,6 +169,7 @@ class _UserProfileSetupPageState extends State<UserProfileSetupPage> {
     }
 
     if (ageText.isEmpty) {
+      print('エラー: 年齢が空です');
       setState(() {
         _errorMessage = '年齢を入力してください';
       });
@@ -147,6 +178,7 @@ class _UserProfileSetupPageState extends State<UserProfileSetupPage> {
 
     final age = int.tryParse(ageText);
     if (age == null || age < 1 || age > 150) {
+      print('エラー: 年齢が無効です ($ageText)');
       setState(() {
         _errorMessage = '正しい年齢を入力してください';
       });
@@ -159,25 +191,63 @@ class _UserProfileSetupPageState extends State<UserProfileSetupPage> {
     });
 
     try {
-      final container = ProviderScope.containerOf(context);
-      final userService = container.read(userServiceProvider);
+      print('UserServiceを取得中...');
+      final userService = ref.read(userServiceProvider);
+      print('UserService取得完了');
       
       // UserServiceを使用してFirestoreにユーザー情報を保存
+      print('Firestoreに保存中...');
       await userService.saveUserProfile(
         name: name,
         age: age,
         position: _selectedPosition,
       );
+      print('Firestore保存完了');
 
       if (mounted) {
-        // プロフィール設定完了後、イベント一覧に遷移
-        context.go('/events');
+        print('プロバイダーを更新中...');
+        // プロバイダーを強制的に更新してキャッシュをクリア
+        ref.invalidate(hasUserProfileProvider);
+        ref.invalidate(userProfileProvider);
+        print('プロバイダー更新完了');
+        
+        // プロフィールが正常に保存されるまで待機
+        print('プロフィール情報の更新を待機中...');
+        await _waitForProfileUpdate();
+        
+        // mountedチェックを再度実行（非同期処理後）
+        if (mounted) {
+          print('ホーム画面に遷移中...');
+          // プロフィール設定完了後、ホーム画面に遷移
+          context.go('/home');
+          
+          // 成功のスナックバー表示
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('プロフィールを保存しました！'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       }
     } catch (e) {
+      print('エラー発生: $e');
+      print('エラータイプ: ${e.runtimeType}');
+      
       if (mounted) {
         setState(() {
           _errorMessage = e.toString().replaceFirst('Exception: ', '');
         });
+        
+        // エラーのスナックバー表示
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('保存に失敗しました: ${e.toString().replaceFirst('Exception: ', '')}'),
+            backgroundColor: AppTheme.destructive,
+            duration: const Duration(seconds: 4),
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -342,8 +412,8 @@ class _UserProfileSetupPageState extends State<UserProfileSetupPage> {
                     SizedBox(
                       width: double.infinity,
                       child: AppButton.primary(
-                        text: 'プロフィール保存',
-                        onPressed: _handleSaveProfile,
+                        text: _isLoading ? '保存中...' : 'プロフィール保存',
+                        onPressed: _isLoading ? null : _handleSaveProfile,
                         isLoading: _isLoading,
                         size: AppButtonSize.large,
                       ),

@@ -22,10 +22,15 @@ class UserService {
     required String position,
   }) async {
     try {
+      print('[UserService] 保存処理開始');
       final user = _auth.currentUser;
       if (user == null) {
+        print('[UserService] エラー: ユーザーがログインしていません');
         throw Exception('ユーザーがログインしていません');
       }
+      
+      print('[UserService] ログイン中のユーザーID: ${user.uid}');
+      print('[UserService] ユーザーメール: ${user.email}');
 
       final userProfile = UserProfile(
         id: user.uid,
@@ -37,11 +42,18 @@ class UserService {
         updatedAt: DateTime.now(),
       );
 
+      print('[UserService] UserProfile作成完了: ${userProfile.toJson()}');
+      print('[UserService] Firestoreに保存中...');
+      
       await _firestore
           .collection('users')
           .doc(user.uid)
           .set(userProfile.toJson());
+          
+      print('[UserService] Firestore保存完了');
     } catch (e) {
+      print('[UserService] エラー発生: $e');
+      print('[UserService] エラータイプ: ${e.runtimeType}');
       throw Exception('ユーザー情報の保存に失敗しました: $e');
     }
   }

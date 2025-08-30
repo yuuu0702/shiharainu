@@ -17,6 +17,7 @@ import 'package:shiharainu/pages/events_page.dart';
 import 'package:shiharainu/pages/event_detail_page.dart';
 import 'package:shiharainu/pages/event_payment_management_page.dart';
 import 'package:shiharainu/pages/event_settings_page.dart';
+import 'package:shiharainu/pages/account_page.dart';
 import 'package:shiharainu/shared/widgets/global_navigation_wrapper.dart';
 
 class App extends ConsumerWidget {
@@ -36,49 +37,83 @@ class App extends ConsumerWidget {
 
   static GoRouter _createRouter(WidgetRef ref) {
     return GoRouter(
-      initialLocation: '/home',
+      initialLocation: '/',
       redirect: (context, state) {
         final authState = ref.read(authStateProvider);
         final isLoggedIn = authState.value != null;
-        final isLoginPage = state.matchedLocation == '/login';
-        final isSignupPage = state.matchedLocation == '/signup';
-        final isProfileSetupPage = state.matchedLocation == '/profile-setup';
-
-        // 未ログインで、ログインページ、サインアップページ以外にアクセスしようとした場合はログインページにリダイレクト
-        if (!isLoggedIn && !isLoginPage && !isSignupPage) {
-          return '/login';
-        }
+        final currentPath = state.matchedLocation;
         
-        // ログイン済みの場合のリダイレクト処理
-        if (isLoggedIn) {
-          // ログインページ、サインアップページにアクセスしようとした場合
-          if (isLoginPage || isSignupPage) {
-            // ユーザープロフィールの存在確認
-            final hasProfile = ref.read(hasUserProfileProvider);
-            return hasProfile.when(
-              data: (hasProfile) => hasProfile ? '/home' : '/profile-setup',
-              loading: () => '/home', // ローディング中は一旦イベント一覧へ
-              error: (_, __) => '/home',
-            );
+        print('[Router] リダイレクト処理: $currentPath, ログイン状態: $isLoggedIn');
+
+        // 未ログインの場合
+        if (!isLoggedIn) {
+          // ログイン・サインアップ以外はログインページにリダイレクト
+          if (currentPath != '/login' && currentPath != '/signup') {
+            print('[Router] 未ログインのため/loginにリダイレクト');
+            return '/login';
           }
-          
-          // プロフィール設定ページ以外で、プロフィールが未設定の場合
-          if (!isProfileSetupPage) {
-            final hasProfile = ref.read(hasUserProfileProvider);
-            return hasProfile.when(
-              data: (hasProfile) => hasProfile ? null : '/profile-setup',
-              loading: () => null,
-              error: (_, __) => null,
-            );
-          }
+          return null; // ログイン・サインアップページは表示
         }
 
-        return null; // リダイレクトなし
+        // ログイン済みの場合
+        print('[Router] ログイン済み、プロフィール確認中...');
+        final hasProfileAsync = ref.read(hasUserProfileProvider);
+        
+        return hasProfileAsync.when(
+          data: (hasProfile) {
+            print('[Router] プロフィール存在: $hasProfile');
+            
+            // プロフィールが存在する場合
+            if (hasProfile) {
+              // ログイン・サインアップ・プロフィール設定ページの場合はホームにリダイレクト
+              if (currentPath == '/login' || currentPath == '/signup' || currentPath == '/profile-setup' || currentPath == '/') {
+                print('[Router] プロフィール設定済み、/homeにリダイレクト');
+                return '/home';
+              }
+              return null; // その他のページは表示
+            } 
+            // プロフィールが存在しない場合
+            else {
+              // プロフィール設定ページ以外はプロフィール設定にリダイレクト
+              if (currentPath != '/profile-setup') {
+                print('[Router] プロフィール未設定、/profile-setupにリダイレクト');
+                return '/profile-setup';
+              }
+              return null; // プロフィール設定ページは表示
+            }
+          },
+          loading: () {
+            print('[Router] プロフィール情報ローディング中');
+            // ローディング中はログイン・サインアップページ以外はホームに飛ばす
+            if (currentPath == '/login' || currentPath == '/signup') {
+              return '/home';
+            }
+            return null;
+          },
+          error: (error, stack) {
+            print('[Router] プロフィール情報取得エラー: $error');
+            // エラー時はホームに飛ばす
+            if (currentPath == '/login' || currentPath == '/signup' || currentPath == '/') {
+              return '/home';
+            }
+            return null;
+          },
+        );
       },
       refreshListenable: GoRouterRefreshStream(
         ref.read(authServiceProvider).authStateChanges,
       ),
       routes: [
+        // ルートパス（リダイレクト専用）
+        GoRoute(
+          path: '/',
+          name: 'root',
+          builder: (context, state) => const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ),
         // ログインページ（ナビゲーション非表示）
         GoRoute(
           path: '/login',
@@ -170,15 +205,11 @@ class App extends ConsumerWidget {
                 ),
               ),
             ),
-            // アカウント情報ページ（今後実装）
+            // アカウント情報ページ
             GoRoute(
               path: '/account',
               name: 'account',
-              builder: (context, state) => const Scaffold(
-                body: Center(
-                  child: Text('アカウント情報ページ（準備中）'),
-                ),
-              ),
+              builder: (context, state) => const AccountPage(),
             ),
             // デバッグ用：既存のダッシュボードを一時保持
             GoRoute(
