@@ -39,12 +39,12 @@ class App extends StatelessWidget {
         builder: (context, state) => const EventListPage(),
         routes: [
           GoRoute(
-            path: '/create',
+            path: 'create',
             name: 'event-creation',
             builder: (context, state) => const EventCreationPage(),
           ),
           GoRoute(
-            path: '/:eventId',
+            path: ':eventId',
             name: 'event-detail',
             builder: (context, state) {
               final eventId = state.pathParameters['eventId']!;
@@ -52,7 +52,7 @@ class App extends StatelessWidget {
             },
             routes: [
               GoRoute(
-                path: '/payments',
+                path: 'payments',
                 name: 'event-payments',
                 builder: (context, state) {
                   final eventId = state.pathParameters['eventId']!;
@@ -60,7 +60,7 @@ class App extends StatelessWidget {
                 },
               ),
               GoRoute(
-                path: '/settings',
+                path: 'settings',
                 name: 'event-settings',
                 builder: (context, state) {
                   final eventId = state.pathParameters['eventId']!;

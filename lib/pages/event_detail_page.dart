@@ -70,19 +70,25 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePageScaffold(
-      title: _eventData.title,
-      navigationItems: const [],
-      currentRoute: '/events/${widget.eventId}',
-      actions: _eventData.role == EventRole.organizer 
-          ? [
-              AppButton.outline(
-                text: '設定',
-                icon: const Icon(Icons.settings_outlined, size: 18),
-                onPressed: () => context.go('/events/${widget.eventId}/settings'),
-              ),
-            ]
-          : null,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_eventData.title),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 1,
+        actions: _eventData.role == EventRole.organizer 
+            ? [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: AppButton.outline(
+                    text: '設定',
+                    icon: const Icon(Icons.settings_outlined, size: 18),
+                    onPressed: () => context.go('/events/${widget.eventId}/settings'),
+                  ),
+                ),
+              ]
+            : null,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.spacing16),
         child: Column(

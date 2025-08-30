@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
-import 'package:shiharainu/shared/widgets/widgets.dart';
 
 class EventPaymentManagementPage extends StatefulWidget {
   final String eventId;
@@ -17,10 +16,13 @@ class EventPaymentManagementPage extends StatefulWidget {
 class _EventPaymentManagementPageState extends State<EventPaymentManagementPage> {
   @override
   Widget build(BuildContext context) {
-    return ResponsivePageScaffold(
-      title: '支払い管理',
-      navigationItems: const [],
-      currentRoute: '/events/${widget.eventId}/payments',
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('支払い管理'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 1,
+      ),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

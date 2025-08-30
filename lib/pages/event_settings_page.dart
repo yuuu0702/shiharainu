@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
-import 'package:shiharainu/shared/widgets/widgets.dart';
 
 class EventSettingsPage extends StatefulWidget {
   final String eventId;
@@ -17,10 +16,13 @@ class EventSettingsPage extends StatefulWidget {
 class _EventSettingsPageState extends State<EventSettingsPage> {
   @override
   Widget build(BuildContext context) {
-    return ResponsivePageScaffold(
-      title: 'イベント設定',
-      navigationItems: const [],
-      currentRoute: '/events/${widget.eventId}/settings',
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('イベント設定'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 1,
+      ),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -47,17 +47,23 @@ class _EventListPageState extends State<EventListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePageScaffold(
-      title: 'イベント一覧',
-      navigationItems: const [],
-      currentRoute: '/events',
-      actions: [
-        AppButton.primary(
-          text: '新しいイベント',
-          icon: const Icon(Icons.add, size: 18),
-          onPressed: () => context.go('/events/create'),
-        ),
-      ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('イベント一覧'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 1,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: AppButton.primary(
+              text: '新しいイベント',
+              icon: const Icon(Icons.add, size: 18),
+              onPressed: () => context.go('/events/create'),
+            ),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.spacing16),
         child: Column(
