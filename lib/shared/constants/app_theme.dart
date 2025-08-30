@@ -10,6 +10,9 @@ class AppTheme {
   static const Color mutedForeground = Color(0xFF717182); // Muted Foreground: #717182
   static const Color inputBackground = Color(0xFFF3F3F5); // Input background: #f3f3f5
   
+  // ゲッター形式でのアクセス（よく使用されるカラー）
+  static Color get destructive => destructiveColor;
+  
   // フォーカス時の色（Figmaガイドラインでは ring = グレー系）
   static const Color ringColor = Color(0xFF6B7280); // フォーカス時のボーダー色: グレー
   static const Color ringColorLight = Color(0x806B7280); // フォーカス時のリング色: 50%透明度

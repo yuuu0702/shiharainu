@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
+import 'package:shiharainu/shared/services/auth_service.dart';
+import 'package:shiharainu/shared/utils/debug_utils.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,6 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -23,18 +27,53 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _handleLogin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'メールアドレスとパスワードを入力してください';
+      });
+      return;
+    }
+
+    await _performLogin(email, password);
+  }
+
+  void _handleDebugLogin() async {
+    await _performLogin(DebugUtils.testEmail, DebugUtils.testPassword);
+  }
+
+  Future<void> _performLogin(String email, String password) async {
     setState(() {
       _isLoading = true;
+      _errorMessage = null;
     });
 
-    // Simulate login delay
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final container = ProviderScope.containerOf(context);
+      final authService = container.read(authServiceProvider);
+      
+      await authService.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-      context.go('/home');
+      if (mounted) {
+        context.go('/events');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -92,6 +131,43 @@ class _LoginPageState extends State<LoginPage> {
                       isRequired: true,
                       prefixIcon: const Icon(Icons.lock_outline, size: 20),
                     ),
+                    
+                    // エラーメッセージ表示
+                    if (_errorMessage != null) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppTheme.destructive.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: AppTheme.destructive.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 20,
+                              color: AppTheme.destructive,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _errorMessage!,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppTheme.destructive,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
@@ -106,46 +182,135 @@ class _LoginPageState extends State<LoginPage> {
                     AppButton.link(
                       text: 'パスワードを忘れた場合',
                       onPressed: () {
-                        // TODO: パスワードリセット機能
+                        _showPasswordResetDialog();
                       },
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 32),
-
-              // デバッグ用ログインボタン
-              Text(
-                'デバッグモード',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.mutedForeground,
+              // デバッグモード用テストユーザーログインボタン
+              if (DebugUtils.isDebugMode) ...[
+                const SizedBox(height: 32),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.mutedColor,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppTheme.mutedForeground.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.bug_report,
+                            size: 16,
+                            color: AppTheme.mutedForeground,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'デバッグモード',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.mutedForeground,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: AppButton.outline(
+                          text: 'テストユーザーでログイン',
+                          onPressed: _isLoading ? null : _handleDebugLogin,
+                          size: AppButtonSize.medium,
+                          icon: const Icon(Icons.person, size: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${DebugUtils.testEmail} でログインします',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppTheme.mutedForeground,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: AppButton.outline(
-                      text: '幹事でログイン',
-                      onPressed: () => context.go('/dashboard'),
-                      size: AppButtonSize.small,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: AppButton.outline(
-                      text: '参加者でログイン',
-                      onPressed: () => context.go('/dashboard'),
-                      size: AppButtonSize.small,
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showPasswordResetDialog() {
+    final emailController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('パスワードリセット'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('パスワードリセット用のメールを送信します。'),
+            const SizedBox(height: 16),
+            AppInput(
+              label: 'メールアドレス',
+              placeholder: 'example@email.com',
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              isRequired: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('キャンセル'),
+          ),
+          AppButton.primary(
+            text: '送信',
+            onPressed: () async {
+              final email = emailController.text.trim();
+              if (email.isEmpty) return;
+              
+              try {
+                final container = ProviderScope.containerOf(context);
+                final authService = container.read(authServiceProvider);
+                await authService.sendPasswordResetEmail(email: email);
+                
+                if (mounted) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('パスワードリセットメールを送信しました'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(e.toString().replaceFirst('Exception: ', '')),
+                      backgroundColor: AppTheme.destructive,
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+        ],
       ),
     );
   }
