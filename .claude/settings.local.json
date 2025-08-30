@@ -8,8 +8,18 @@
       "Read(C:\\Users\\shibata.waki\\Downloads\\000_figma_make\\src\\guidelines/**)",
       "Read(C:\\Users\\shibata.waki\\Downloads\\000_figma_make\\src\\components\\ui/**)",
       "Read(C:\\Users\\shibata.waki\\Downloads\\000_figma_make\\src\\guidelines/**)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "mcp__firebase__firebase_get_environment",
+      "mcp__firebase__firebase_list_projects",
+      "mcp__firebase__firebase_update_environment",
+      "mcp__firebase__firebase_init",
+      "mcp__firebase__firebase_create_app",
+      "mcp__firebase__firebase_get_sdk_config"
     ],
     "deny": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "github"
+  ]
 }
