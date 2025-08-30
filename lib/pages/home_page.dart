@@ -111,36 +111,10 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-  // ボトムナビゲーション項目
-  static const List<AppBottomNavigationItem> _navigationItems = [
-    AppBottomNavigationItem(
-      label: 'イベント一覧',
-      icon: Icons.event_note_outlined,
-      route: '/home',
-    ),
-    AppBottomNavigationItem(
-      label: '支払い管理',
-      icon: Icons.payment_outlined,
-      route: '/payment-management',
-    ),
-    AppBottomNavigationItem(
-      label: '通知',
-      icon: Icons.notifications_outlined,
-      route: '/notifications',
-    ),
-    AppBottomNavigationItem(
-      label: 'アカウント情報',
-      icon: Icons.account_circle_outlined,
-      route: '/account',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    return ResponsivePageScaffold(
+    return SimplePage(
       title: 'アプリホーム',
-      navigationItems: _navigationItems,
-      currentRoute: '/home',
       actions: [
         AppButton.primary(
           text: 'イベント作成',

@@ -14,6 +14,7 @@ import 'package:shiharainu/pages/event_list_page.dart';
 import 'package:shiharainu/pages/event_detail_page.dart';
 import 'package:shiharainu/pages/event_payment_management_page.dart';
 import 'package:shiharainu/pages/event_settings_page.dart';
+import 'package:shiharainu/shared/widgets/global_navigation_wrapper.dart';
 
 class App extends ConsumerWidget {
   const App({super.key});
@@ -54,66 +55,106 @@ class App extends ConsumerWidget {
         ref.read(authServiceProvider).authStateChanges,
       ),
       routes: [
-      GoRoute(
-        path: '/login',
-        name: 'login',
-        builder: (context, state) => const LoginPage(),
-      ),
-      GoRoute(
-        path: '/home',
-        name: 'home',
-        builder: (context, state) => const HomePage(),
-      ),
-      GoRoute(
-        path: '/events',
-        name: 'events',
-        builder: (context, state) => const EventListPage(),
-        routes: [
-          GoRoute(
-            path: 'create',
-            name: 'event-creation',
-            builder: (context, state) => const EventCreationPage(),
-          ),
-          GoRoute(
-            path: ':eventId',
-            name: 'event-detail',
-            builder: (context, state) {
-              final eventId = state.pathParameters['eventId']!;
-              return EventDetailPage(eventId: eventId);
-            },
-            routes: [
-              GoRoute(
-                path: 'payments',
-                name: 'event-payments',
-                builder: (context, state) {
-                  final eventId = state.pathParameters['eventId']!;
-                  return EventPaymentManagementPage(eventId: eventId);
-                },
+        // ログインページ（ナビゲーション非表示）
+        GoRoute(
+          path: '/login',
+          name: 'login',
+          builder: (context, state) => const LoginPage(),
+        ),
+        // デバッグ用ページ（ナビゲーション非表示）
+        GoRoute(
+          path: '/components',
+          name: 'components',
+          builder: (context, state) => const ComponentShowcasePage(),
+        ),
+        // メイン機能（グローバルナビゲーション表示）
+        ShellRoute(
+          builder: (context, state, child) {
+            return GlobalNavigationWrapper(child: child);
+          },
+          routes: [
+            GoRoute(
+              path: '/home',
+              name: 'home',
+              builder: (context, state) => const HomePage(),
+            ),
+            GoRoute(
+              path: '/events',
+              name: 'events',
+              builder: (context, state) => const EventListPage(),
+              routes: [
+                GoRoute(
+                  path: 'create',
+                  name: 'event-creation',
+                  builder: (context, state) => const EventCreationPage(),
+                ),
+                GoRoute(
+                  path: ':eventId',
+                  name: 'event-detail',
+                  builder: (context, state) {
+                    final eventId = state.pathParameters['eventId']!;
+                    return EventDetailPage(eventId: eventId);
+                  },
+                  routes: [
+                    GoRoute(
+                      path: 'payments',
+                      name: 'event-payments',
+                      builder: (context, state) {
+                        final eventId = state.pathParameters['eventId']!;
+                        return EventPaymentManagementPage(eventId: eventId);
+                      },
+                    ),
+                    GoRoute(
+                      path: 'settings',
+                      name: 'event-settings',
+                      builder: (context, state) {
+                        final eventId = state.pathParameters['eventId']!;
+                        return EventSettingsPage(eventId: eventId);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            // 支払い管理ページ（今後実装）
+            GoRoute(
+              path: '/payment-management',
+              name: 'payment-management',
+              builder: (context, state) => const Scaffold(
+                body: Center(
+                  child: Text('支払い管理ページ（準備中）'),
+                ),
               ),
-              GoRoute(
-                path: 'settings',
-                name: 'event-settings',
-                builder: (context, state) {
-                  final eventId = state.pathParameters['eventId']!;
-                  return EventSettingsPage(eventId: eventId);
-                },
+            ),
+            // 通知ページ（今後実装）
+            GoRoute(
+              path: '/notifications',
+              name: 'notifications',
+              builder: (context, state) => const Scaffold(
+                body: Center(
+                  child: Text('通知ページ（準備中）'),
+                ),
               ),
-            ],
-          ),
-        ],
-      ),
-      // デバッグ用：既存のダッシュボードを一時保持
-      GoRoute(
-        path: '/dashboard',
-        name: 'dashboard',
-        builder: (context, state) => const DashboardPage(),
-      ),
-      GoRoute(
-        path: '/components',
-        name: 'components',
-        builder: (context, state) => const ComponentShowcasePage(),
-      ),
-    ],
+            ),
+            // アカウント情報ページ（今後実装）
+            GoRoute(
+              path: '/account',
+              name: 'account',
+              builder: (context, state) => const Scaffold(
+                body: Center(
+                  child: Text('アカウント情報ページ（準備中）'),
+                ),
+              ),
+            ),
+            // デバッグ用：既存のダッシュボードを一時保持
+            GoRoute(
+              path: '/dashboard',
+              name: 'dashboard',
+              builder: (context, state) => const DashboardPage(),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

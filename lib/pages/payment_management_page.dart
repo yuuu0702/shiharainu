@@ -59,10 +59,8 @@ class _PaymentManagementPageState extends State<PaymentManagementPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePageScaffold(
+    return SimplePage(
       title: '支払い管理',
-      navigationItems: AppBottomNavigationPresets.organizerItems,
-      currentRoute: '/payment-management',
       actions: [
         AppButton.icon(
           icon: const Icon(Icons.arrow_back, size: 20),
