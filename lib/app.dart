@@ -5,6 +5,7 @@ import 'package:shiharainu/pages/dashboard_page.dart';
 import 'package:shiharainu/pages/login_page.dart';
 import 'package:shiharainu/pages/event_creation_page.dart';
 import 'package:shiharainu/pages/component_showcase_page.dart';
+import 'package:shiharainu/pages/home_page.dart';
 import 'package:shiharainu/pages/event_list_page.dart';
 import 'package:shiharainu/pages/event_detail_page.dart';
 import 'package:shiharainu/pages/event_payment_management_page.dart';
@@ -32,6 +33,11 @@ class App extends StatelessWidget {
         path: '/login',
         name: 'login',
         builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        path: '/home',
+        name: 'home',
+        builder: (context, state) => const HomePage(),
       ),
       GoRoute(
         path: '/events',
