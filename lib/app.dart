@@ -5,6 +5,7 @@ import 'package:shiharainu/pages/dashboard_page.dart';
 import 'package:shiharainu/pages/login_page.dart';
 import 'package:shiharainu/pages/event_creation_page.dart';
 import 'package:shiharainu/pages/payment_management_page.dart';
+import 'package:shiharainu/pages/component_showcase_page.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -43,6 +44,11 @@ class App extends StatelessWidget {
         path: '/payment-management',
         name: 'payment-management',
         builder: (context, state) => const PaymentManagementPage(),
+      ),
+      GoRoute(
+        path: '/components',
+        name: 'components',
+        builder: (context, state) => const ComponentShowcasePage(),
       ),
     ],
   );

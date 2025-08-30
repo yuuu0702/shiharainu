@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Figmaデザインガイドラインに基づくカラーパレット
@@ -9,6 +10,10 @@ class AppTheme {
   static const Color mutedForeground = Color(0xFF717182); // Muted Foreground: #717182
   static const Color inputBackground = Color(0xFFF3F3F5); // Input background: #f3f3f5
   
+  // フォーカス時の色（Figmaガイドラインでは ring = グレー系）
+  static const Color ringColor = Color(0xFF6B7280); // フォーカス時のボーダー色: グレー
+  static const Color ringColorLight = Color(0x806B7280); // フォーカス時のリング色: 50%透明度
+  
   // セマンティックカラー
   static const Color successColor = primaryColor; // 成功状態はプライマリカラーで代用
   static const Color warningColor = Color(0xFFF59E0B);
@@ -16,7 +21,7 @@ class AppTheme {
 
   static ThemeData get lightTheme => ThemeData(
         useMaterial3: true,
-        fontFamily: 'NotoSansJP', // 日本語フォント
+        textTheme: GoogleFonts.notoSansJpTextTheme(), // Noto Sans JP統一
         colorScheme: const ColorScheme.light(
           primary: primaryColor,
           onPrimary: primaryForeground,
@@ -81,27 +86,30 @@ class AppTheme {
             ),
           ),
         ),
-        // Input設定
+        // Input設定 (Figmaガイドライン準拠)
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: inputBackground,
+          fillColor: inputBackground, // #f3f3f5
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide.none, // 透明ボーダー
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(color: primaryColor, width: 2),
+            borderSide: const BorderSide(color: ringColor, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
             borderSide: const BorderSide(color: destructiveColor, width: 2),
           ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          // Figmaガイドライン: px-3 py-1 = 左右12px、上下4px
+          contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
           hintStyle: const TextStyle(
             color: mutedForeground,
             fontSize: 14,
           ),
+          // Input高さ: 36px (h-9)
+          constraints: const BoxConstraints(minHeight: 36),
         ),
         // Card設定
         cardTheme: CardThemeData(
@@ -136,7 +144,9 @@ class AppTheme {
 
   static ThemeData get darkTheme => ThemeData(
         useMaterial3: true,
-        fontFamily: 'NotoSansJP',
+        textTheme: GoogleFonts.notoSansJpTextTheme(
+          ThemeData.dark().textTheme, // ダークテーマ用のベースカラー
+        ), // Noto Sans JP統一
         colorScheme: const ColorScheme.dark(
           primary: primaryColor,
           onPrimary: primaryForeground,
@@ -193,21 +203,24 @@ class AppTheme {
           fillColor: const Color(0xFF2A2A2E),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide.none, // 透明ボーダー
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(color: primaryColor, width: 2),
+            borderSide: const BorderSide(color: ringColor, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(6),
             borderSide: const BorderSide(color: destructiveColor, width: 2),
           ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          // Figmaガイドライン: px-3 py-1 = 左右12px、上下4px
+          contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
           hintStyle: const TextStyle(
             color: Color(0xFF666666),
             fontSize: 14,
           ),
+          // Input高さ: 36px (h-9)
+          constraints: const BoxConstraints(minHeight: 36),
         ),
         cardTheme: CardThemeData(
           elevation: 0,
