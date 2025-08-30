@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 
+enum AppCardElevation {
+  none,
+  low,
+  medium,
+  high,
+}
+
 class AppCard extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -8,6 +15,7 @@ class AppCard extends StatelessWidget {
   final bool isSelected;
   final EdgeInsets? padding;
   final EdgeInsets? margin;
+  final AppCardElevation elevation;
 
   const AppCard({
     super.key,
@@ -17,6 +25,7 @@ class AppCard extends StatelessWidget {
     this.isSelected = false,
     this.padding,
     this.margin,
+    this.elevation = AppCardElevation.low,
   });
 
   const AppCard.interactive({
@@ -26,6 +35,7 @@ class AppCard extends StatelessWidget {
     this.isSelected = false,
     this.padding,
     this.margin,
+    this.elevation = AppCardElevation.medium,
   }) : isInteractive = true;
 
   @override
@@ -36,25 +46,17 @@ class AppCard extends StatelessWidget {
       margin: margin,
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         border: Border.all(
           color: isSelected 
               ? AppTheme.primaryColor 
               : AppTheme.mutedColor,
           width: 1,
         ),
-        boxShadow: isSelected 
-            ? [
-                const BoxShadow(
-                  color: Color(0x1AEA3800), // primary/10
-                  offset: Offset(0, 2),
-                  blurRadius: 4,
-                )
-              ]
-            : null,
+        boxShadow: _getElevationShadow(),
       ),
       child: Padding(
-        padding: padding ?? const EdgeInsets.all(16),
+        padding: padding ?? const EdgeInsets.all(AppTheme.spacing16),
         child: child,
       ),
     );
@@ -64,7 +66,7 @@ class AppCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           hoverColor: const Color(0x0CEA3800), // primary/5
           splashColor: const Color(0x1AEA3800), // primary/10
           child: cardWidget,
@@ -73,6 +75,32 @@ class AppCard extends StatelessWidget {
     }
 
     return cardWidget;
+  }
+
+  List<BoxShadow> _getElevationShadow() {
+    if (isSelected) {
+      // Selected state gets enhanced shadow with primary color accent
+      return [
+        const BoxShadow(
+          color: Color(0x1AEA3800), // primary/10
+          offset: Offset(0, 4),
+          blurRadius: 12,
+          spreadRadius: 0,
+        ),
+        ...AppTheme.elevationMedium,
+      ];
+    }
+    
+    switch (elevation) {
+      case AppCardElevation.none:
+        return [];
+      case AppCardElevation.low:
+        return AppTheme.elevationLow;
+      case AppCardElevation.medium:
+        return AppTheme.elevationMedium;
+      case AppCardElevation.high:
+        return AppTheme.elevationHigh;
+    }
   }
 }
 
@@ -98,17 +126,13 @@ class AppCardHeader extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTheme.headlineMedium,
               ),
               if (subtitle != null) ...[
-                const SizedBox(height: 4),
+                const SizedBox(height: AppTheme.spacing4),
                 Text(
                   subtitle!,
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: AppTheme.bodyMedium.copyWith(
                     color: AppTheme.mutedForeground,
                   ),
                 ),
@@ -117,7 +141,7 @@ class AppCardHeader extends StatelessWidget {
           ),
         ),
         if (trailing != null) ...[
-          const SizedBox(width: 16),
+          const SizedBox(width: AppTheme.spacing16),
           trailing!,
         ],
       ],
@@ -138,7 +162,7 @@ class AppCardContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: padding ?? const EdgeInsets.only(top: 16),
+      padding: padding ?? const EdgeInsets.only(top: AppTheme.spacing16),
       child: child,
     );
   }

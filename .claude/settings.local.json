@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(flutter:*)"
+      "Bash(flutter:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Read(c:\\Users\\yudai\\Downloads/**)"
     ],
     "deny": []
   }
