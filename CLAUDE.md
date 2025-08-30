@@ -210,6 +210,85 @@ import 'package:shiharainu/shared/widgets/widgets.dart';
 - フォントサイズとウェイトは統一ルールに従う
 - 日本語対応のため NotoSansJP フォント使用
 
+#### レスポンシブデザイン対応
+**このアプリはWebとモバイルの両方で利用される想定のため、レスポンシブデザインに対応する**
+
+##### 画面サイズ対応方針
+- **モバイル**: 360px～414px（主要スマートフォン）
+- **タブレット**: 768px～1024px
+- **デスクトップ**: 1200px以上
+
+##### ブレークポイント定義
+```dart
+// lib/shared/constants/breakpoints.dart での定義例
+class AppBreakpoints {
+  static const double mobile = 600;
+  static const double tablet = 1024;
+  static const double desktop = 1200;
+}
+```
+
+##### レスポンシブ実装パターン
+- **LayoutBuilder 活用**: 画面サイズに応じたレイアウト切り替え
+- **MediaQuery.of(context).size.width** での条件分岐
+- **Expanded, Flexible** での柔軟なレイアウト
+- **SingleChildScrollView** での縦スクロール対応
+- **GridView.builder** でのグリッドレイアウト（列数調整）
+
+##### レスポンシブウィジェット設計
+```dart
+class ResponsiveLayout extends StatelessWidget {
+  final Widget mobile;
+  final Widget tablet;
+  final Widget desktop;
+
+  const ResponsiveLayout({
+    required this.mobile,
+    required this.tablet,
+    required this.desktop,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= AppBreakpoints.desktop) {
+          return desktop;
+        } else if (constraints.maxWidth >= AppBreakpoints.tablet) {
+          return tablet;
+        } else {
+          return mobile;
+        }
+      },
+    );
+  }
+}
+```
+
+##### レスポンシブ対応指針
+- **フォントサイズ**: 画面サイズに応じた調整（14px～18px）
+- **パディング・マージン**: 画面幅に応じた調整（16px～32px）
+- **ボタンサイズ**: タッチデバイス考慮（最小44px×44px）
+- **カードレイアウト**: 画面幅に応じた列数変更
+- **ナビゲーション**: 
+  - モバイル: BottomNavigationBar
+  - タブレット/デスクトップ: Drawer または Side Navigation
+
+##### Web対応時の追加考慮事項
+- **キーボードナビゲーション**: Tab順序の適切な設定
+- **ホバーエフェクト**: マウスオーバー時のインタラクション
+- **右クリックメニュー**: 必要に応じて無効化
+- **テキスト選択**: 適切な選択可能領域の設定
+- **URL対応**: GoRouterでのWeb URL対応
+- **SEO対応**: 適切なタイトルとメタデータ設定
+
+##### レスポンシブテスト指針
+- **デバイステスト**: 異なる画面サイズでの動作確認
+- **Chrome DevTools**: レスポンシブモードでの確認
+- **実機テスト**: iOS/Android の実際のデバイス確認
+- **Webブラウザテスト**: Chrome, Firefox, Safari での確認
+- **画面回転テスト**: 横向き・縦向き切り替え確認
+
 ### コメント・ドキュメント規約
 - 日本語コメントを使用
 - TODO コメントには実装予定を記載（例: `// TODO: パスワードリセット機能`）
