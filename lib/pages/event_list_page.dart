@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
+import 'package:shiharainu/shared/services/auth_service.dart';
 
-class EventListPage extends StatefulWidget {
+class EventListPage extends ConsumerStatefulWidget {
   const EventListPage({super.key});
 
   @override
-  State<EventListPage> createState() => _EventListPageState();
+  ConsumerState<EventListPage> createState() => _EventListPageState();
 }
 
-class _EventListPageState extends State<EventListPage> {
+class _EventListPageState extends ConsumerState<EventListPage> {
   // TODO: 実際のデータはRiverpodプロバイダーから取得
   final List<EventData> _organizerEvents = [
     EventData(
@@ -45,25 +47,74 @@ class _EventListPageState extends State<EventListPage> {
     ),
   ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('イベント一覧'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 1,
+  void _handleLogout() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('ログアウト'),
+        content: const Text('ログアウトしますか？'),
         actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: AppButton.primary(
-              text: '新しいイベント',
-              icon: const Icon(Icons.add, size: 18),
-              onPressed: () => context.go('/events/create'),
-            ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('キャンセル'),
+          ),
+          AppButton.primary(
+            text: 'ログアウト',
+            onPressed: () => Navigator.of(context).pop(true),
           ),
         ],
       ),
+    );
+
+    if (shouldLogout == true && mounted) {
+      try {
+        final authService = ref.read(authServiceProvider);
+        await authService.signOut();
+        if (mounted) {
+          context.go('/login');
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('ログアウトに失敗しました: $e'),
+              backgroundColor: AppTheme.destructive,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false, // 戻るボタンでの画面遷移を禁止
+      onPopInvokedWithResult: (didPop, result) {
+        // 戻るボタンが押されても何もしない（ログイン画面に戻さない）
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('イベント一覧'),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 1,
+          leading: IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'ログアウト',
+            onPressed: _handleLogout,
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: AppButton.primary(
+                text: '新しいイベント',
+                icon: const Icon(Icons.add, size: 18),
+                onPressed: () => context.go('/events/create'),
+              ),
+            ),
+          ],
+        ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.spacing16),
         child: Column(
@@ -85,6 +136,7 @@ class _EventListPageState extends State<EventListPage> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -262,7 +314,7 @@ class _EventListPageState extends State<EventListPage> {
     } else if (difference == 1) {
       return '明日';
     } else if (difference < 7) {
-      return '${difference}日後';
+      return '$difference日後';
     } else {
       return '${date.month}/${date.day}';
     }

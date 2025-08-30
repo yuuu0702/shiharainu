@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
+import 'package:shiharainu/shared/services/auth_service.dart';
 import 'package:shiharainu/pages/dashboard_page.dart';
 import 'package:shiharainu/pages/login_page.dart';
 import 'package:shiharainu/pages/event_creation_page.dart';
@@ -10,24 +14,45 @@ import 'package:shiharainu/pages/event_detail_page.dart';
 import 'package:shiharainu/pages/event_payment_management_page.dart';
 import 'package:shiharainu/pages/event_settings_page.dart';
 
-class App extends StatelessWidget {
+class App extends ConsumerWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       title: 'Shiharainu - イベント支払い管理',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
-      routerConfig: _router,
+      routerConfig: _createRouter(ref),
       debugShowCheckedModeBanner: false,
     );
   }
 
-  static final _router = GoRouter(
-    initialLocation: '/login',
-    routes: [
+  static GoRouter _createRouter(WidgetRef ref) {
+    return GoRouter(
+      initialLocation: '/events',
+      redirect: (context, state) {
+        final authState = ref.read(authStateProvider);
+        final isLoggedIn = authState.value != null;
+        final isLoginPage = state.matchedLocation == '/login';
+
+        // 未ログインで、ログインページ以外にアクセスしようとした場合はログインページにリダイレクト
+        if (!isLoggedIn && !isLoginPage) {
+          return '/login';
+        }
+        
+        // ログイン済みで、ログインページにアクセスしようとした場合はイベント一覧にリダイレクト
+        if (isLoggedIn && isLoginPage) {
+          return '/events';
+        }
+
+        return null; // リダイレクトなし
+      },
+      refreshListenable: GoRouterRefreshStream(
+        ref.read(authServiceProvider).authStateChanges,
+      ),
+      routes: [
       GoRoute(
         path: '/login',
         name: 'login',
@@ -83,5 +108,23 @@ class App extends StatelessWidget {
         builder: (context, state) => const ComponentShowcasePage(),
       ),
     ],
-  );
+    );
+  }
+}
+
+// GoRouterのリフレッシュ機能のためのStream変換クラス
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    _subscription = stream.listen((_) {
+      notifyListeners();
+    });
+  }
+
+  late final StreamSubscription _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
 }
