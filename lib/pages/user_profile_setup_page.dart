@@ -17,7 +17,7 @@ class UserProfileSetupPage extends StatefulWidget {
 class _UserProfileSetupPageState extends State<UserProfileSetupPage> {
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
-  String _selectedPosition = UserPositions.commonPositions.first;
+  String _selectedPosition = UserPositions.hierarchicalPositions.first;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -74,30 +74,41 @@ class _UserProfileSetupPageState extends State<UserProfileSetupPage> {
             
             const Divider(),
             
-            // 役職リスト
+            // 役職リスト（説明付き）
             Expanded(
               child: ListView.separated(
                 controller: scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 24),
-                itemCount: UserPositions.commonPositions.length,
+                itemCount: UserPositions.positionsWithDescription.length,
                 separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {
-                  final position = UserPositions.commonPositions[index];
-                  final isSelected = position == _selectedPosition;
+                  final positionData = UserPositions.positionsWithDescription[index];
+                  final positionName = positionData['name']!;
+                  final description = positionData['description']!;
+                  final isSelected = positionName == _selectedPosition;
                   
                   return ListTile(
                     title: Text(
-                      position,
+                      positionName,
                       style: AppTheme.bodyMedium.copyWith(
                         color: isSelected ? AppTheme.primaryColor : null,
-                        fontWeight: isSelected ? FontWeight.w600 : null,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      ),
+                    ),
+                    subtitle: Text(
+                      description,
+                      style: AppTheme.bodySmall.copyWith(
+                        color: isSelected 
+                            ? AppTheme.primaryColor.withValues(alpha: 0.8)
+                            : AppTheme.mutedForeground,
+                        fontSize: 12,
                       ),
                     ),
                     trailing: isSelected 
                         ? const Icon(Icons.check, color: AppTheme.primaryColor)
                         : null,
                     onTap: () {
-                      Navigator.of(context).pop(position);
+                      Navigator.of(context).pop(positionName);
                     },
                   );
                 },
