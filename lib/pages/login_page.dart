@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _isLoading = false;
       });
-      context.go('/dashboard');
+      context.go('/events');
     }
   }
 
