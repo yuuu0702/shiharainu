@@ -86,7 +86,7 @@ class AppBadge extends StatelessWidget {
       case AppBadgeVariant.success:
         return {
           'background': const Color(0xFFF0FDF4),
-          'foreground': AppTheme.primaryColor,
+          'foreground': const Color(0xFF16A34A), // 緑系の文字色に変更
         };
       case AppBadgeVariant.warning:
         return {

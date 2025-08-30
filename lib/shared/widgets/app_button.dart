@@ -121,6 +121,7 @@ class AppButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: isDestructive ? AppTheme.destructiveColor : AppTheme.primaryColor,
           foregroundColor: AppTheme.primaryForeground,
+          elevation: 0, // Figmaガイドライン: フラットデザイン
           padding: _getPadding(),
           minimumSize: _getMinimumSize(),
           shape: RoundedRectangleBorder(
