@@ -4,6 +4,7 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/pages/dashboard_page.dart';
 import 'package:shiharainu/pages/login_page.dart';
 import 'package:shiharainu/pages/event_creation_page.dart';
+import 'package:shiharainu/pages/payment_management_page.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -37,6 +38,11 @@ class App extends StatelessWidget {
         path: '/event-creation',
         name: 'event-creation',
         builder: (context, state) => const EventCreationPage(),
+      ),
+      GoRoute(
+        path: '/payment-management',
+        name: 'payment-management',
+        builder: (context, state) => const PaymentManagementPage(),
       ),
     ],
   );
