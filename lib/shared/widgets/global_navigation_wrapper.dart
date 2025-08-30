@@ -17,9 +17,14 @@ class GlobalNavigationWrapper extends StatelessWidget {
   // グローバルナビゲーション項目（アプリ全体で統一）
   static const List<AppBottomNavigationItem> _navigationItems = [
     AppBottomNavigationItem(
+      label: 'ホーム',
+      icon: Icons.home_outlined,
+      route: '/home',
+    ),
+    AppBottomNavigationItem(
       label: 'イベント一覧',
       icon: Icons.event_note_outlined,
-      route: '/home',
+      route: '/events',
     ),
     AppBottomNavigationItem(
       label: '支払い管理',
