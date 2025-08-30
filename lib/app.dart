@@ -15,7 +15,7 @@ class App extends StatelessWidget {
       title: 'Shiharainu - イベント支払い管理',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
       routerConfig: _router,
       debugShowCheckedModeBanner: false,
     );
