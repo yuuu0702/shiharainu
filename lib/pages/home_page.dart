@@ -2,17 +2,19 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
+import 'package:shiharainu/shared/services/user_service.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   // 犬のアイコンリスト（しはらいぬにちなんで）
   static const List<String> _dogEmojis = [
     '🐕', '🐶', '🦮', '🐕‍🦺', '🎾🐕', 
@@ -124,71 +126,131 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-  // サンプルユーザー情報 - 実際のアプリではRiverpodプロバイダーから取得
-  final UserInfo _currentUser = UserInfo(
-    id: 'user_001',
-    name: '山田太郎',
-    email: 'yamada.taro@example.com',
-    avatarUrl: null, // 実際のアプリでは画像URLを設定
-    joinDate: DateTime(2024, 1, 15),
-  );
 
   @override
   Widget build(BuildContext context) {
-    return SimplePage(
-      title: 'アプリホーム',
-      actions: [
-        AppButton.primary(
-          text: 'イベント作成',
-          icon: const Icon(Icons.add, size: 18),
-          size: AppButtonSize.small,
-          onPressed: () => context.go('/events/create'),
-        ),
-        const SizedBox(width: 8),
-        PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert),
-          onSelected: (value) {
-            if (value == 'components') {
-              context.go('/components');
-            }
-          },
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: 'components',
-              child: ListTile(
-                leading: Icon(Icons.palette),
-                title: Text('コンポーネント素材集'),
-              ),
+    final userProfile = ref.watch(userProfileProvider);
+    
+    print('[HomePage] UserProfile状態: ${userProfile.toString()}');
+    
+    return userProfile.when(
+      data: (profile) {
+        print('[HomePage] プロフィールデータ取得完了: ${profile?.name}');
+        return SimplePage(
+          title: 'アプリホーム',
+          actions: [
+            AppButton.primary(
+              text: 'イベント作成',
+              icon: const Icon(Icons.add, size: 18),
+              size: AppButtonSize.small,
+              onPressed: () => context.go('/events/create'),
+            ),
+            const SizedBox(width: 8),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (value) {
+                if (value == 'components') {
+                  context.go('/components');
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'components',
+                  child: ListTile(
+                    leading: Icon(Icons.palette),
+                    title: Text('コンポーネント素材集'),
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppTheme.spacing16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ユーザー情報セクション
-            _buildUserInfoSection(),
-            const SizedBox(height: AppTheme.spacing24),
-            
-            // お知らせセクション
-            _buildNotificationSection(),
-            const SizedBox(height: AppTheme.spacing24),
-            
-            // イベント一覧セクション
-            _buildEventListSection(),
-            const SizedBox(height: AppTheme.spacing24),
-            
-            // 今月のランキングセクション
-            _buildRankingSection(),
-          ],
-        ),
-      ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppTheme.spacing16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ユーザー情報セクション
+                _buildUserInfoSection(context, profile),
+                const SizedBox(height: AppTheme.spacing24),
+                
+                // お知らせセクション
+                _buildNotificationSection(context),
+                const SizedBox(height: AppTheme.spacing24),
+                
+                // イベント一覧セクション
+                _buildEventListSection(context),
+                const SizedBox(height: AppTheme.spacing24),
+                
+                // 今月のランキングセクション
+                _buildRankingSection(context),
+              ],
+            ),
+          ),
+        );
+      },
+      loading: () {
+        print('[HomePage] プロフィール情報ローディング中');
+        return SimplePage(
+          title: 'アプリホーム',
+          body: Container(
+            padding: const EdgeInsets.all(AppTheme.spacing16),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: AppTheme.spacing16),
+                  Text(
+                    'ユーザー情報を読み込み中...',
+                    style: AppTheme.bodyMedium.copyWith(
+                      color: AppTheme.mutedForeground,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      error: (error, stack) {
+        print('[HomePage] プロフィール取得エラー: $error');
+        return SimplePage(
+          title: 'アプリホーム',
+          body: Container(
+            padding: const EdgeInsets.all(AppTheme.spacing16),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: AppTheme.destructive,
+                  ),
+                  const SizedBox(height: AppTheme.spacing16),
+                  Text(
+                    'ユーザー情報の読み込みに失敗しました',
+                    style: AppTheme.bodyMedium.copyWith(
+                      color: AppTheme.destructive,
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacing16),
+                  AppButton.primary(
+                    text: '再試行',
+                    onPressed: () {
+                      ref.invalidate(userProfileProvider);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
-  }
+}
 
-  Widget _buildUserInfoSection() {
+  Widget _buildUserInfoSection(BuildContext context, profile) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppTheme.spacing20),
@@ -242,7 +304,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: AppTheme.spacing4),
                 Text(
-                  _currentUser.name,
+                  profile?.name ?? 'ゲスト',
                   style: AppTheme.headlineMedium.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppTheme.primaryColor,
@@ -265,7 +327,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildNotificationSection() {
+  Widget _buildNotificationSection(BuildContext context) {
     // 未読通知のみ表示
     final unreadNotifications = _notifications.where((n) => !n.isRead).toList();
     
@@ -445,7 +507,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget _buildEventListSection() {
+  Widget _buildEventListSection(BuildContext context) {
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -502,12 +564,12 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         // イベントカードリスト
-        ...events.map((event) => _buildEventCard(event)).toList(),
+        ...events.map((event) => _buildEventCard(context, event)).toList(),
       ],
     );
   }
 
-  Widget _buildEventCard(EventData event) {
+  Widget _buildEventCard(BuildContext context, EventData event) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
       child: Material(
@@ -635,7 +697,7 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-  Widget _buildRankingSection() {
+  Widget _buildRankingSection(BuildContext context) {
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
