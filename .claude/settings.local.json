@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(flutter:*)"
+      "Bash(flutter:*)",
+      "Read(C:\\Users\\shibata.waki\\Downloads\\000_figma_make\\src\\guidelines/**)",
+      "Read(C:\\Users\\shibata.waki\\Downloads\\000_figma_make\\src\\guidelines/**)",
+      "Read(C:\\Users\\shibata.waki\\Downloads\\000_figma_make\\src\\components\\ui/**)",
+      "Read(C:\\Users\\shibata.waki\\Downloads\\000_figma_make\\src\\guidelines/**)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }
