@@ -265,14 +265,39 @@ class ResponsiveLayout extends StatelessWidget {
 }
 ```
 
+##### レスポンシブナビゲーション実装パターン
+```dart
+// ✅ 推奨: ResponsivePageScaffold使用
+return ResponsivePageScaffold(
+  title: 'ページタイトル',
+  navigationItems: navigationItems,
+  currentRoute: '/current',
+  actions: [...],
+  body: pageContent,
+);
+
+// ❌ 非推奨: 直接Scaffoldでボトムナビ固定
+return Scaffold(
+  bottomNavigationBar: AppBottomNavigation(...), // デスクトップでUX劣化
+);
+```
+
+##### ナビゲーションUX設計指針
+- **操作性**: デスクトップはマウス、モバイルはタッチに最適化
+- **視線の流れ**: デスクトップは左サイド、モバイルは下部が自然
+- **画面効率**: デスクトップの縦空間有効活用、モバイルの横幅制約考慮
+- **一貫性**: 同一デバイスクラス内でナビゲーション方式を統一
+
 ##### レスポンシブ対応指針
 - **フォントサイズ**: 画面サイズに応じた調整（14px～18px）
 - **パディング・マージン**: 画面幅に応じた調整（16px～32px）
 - **ボタンサイズ**: タッチデバイス考慮（最小44px×44px）
 - **カードレイアウト**: 画面幅に応じた列数変更
-- **ナビゲーション**: 
-  - モバイル: BottomNavigationBar
-  - タブレット/デスクトップ: Drawer または Side Navigation
+- **ナビゲーション戦略**: 
+  - モバイル（～600px）: BottomNavigationBar（親指操作性重視）
+  - タブレット（600px～1200px）: BottomNavigationBar または NavigationRail
+  - デスクトップ（1200px～）: NavigationRail（垂直サイドナビゲーション）
+  - **重要**: デスクトップでBottomNavigationBarは使用禁止（UX劣化）
 
 ##### Web対応時の追加考慮事項
 - **キーボードナビゲーション**: Tab順序の適切な設定
@@ -586,3 +611,56 @@ hotfix/payment-calculation-error
 - **WIP（Work in Progress）状態でのPR作成は避ける**
 - **大きすぎる変更を1つのPRにまとめない**
 - **未完了・未テスト機能のマージ禁止**
+
+### 実装時のコミット戦略（重要）
+
+#### 小刻みコミットの実践
+**実装ごとに必ずコミットを作成する**：
+- 新しいコンポーネント作成時
+- 機能追加・修正完了時
+- リファクタリング完了時
+- バグ修正完了時
+
+#### コミット単位の例
+```bash
+# 良い例（適切な粒度）
+git commit -m "feat: DashboardFeatureCardsコンポーネントを新規作成"
+git commit -m "refactor: dashboard_page.dartから機能カード部分を分離"
+git commit -m "feat: レスポンシブデザイン基盤（AppBreakpoints）を実装"
+git commit -m "feat: ResponsiveLayoutウィジェット群を追加"
+git commit -m "feat: 支払い管理画面の基本機能を実装"
+
+# 悪い例（大きすぎる変更）
+git commit -m "feat: レスポンシブ対応と支払い管理画面を一括実装"
+```
+
+#### コミットタイミング
+1. **単一責務完了時**：1つの機能やコンポーネントが完成した時点
+2. **テスト通過後**：`flutter analyze`が通った状態
+3. **動作確認後**：実装した機能が期待通り動作することを確認
+4. **他機能への影響確認後**：既存機能に悪影響がないことを確認
+
+#### コミットメッセージの品質
+- **具体的な変更内容**：何をしたのかが明確
+- **影響範囲の明示**：どのファイル・機能に関する変更か
+- **理由の説明**：なぜその変更をしたのか（body部分）
+
+```bash
+# 推奨されるコミット例
+git commit -m "feat: 支払い管理画面にレスポンシブグリッドを適用
+
+- モバイル: 1列表示
+- タブレット: 2列表示  
+- デスクトップ: 3列表示
+- 参加者カードのタッチ操作性を向上
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+#### バックアップとしてのコミット履歴
+- **実装の履歴保存**：各段階での動作状態を保持
+- **問題発生時の復旧**：特定のコミットに戻ることで安全に修正
+- **レビューの容易さ**：小さな変更単位で差分確認が可能
+- **チーム協力**：他の開発者が変更内容を理解しやすい

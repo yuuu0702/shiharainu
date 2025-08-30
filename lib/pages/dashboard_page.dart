@@ -15,57 +15,49 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('ダッシュボード'),
-        actions: [
-          if (isOrganizer)
-            AppButton.icon(
-              icon: const Icon(Icons.add, size: 20),
-              onPressed: () => context.go('/event-creation'),
-            ),
-          const SizedBox(width: 8),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              if (value == 'logout') {
-                context.go('/login');
-              } else if (value == 'toggle_role') {
-                setState(() {
-                  isOrganizer = !isOrganizer;
-                });
-              } else if (value == 'components') {
-                context.go('/components');
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'toggle_role',
-                child: ListTile(
-                  leading: Icon(Icons.swap_horiz),
-                  title: Text('役割切り替え'),
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'components',
-                child: ListTile(
-                  leading: Icon(Icons.palette),
-                  title: Text('コンポーネント素材集'),
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'logout',
-                child: ListTile(
-                  leading: Icon(Icons.logout),
-                  title: Text('ログアウト'),
-                ),
-              ),
-            ],
+    return ResponsivePageScaffold(
+      title: 'ダッシュボード',
+      navigationItems: isOrganizer 
+          ? AppBottomNavigationPresets.organizerItems
+          : AppBottomNavigationPresets.participantItems,
+      currentRoute: '/dashboard',
+      actions: [
+        if (isOrganizer)
+          AppButton.icon(
+            icon: const Icon(Icons.add, size: 20),
+            onPressed: () => context.go('/event-creation'),
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        const SizedBox(width: 8),
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert),
+          onSelected: (value) {
+            if (value == 'logout') {
+              context.go('/login');
+            } else if (value == 'toggle_role') {
+              setState(() {
+                isOrganizer = !isOrganizer;
+              });
+            }
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'toggle_role',
+              child: ListTile(
+                leading: Icon(Icons.swap_horiz),
+                title: Text('役割切り替え'),
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'logout',
+              child: ListTile(
+                leading: Icon(Icons.logout),
+                title: Text('ログアウト'),
+              ),
+            ),
+          ],
+        ),
+      ],
+      body: ResponsivePadding(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -122,138 +114,14 @@ class _DashboardPageState extends State<DashboardPage> {
 
             // 機能カードグリッド
             Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                children: _buildFeatureCards(context),
+              child: DashboardFeatureCards(
+                isOrganizer: isOrganizer,
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: AppBottomNavigation(
-        items: isOrganizer 
-            ? AppBottomNavigationPresets.organizerItems
-            : AppBottomNavigationPresets.participantItems,
-        currentRoute: '/dashboard',
-      ),
     );
   }
 
-  List<Widget> _buildFeatureCards(BuildContext context) {
-    if (isOrganizer) {
-      return [
-        _buildFeatureCard(
-          context,
-          'イベント作成',
-          Icons.add_circle_outline,
-          AppTheme.primaryColor,
-          '新しいイベントを作成',
-          () => context.go('/event-creation'),
-        ),
-        _buildFeatureCard(
-          context,
-          '支払い管理',
-          Icons.payment_outlined,
-          AppTheme.successColor,
-          '支払い状況を確認',
-          () {
-            // TODO: 支払い管理画面へ
-          },
-        ),
-        _buildFeatureCard(
-          context,
-          'ランキング',
-          Icons.leaderboard_outlined,
-          AppTheme.warningColor,
-          'バッジとランキング',
-          () {
-            // TODO: ランキング画面へ
-          },
-        ),
-        _buildFeatureCard(
-          context,
-          '二次会管理',
-          Icons.event_outlined,
-          const Color(0xFF8B5CF6),
-          '二次会の管理',
-          () {
-            // TODO: 二次会管理画面へ
-          },
-        ),
-      ];
-    } else {
-      return [
-        _buildFeatureCard(
-          context,
-          '支払い',
-          Icons.payment_outlined,
-          AppTheme.successColor,
-          '支払い金額を確認',
-          () {
-            // TODO: 支払い画面へ
-          },
-        ),
-        _buildFeatureCard(
-          context,
-          'ランキング',
-          Icons.leaderboard_outlined,
-          AppTheme.warningColor,
-          'バッジとランキング',
-          () {
-            // TODO: ランキング画面へ
-          },
-        ),
-      ];
-    }
-  }
-
-  Widget _buildFeatureCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-    String description,
-    VoidCallback onTap,
-  ) {
-    return AppCard.interactive(
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              size: 32,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            description,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppTheme.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
 }

@@ -105,9 +105,7 @@ class AppButton extends StatelessWidget {
         onPressed: onPressed,
         style: TextButton.styleFrom(
           padding: _getPadding(),
-          textStyle: TextStyle(
-            fontSize: _getFontSize(),
-            fontWeight: FontWeight.w500,
+          textStyle: _getTextStyle().copyWith(
             decoration: TextDecoration.underline,
           ),
         ),
@@ -125,12 +123,9 @@ class AppButton extends StatelessWidget {
           padding: _getPadding(),
           minimumSize: _getMinimumSize(),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
           ),
-          textStyle: TextStyle(
-            fontSize: _getFontSize(),
-            fontWeight: FontWeight.w500,
-          ),
+          textStyle: _getTextStyle(),
         ),
         child: _buildChild(),
       );
@@ -147,12 +142,9 @@ class AppButton extends StatelessWidget {
           padding: _getPadding(),
           minimumSize: _getMinimumSize(),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
           ),
-          textStyle: TextStyle(
-            fontSize: _getFontSize(),
-            fontWeight: FontWeight.w500,
-          ),
+          textStyle: _getTextStyle(),
         ),
         child: _buildChild(),
       );
@@ -168,12 +160,9 @@ class AppButton extends StatelessWidget {
           padding: _getPadding(),
           minimumSize: _getMinimumSize(),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
           ),
-          textStyle: TextStyle(
-            fontSize: _getFontSize(),
-            fontWeight: FontWeight.w500,
-          ),
+          textStyle: _getTextStyle(),
         ),
         child: _buildChild(),
       );
@@ -187,12 +176,9 @@ class AppButton extends StatelessWidget {
         padding: _getPadding(),
         minimumSize: _getMinimumSize(),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
         ),
-        textStyle: TextStyle(
-          fontSize: _getFontSize(),
-          fontWeight: FontWeight.w500,
-        ),
+        textStyle: _getTextStyle(),
       ),
       child: _buildChild(),
     );
@@ -216,7 +202,7 @@ class AppButton extends StatelessWidget {
             ),
           ),
           if (text != null) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: AppTheme.spacing8),
             Text(text!),
           ],
         ],
@@ -228,7 +214,7 @@ class AppButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           icon!,
-          const SizedBox(width: 8),
+          const SizedBox(width: AppTheme.spacing8),
           Text(text!),
         ],
       );
@@ -241,18 +227,18 @@ class AppButton extends StatelessWidget {
     switch (size) {
       case AppButtonSize.small:
         return icon != null && text == null 
-            ? const EdgeInsets.all(6) 
-            : const EdgeInsets.symmetric(vertical: 8, horizontal: 12);
+            ? const EdgeInsets.all(AppTheme.spacing8) 
+            : const EdgeInsets.symmetric(vertical: AppTheme.spacing8, horizontal: AppTheme.spacing12);
       case AppButtonSize.medium:
         return icon != null && text == null 
-            ? const EdgeInsets.all(8) 
-            : const EdgeInsets.symmetric(vertical: 12, horizontal: 16);
+            ? const EdgeInsets.all(AppTheme.spacing8) 
+            : const EdgeInsets.symmetric(vertical: AppTheme.spacing12, horizontal: AppTheme.spacing16);
       case AppButtonSize.large:
         return icon != null && text == null 
-            ? const EdgeInsets.all(12) 
-            : const EdgeInsets.symmetric(vertical: 16, horizontal: 24);
+            ? const EdgeInsets.all(AppTheme.spacing12) 
+            : const EdgeInsets.symmetric(vertical: AppTheme.spacing16, horizontal: AppTheme.spacing24);
       case AppButtonSize.icon:
-        return const EdgeInsets.all(8);
+        return const EdgeInsets.all(AppTheme.spacing8);
     }
   }
 
@@ -269,16 +255,16 @@ class AppButton extends StatelessWidget {
     }
   }
 
-  double _getFontSize() {
+  TextStyle _getTextStyle() {
     switch (size) {
       case AppButtonSize.small:
-        return 12;
+        return AppTheme.labelMedium;
       case AppButtonSize.medium:
-        return 14;
+        return AppTheme.labelLarge;
       case AppButtonSize.large:
-        return 16;
+        return AppTheme.bodyLarge.copyWith(fontWeight: FontWeight.w500);
       case AppButtonSize.icon:
-        return 14;
+        return AppTheme.labelLarge;
     }
   }
 }

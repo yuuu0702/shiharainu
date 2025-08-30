@@ -4,6 +4,7 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/pages/dashboard_page.dart';
 import 'package:shiharainu/pages/login_page.dart';
 import 'package:shiharainu/pages/event_creation_page.dart';
+import 'package:shiharainu/pages/payment_management_page.dart';
 import 'package:shiharainu/pages/component_showcase_page.dart';
 
 class App extends StatelessWidget {
@@ -15,7 +16,7 @@ class App extends StatelessWidget {
       title: 'Shiharainu - イベント支払い管理',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
       routerConfig: _router,
       debugShowCheckedModeBanner: false,
     );
@@ -38,6 +39,11 @@ class App extends StatelessWidget {
         path: '/event-creation',
         name: 'event-creation',
         builder: (context, state) => const EventCreationPage(),
+      ),
+      GoRoute(
+        path: '/payment-management',
+        name: 'payment-management',
+        builder: (context, state) => const PaymentManagementPage(),
       ),
       GoRoute(
         path: '/components',

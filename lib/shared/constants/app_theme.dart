@@ -245,4 +245,159 @@ class AppTheme {
     'warning': warningColor,
     'info': infoColor,
   };
+
+  // プレミアムスペーシングシステム（4px刻みで更に細かい制御）
+  static const double spacing4 = 4.0;
+  static const double spacing8 = 8.0;
+  static const double spacing12 = 12.0;
+  static const double spacing16 = 16.0;
+  static const double spacing20 = 20.0;
+  static const double spacing24 = 24.0;
+  static const double spacing28 = 28.0;
+  static const double spacing32 = 32.0;
+  static const double spacing40 = 40.0;
+  static const double spacing48 = 48.0;
+  static const double spacing64 = 64.0;
+  
+  // プレミアムエレベーション定義（より微細で品のあるシャドウ）
+  static const List<BoxShadow> elevationLow = [
+    BoxShadow(
+      color: Color(0x08000000), // より軽いシャドウ
+      offset: Offset(0, 1),
+      blurRadius: 3,
+      spreadRadius: 0,
+    ),
+  ];
+
+  static const List<BoxShadow> elevationMedium = [
+    BoxShadow(
+      color: Color(0x0A000000),
+      offset: Offset(0, 2),
+      blurRadius: 8,
+      spreadRadius: 0,
+    ),
+    BoxShadow(
+      color: Color(0x06000000),
+      offset: Offset(0, 1),
+      blurRadius: 3,
+      spreadRadius: 0,
+    ),
+  ];
+
+  static const List<BoxShadow> elevationHigh = [
+    BoxShadow(
+      color: Color(0x0C000000),
+      offset: Offset(0, 4),
+      blurRadius: 16,
+      spreadRadius: 0,
+    ),
+    BoxShadow(
+      color: Color(0x08000000),
+      offset: Offset(0, 2),
+      blurRadius: 6,
+      spreadRadius: 0,
+    ),
+  ];
+
+  // プレミアムタイポグラフィ階層
+  static const TextStyle displayLarge = TextStyle(
+    fontSize: 32,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.5,
+    height: 1.2,
+  );
+
+  static const TextStyle displayMedium = TextStyle(
+    fontSize: 28,
+    fontWeight: FontWeight.w600,
+    letterSpacing: -0.25,
+    height: 1.2,
+  );
+
+  static const TextStyle displaySmall = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0,
+    height: 1.25,
+  );
+
+  static const TextStyle headlineLarge = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0,
+    height: 1.3,
+  );
+
+  static const TextStyle headlineMedium = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0,
+    height: 1.33,
+  );
+
+  static const TextStyle headlineSmall = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0,
+    height: 1.375,
+  );
+
+  static const TextStyle bodyLarge = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.1,
+    height: 1.5,
+  );
+
+  static const TextStyle bodyMedium = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.1,
+    height: 1.43,
+  );
+
+  static const TextStyle bodySmall = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.4,
+    height: 1.33,
+  );
+
+  static const TextStyle labelLarge = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.1,
+    height: 1.43,
+  );
+
+  static const TextStyle labelMedium = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.5,
+    height: 1.33,
+  );
+
+  static const TextStyle labelSmall = TextStyle(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.5,
+    height: 1.27,
+  );
+
+  // アニメーション定義（滑らかなトランジション）
+  static const Duration animationDurationFast = Duration(milliseconds: 150);
+  static const Duration animationDurationMedium = Duration(milliseconds: 250);
+  static const Duration animationDurationSlow = Duration(milliseconds: 350);
+  
+  static const Curve animationCurveStandard = Curves.easeInOut;
+  static const Curve animationCurveDecelerate = Curves.decelerate;
+  static const Curve animationCurveAccelerate = Curves.easeIn;
+
+  // ボーダー半径の拡張定義
+  static const double radiusXSmall = 4.0;
+  static const double radiusSmall = 6.0;
+  static const double radiusMedium = 8.0;
+  static const double radiusLarge = 12.0;
+  static const double radiusXLarge = 16.0;
+  static const double radiusRound = 9999.0; // Pill shape
 }
