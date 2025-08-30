@@ -5,8 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/services/auth_service.dart';
+import 'package:shiharainu/shared/services/user_service.dart';
 import 'package:shiharainu/pages/dashboard_page.dart';
 import 'package:shiharainu/pages/login_page.dart';
+import 'package:shiharainu/pages/signup_page.dart';
+import 'package:shiharainu/pages/user_profile_setup_page.dart';
 import 'package:shiharainu/pages/event_creation_page.dart';
 import 'package:shiharainu/pages/component_showcase_page.dart';
 import 'package:shiharainu/pages/home_page.dart';
@@ -38,15 +41,36 @@ class App extends ConsumerWidget {
         final authState = ref.read(authStateProvider);
         final isLoggedIn = authState.value != null;
         final isLoginPage = state.matchedLocation == '/login';
+        final isSignupPage = state.matchedLocation == '/signup';
+        final isProfileSetupPage = state.matchedLocation == '/profile-setup';
 
-        // 未ログインで、ログインページ以外にアクセスしようとした場合はログインページにリダイレクト
-        if (!isLoggedIn && !isLoginPage) {
+        // 未ログインで、ログインページ、サインアップページ以外にアクセスしようとした場合はログインページにリダイレクト
+        if (!isLoggedIn && !isLoginPage && !isSignupPage) {
           return '/login';
         }
         
-        // ログイン済みで、ログインページにアクセスしようとした場合はホームにリダイレクト
-        if (isLoggedIn && isLoginPage) {
-          return '/home';
+        // ログイン済みの場合のリダイレクト処理
+        if (isLoggedIn) {
+          // ログインページ、サインアップページにアクセスしようとした場合
+          if (isLoginPage || isSignupPage) {
+            // ユーザープロフィールの存在確認
+            final hasProfile = ref.read(hasUserProfileProvider);
+            return hasProfile.when(
+              data: (hasProfile) => hasProfile ? '/home' : '/profile-setup',
+              loading: () => '/home', // ローディング中は一旦イベント一覧へ
+              error: (_, __) => '/home',
+            );
+          }
+          
+          // プロフィール設定ページ以外で、プロフィールが未設定の場合
+          if (!isProfileSetupPage) {
+            final hasProfile = ref.read(hasUserProfileProvider);
+            return hasProfile.when(
+              data: (hasProfile) => hasProfile ? null : '/profile-setup',
+              loading: () => null,
+              error: (_, __) => null,
+            );
+          }
         }
 
         return null; // リダイレクトなし
@@ -60,6 +84,16 @@ class App extends ConsumerWidget {
           path: '/login',
           name: 'login',
           builder: (context, state) => const LoginPage(),
+        ),
+        GoRoute(
+	        path: '/signup',
+	        name: 'signup',
+	        builder: (context, state) => const SignUpPage(),
+        ),
+        GoRoute(
+        path: '/profile-setup',
+        name: 'profile-setup',
+        builder: (context, state) => const UserProfileSetupPage(),
         ),
         // デバッグ用ページ（ナビゲーション非表示）
         GoRoute(

@@ -185,6 +185,26 @@ class _LoginPageState extends State<LoginPage> {
                         _showPasswordResetDialog();
                       },
                     ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('アカウントをお持ちでない方は'),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () => context.go('/signup'),
+                          child: Text(
+                            'こちら',
+                            style: TextStyle(
+                              color: AppTheme.primaryColor,
+                              fontWeight: FontWeight.w500,
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppTheme.primaryColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

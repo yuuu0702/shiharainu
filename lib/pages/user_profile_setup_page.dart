@@ -6,6 +6,7 @@ import 'package:shiharainu/shared/widgets/widgets.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/models/user_profile.dart';
 import 'package:shiharainu/shared/services/auth_service.dart';
+import 'package:shiharainu/shared/services/user_service.dart';
 
 class UserProfileSetupPage extends StatefulWidget {
   const UserProfileSetupPage({super.key});
@@ -149,28 +150,17 @@ class _UserProfileSetupPageState extends State<UserProfileSetupPage> {
 
     try {
       final container = ProviderScope.containerOf(context);
-      final authService = container.read(authServiceProvider);
-      final user = authService.currentUser;
+      final userService = container.read(userServiceProvider);
       
-      if (user == null) {
-        throw Exception('ユーザー情報が取得できませんでした');
-      }
-
-      // TODO: UserServiceを実装して、Firestoreにユーザー情報を保存
-      final profileRequest = CreateUserProfileRequest(
+      // UserServiceを使用してFirestoreにユーザー情報を保存
+      await userService.saveUserProfile(
         name: name,
         age: age,
         position: _selectedPosition,
       );
 
-      // 一時的にprint文でデータを出力（後でUserServiceで保存）
-      print('Saving user profile: ${profileRequest.toJson()}');
-      
-      // 成功をシミュレート
-      await Future.delayed(const Duration(seconds: 1));
-
       if (mounted) {
-        // プロフィール設定完了後、ホーム画面に遷移
+        // プロフィール設定完了後、イベント一覧に遷移
         context.go('/events');
       }
     } catch (e) {
