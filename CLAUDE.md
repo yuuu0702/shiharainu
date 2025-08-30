@@ -265,14 +265,39 @@ class ResponsiveLayout extends StatelessWidget {
 }
 ```
 
+##### レスポンシブナビゲーション実装パターン
+```dart
+// ✅ 推奨: ResponsivePageScaffold使用
+return ResponsivePageScaffold(
+  title: 'ページタイトル',
+  navigationItems: navigationItems,
+  currentRoute: '/current',
+  actions: [...],
+  body: pageContent,
+);
+
+// ❌ 非推奨: 直接Scaffoldでボトムナビ固定
+return Scaffold(
+  bottomNavigationBar: AppBottomNavigation(...), // デスクトップでUX劣化
+);
+```
+
+##### ナビゲーションUX設計指針
+- **操作性**: デスクトップはマウス、モバイルはタッチに最適化
+- **視線の流れ**: デスクトップは左サイド、モバイルは下部が自然
+- **画面効率**: デスクトップの縦空間有効活用、モバイルの横幅制約考慮
+- **一貫性**: 同一デバイスクラス内でナビゲーション方式を統一
+
 ##### レスポンシブ対応指針
 - **フォントサイズ**: 画面サイズに応じた調整（14px～18px）
 - **パディング・マージン**: 画面幅に応じた調整（16px～32px）
 - **ボタンサイズ**: タッチデバイス考慮（最小44px×44px）
 - **カードレイアウト**: 画面幅に応じた列数変更
-- **ナビゲーション**: 
-  - モバイル: BottomNavigationBar
-  - タブレット/デスクトップ: Drawer または Side Navigation
+- **ナビゲーション戦略**: 
+  - モバイル（～600px）: BottomNavigationBar（親指操作性重視）
+  - タブレット（600px～1200px）: BottomNavigationBar または NavigationRail
+  - デスクトップ（1200px～）: NavigationRail（垂直サイドナビゲーション）
+  - **重要**: デスクトップでBottomNavigationBarは使用禁止（UX劣化）
 
 ##### Web対応時の追加考慮事項
 - **キーボードナビゲーション**: Tab順序の適切な設定
