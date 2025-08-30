@@ -5,7 +5,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/models/user_profile.dart';
-import 'package:shiharainu/shared/services/auth_service.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
 
 class UserProfileSetupPage extends StatefulWidget {
@@ -247,7 +246,7 @@ class _UserProfileSetupPageState extends State<UserProfileSetupPage> {
                               style: AppTheme.labelMedium,
                             ),
                             const SizedBox(width: 4),
-                            const Text(
+                            Text(
                               '*',
                               style: TextStyle(
                                 color: AppTheme.destructive,
