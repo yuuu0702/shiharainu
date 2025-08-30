@@ -378,7 +378,7 @@ class AppTheme {
   
   static const Curve animationCurveStandard = Curves.easeInOut;
   static const Curve animationCurveDecelerate = Curves.decelerate;
-  static const Curve animationCurveAccelerate = Curves.accelerate;
+  static const Curve animationCurveAccelerate = Curves.easeIn;
 
   // ボーダー半径の拡張定義
   static const double radiusXSmall = 4.0;
