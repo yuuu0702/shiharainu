@@ -10,7 +10,7 @@ import 'package:shiharainu/pages/login_page.dart';
 import 'package:shiharainu/pages/event_creation_page.dart';
 import 'package:shiharainu/pages/component_showcase_page.dart';
 import 'package:shiharainu/pages/home_page.dart';
-import 'package:shiharainu/pages/event_list_page.dart';
+import 'package:shiharainu/pages/events_page.dart';
 import 'package:shiharainu/pages/event_detail_page.dart';
 import 'package:shiharainu/pages/event_payment_management_page.dart';
 import 'package:shiharainu/pages/event_settings_page.dart';
@@ -81,7 +81,7 @@ class App extends ConsumerWidget {
             GoRoute(
               path: '/events',
               name: 'events',
-              builder: (context, state) => const EventListPage(),
+              builder: (context, state) => const EventsPage(),
               routes: [
                 GoRoute(
                   path: 'create',

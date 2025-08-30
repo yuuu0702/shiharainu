@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
@@ -11,6 +13,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // 犬のアイコンリスト（しはらいぬにちなんで）
+  static const List<String> _dogEmojis = [
+    '🐕', '🐶', '🦮', '🐕‍🦺', '🎾🐕', 
+  ];
+  
+  // ランダムな犬アイコンを取得
+  String get _randomDogEmoji {
+    final random = Random();
+    return _dogEmojis[random.nextInt(_dogEmojis.length)];
+  }
+  
   // サンプルデータ - 実際のアプリではRiverpodプロバイダーから取得
   final List<EventData> _organizerEvents = [
     EventData(
@@ -111,6 +124,15 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
+  // サンプルユーザー情報 - 実際のアプリではRiverpodプロバイダーから取得
+  final UserInfo _currentUser = UserInfo(
+    id: 'user_001',
+    name: '山田太郎',
+    email: 'yamada.taro@example.com',
+    avatarUrl: null, // 実際のアプリでは画像URLを設定
+    joinDate: DateTime(2024, 1, 15),
+  );
+
   @override
   Widget build(BuildContext context) {
     return SimplePage(
@@ -146,6 +168,10 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ユーザー情報セクション
+            _buildUserInfoSection(),
+            const SizedBox(height: AppTheme.spacing24),
+            
             // お知らせセクション
             _buildNotificationSection(),
             const SizedBox(height: AppTheme.spacing24),
@@ -162,12 +188,94 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildUserInfoSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppTheme.spacing20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.primaryColor.withOpacity(0.1),
+            AppTheme.primaryColor.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        border: Border.all(
+          color: AppTheme.primaryColor.withOpacity(0.2),
+        ),
+      ),
+      child: Row(
+        children: [
+          // ユーザーアバター（犬のアイコン）
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppTheme.primaryColor.withOpacity(0.1),
+              border: Border.all(
+                color: AppTheme.primaryColor.withOpacity(0.3),
+                width: 2,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                _randomDogEmoji,
+                style: const TextStyle(fontSize: 28),
+              ),
+            ),
+          ),
+          const SizedBox(width: AppTheme.spacing16),
+          
+          // ユーザー情報
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'おかえりなさい！',
+                  style: AppTheme.bodySmall.copyWith(
+                    color: AppTheme.mutedForeground,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacing4),
+                Text(
+                  _currentUser.name,
+                  style: AppTheme.headlineMedium.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // 設定ボタン
+          AppButton.icon(
+            icon: const Icon(Icons.settings_outlined, size: 20),
+            onPressed: () {
+              // アカウント設定画面への遷移
+              context.go('/account');
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildNotificationSection() {
     // 未読通知のみ表示
     final unreadNotifications = _notifications.where((n) => !n.isRead).toList();
     
-    return AppCard(
-      child: Column(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => context.go('/notifications'),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        child: AppCard(
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -179,7 +287,7 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(width: AppTheme.spacing8),
               Text(
-                'お知らせ',
+                '通知',
                 style: AppTheme.headlineSmall.copyWith(
                   color: AppTheme.primaryColor,
                 ),
@@ -227,6 +335,8 @@ class _HomePageState extends State<HomePage> {
             ...unreadNotifications.map((notification) => 
               _buildNotificationItem(notification)).toList(),
         ],
+          ),
+        ),
       ),
     );
   }
@@ -336,30 +446,44 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildEventListSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'イベント一覧',
-          style: AppTheme.headlineMedium,
-        ),
-        const SizedBox(height: AppTheme.spacing16),
-        
-        // 幹事として管理中のイベント
-        if (_organizerEvents.isNotEmpty) ...[
-          _buildEventSubSection('幹事として管理中のイベント', _organizerEvents),
-          const SizedBox(height: AppTheme.spacing20),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.event_note_outlined,
+                size: 20,
+                color: AppTheme.primaryColor,
+              ),
+              const SizedBox(width: AppTheme.spacing8),
+              Text(
+                'イベント一覧',
+                style: AppTheme.headlineSmall.copyWith(
+                  color: AppTheme.primaryColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppTheme.spacing16),
+          
+          // 幹事として管理中のイベント
+          if (_organizerEvents.isNotEmpty) ...[
+            _buildEventSubSection('幹事として管理中', _organizerEvents),
+            const SizedBox(height: AppTheme.spacing20),
+          ],
+          
+          // 参加者として入っているイベントリスト
+          if (_participantEvents.isNotEmpty) ...[
+            _buildEventSubSection('参加中', _participantEvents),
+          ],
+          
+          // 空状態
+          if (_organizerEvents.isEmpty && _participantEvents.isEmpty)
+            _buildEmptyEventState(),
         ],
-        
-        // 参加者として入っているイベントリスト
-        if (_participantEvents.isNotEmpty) ...[
-          _buildEventSubSection('参加者として入っているイベントリスト', _participantEvents),
-        ],
-        
-        // 空状態
-        if (_organizerEvents.isEmpty && _participantEvents.isEmpty)
-          _buildEmptyEventState(),
-      ],
+      ),
     );
   }
 
@@ -367,21 +491,16 @@ class _HomePageState extends State<HomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(AppTheme.spacing16),
-          decoration: BoxDecoration(
-            color: AppTheme.mutedColor,
-            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-          ),
+        Padding(
+          padding: const EdgeInsets.only(left: AppTheme.spacing4, bottom: AppTheme.spacing8),
           child: Text(
             title,
-            style: AppTheme.bodyMedium.copyWith(
+            style: AppTheme.bodySmall.copyWith(
               color: AppTheme.mutedForeground,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
-        const SizedBox(height: AppTheme.spacing12),
         // イベントカードリスト
         ...events.map((event) => _buildEventCard(event)).toList(),
       ],
@@ -391,10 +510,15 @@ class _HomePageState extends State<HomePage> {
   Widget _buildEventCard(EventData event) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
-      child: AppCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.go('/events/${event.id}'),
+          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          child: AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -424,16 +548,16 @@ class _HomePageState extends State<HomePage> {
                     vertical: AppTheme.spacing4,
                   ),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(event.status).withOpacity(0.1),
+                    color: _getStatusColor(event).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                     border: Border.all(
-                      color: _getStatusColor(event.status).withOpacity(0.3),
+                      color: _getStatusColor(event).withOpacity(0.3),
                     ),
                   ),
                   child: Text(
-                    _getStatusText(event.status),
+                    _getStatusText(event),
                     style: AppTheme.bodySmall.copyWith(
-                      color: _getStatusColor(event.status),
+                      color: _getStatusColor(event),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -470,32 +594,44 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Color _getStatusColor(EventStatus status) {
-    switch (status) {
-      case EventStatus.planning:
-        return AppTheme.mutedForeground;
-      case EventStatus.active:
-        return AppTheme.primaryColor;
-      case EventStatus.completed:
-        return Colors.green;
+  Color _getStatusColor(EventData event) {
+    final now = DateTime.now();
+    final eventDate = event.date;
+    
+    // 開催日が過去の場合
+    if (eventDate.isBefore(DateTime(now.year, now.month, now.day))) {
+      return Colors.green;
     }
+    
+    // 開催日が未来の場合
+    return AppTheme.primaryColor;
   }
 
-  String _getStatusText(EventStatus status) {
-    switch (status) {
-      case EventStatus.planning:
-        return '準備中';
-      case EventStatus.active:
-        return '開催中';
-      case EventStatus.completed:
-        return '終了';
+  String _getStatusText(EventData event) {
+    final now = DateTime.now();
+    final eventDate = event.date;
+    final difference = eventDate.difference(DateTime(now.year, now.month, now.day)).inDays;
+    
+    // 開催日が過去の場合
+    if (difference < 0) {
+      return '終了';
     }
+    
+    // 開催日が今日の場合
+    if (difference == 0) {
+      return '本日開催';
+    }
+    
+    // 開催日が未来の場合
+    return '開催日まであと${difference}日';
   }
 
 
@@ -709,4 +845,21 @@ enum NotificationType {
   invitation,      // イベント招待
   paymentReminder, // 支払い未完了
   general,         // 一般的なお知らせ
+}
+
+// ユーザー情報データモデル（実際のアプリではshared/modelsに移動）
+class UserInfo {
+  final String id;
+  final String name;
+  final String email;
+  final String? avatarUrl;
+  final DateTime joinDate;
+
+  const UserInfo({
+    required this.id,
+    required this.name,
+    required this.email,
+    this.avatarUrl,
+    required this.joinDate,
+  });
 }
