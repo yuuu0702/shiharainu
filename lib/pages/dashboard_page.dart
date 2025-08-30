@@ -15,12 +15,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePageScaffold(
+    return SimplePage(
       title: 'ダッシュボード',
-      navigationItems: isOrganizer 
-          ? AppBottomNavigationPresets.organizerItems
-          : AppBottomNavigationPresets.participantItems,
-      currentRoute: '/dashboard',
       actions: [
         if (isOrganizer)
           AppButton.icon(

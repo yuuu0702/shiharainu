@@ -11,3 +11,4 @@ export 'app_tabs.dart';
 export 'dashboard_feature_cards.dart';
 export 'responsive_layout.dart';
 export 'responsive_navigation.dart';
+export 'global_navigation_wrapper.dart';
