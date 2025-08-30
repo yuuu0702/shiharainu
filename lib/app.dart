@@ -32,7 +32,7 @@ class App extends ConsumerWidget {
 
   static GoRouter _createRouter(WidgetRef ref) {
     return GoRouter(
-      initialLocation: '/events',
+      initialLocation: '/home',
       redirect: (context, state) {
         final authState = ref.read(authStateProvider);
         final isLoggedIn = authState.value != null;
@@ -43,9 +43,9 @@ class App extends ConsumerWidget {
           return '/login';
         }
         
-        // ログイン済みで、ログインページにアクセスしようとした場合はイベント一覧にリダイレクト
+        // ログイン済みで、ログインページにアクセスしようとした場合はホームにリダイレクト
         if (isLoggedIn && isLoginPage) {
-          return '/events';
+          return '/home';
         }
 
         return null; // リダイレクトなし

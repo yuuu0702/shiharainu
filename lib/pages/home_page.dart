@@ -31,11 +31,20 @@ class _HomePageState extends State<HomePage> {
       role: EventRole.organizer,
       status: EventStatus.planning,
     ),
+    EventData(
+      id: '3',
+      title: '送別会',
+      description: '田中さんの送別会',
+      date: DateTime.now().add(const Duration(days: 3)),
+      participantCount: 12,
+      role: EventRole.organizer,
+      status: EventStatus.active,
+    ),
   ];
 
   final List<EventData> _participantEvents = [
     EventData(
-      id: '3',
+      id: '4',
       title: '歓送迎会',
       description: '春の歓送迎会',
       date: DateTime.now().add(const Duration(days: 21)),
@@ -44,13 +53,61 @@ class _HomePageState extends State<HomePage> {
       status: EventStatus.active,
     ),
     EventData(
-      id: '4',
+      id: '5',
       title: '部署BBQ',
       description: '夏のBBQ大会',
       date: DateTime.now().add(const Duration(days: 35)),
       participantCount: 30,
       role: EventRole.participant,
       status: EventStatus.active,
+    ),
+    EventData(
+      id: '6',
+      title: '忘年会2024',
+      description: '年末の懇親会',
+      date: DateTime.now().add(const Duration(days: 60)),
+      participantCount: 40,
+      role: EventRole.participant,
+      status: EventStatus.planning,
+    ),
+    EventData(
+      id: '7',
+      title: '結婚式二次会',
+      description: '山田夫妻の結婚式二次会',
+      date: DateTime.now().add(const Duration(days: 45)),
+      participantCount: 35,
+      role: EventRole.participant,
+      status: EventStatus.active,
+    ),
+  ];
+
+  // 通知データ - 実際のアプリではRiverpodプロバイダーから取得
+  final List<NotificationData> _notifications = [
+    NotificationData(
+      id: '1',
+      type: NotificationType.invitation,
+      title: 'イベント招待',
+      message: '「部署BBQ」に招待されました',
+      eventTitle: '部署BBQ',
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+      isRead: false,
+    ),
+    NotificationData(
+      id: '2',
+      type: NotificationType.paymentReminder,
+      title: '支払い未完了',
+      message: '「新年会2024」の支払い期限が過ぎています',
+      eventTitle: '新年会2024',
+      createdAt: DateTime.now().subtract(const Duration(days: 3)),
+      isRead: false,
+    ),
+    NotificationData(
+      id: '3',
+      type: NotificationType.general,
+      title: '一般的なお知らせ',
+      message: '参加確認が遅いています',
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+      isRead: true,
     ),
   ];
 
@@ -67,9 +124,9 @@ class _HomePageState extends State<HomePage> {
       route: '/payment-management',
     ),
     AppBottomNavigationItem(
-      label: '設定',
-      icon: Icons.settings_outlined,
-      route: '/settings',
+      label: '通知',
+      icon: Icons.notifications_outlined,
+      route: '/notifications',
     ),
     AppBottomNavigationItem(
       label: 'アカウント情報',
@@ -132,6 +189,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildNotificationSection() {
+    // 未読通知のみ表示
+    final unreadNotifications = _notifications.where((n) => !n.isRead).toList();
+    
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,24 +210,155 @@ class _HomePageState extends State<HomePage> {
                   color: AppTheme.primaryColor,
                 ),
               ),
+              const Spacer(),
+              if (unreadNotifications.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.spacing8,
+                    vertical: AppTheme.spacing4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.destructive,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusRound),
+                  ),
+                  child: Text(
+                    '${unreadNotifications.length}',
+                    style: AppTheme.bodySmall.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: AppTheme.spacing12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppTheme.spacing12),
-            decoration: BoxDecoration(
-              color: AppTheme.mutedColor,
-              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-            ),
-            child: Text(
-              '参加確定の通知があります',
-              style: AppTheme.bodyMedium,
+          
+          if (unreadNotifications.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppTheme.spacing16),
+              decoration: BoxDecoration(
+                color: AppTheme.mutedColor,
+                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+              ),
+              child: Text(
+                '新しい通知はありません',
+                style: AppTheme.bodyMedium.copyWith(
+                  color: AppTheme.mutedForeground,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            )
+          else
+            ...unreadNotifications.map((notification) => 
+              _buildNotificationItem(notification)).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationItem(NotificationData notification) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppTheme.spacing8),
+      padding: const EdgeInsets.all(AppTheme.spacing12),
+      decoration: BoxDecoration(
+        color: _getNotificationBackgroundColor(notification.type),
+        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        border: Border.all(
+          color: _getNotificationBorderColor(notification.type),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            _getNotificationIcon(notification.type),
+            size: 20,
+            color: _getNotificationIconColor(notification.type),
+          ),
+          const SizedBox(width: AppTheme.spacing8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  notification.message,
+                  style: AppTheme.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacing4),
+                Text(
+                  _formatNotificationTime(notification.createdAt),
+                  style: AppTheme.bodySmall.copyWith(
+                    color: AppTheme.mutedForeground,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  IconData _getNotificationIcon(NotificationType type) {
+    switch (type) {
+      case NotificationType.invitation:
+        return Icons.event_outlined;
+      case NotificationType.paymentReminder:
+        return Icons.payment_outlined;
+      case NotificationType.general:
+        return Icons.info_outline;
+    }
+  }
+
+  Color _getNotificationIconColor(NotificationType type) {
+    switch (type) {
+      case NotificationType.invitation:
+        return AppTheme.primaryColor;
+      case NotificationType.paymentReminder:
+        return AppTheme.destructive;
+      case NotificationType.general:
+        return AppTheme.mutedForeground;
+    }
+  }
+
+  Color _getNotificationBackgroundColor(NotificationType type) {
+    switch (type) {
+      case NotificationType.invitation:
+        return AppTheme.primaryColor.withOpacity(0.05);
+      case NotificationType.paymentReminder:
+        return AppTheme.destructive.withOpacity(0.05);
+      case NotificationType.general:
+        return AppTheme.mutedColor;
+    }
+  }
+
+  Color _getNotificationBorderColor(NotificationType type) {
+    switch (type) {
+      case NotificationType.invitation:
+        return AppTheme.primaryColor.withOpacity(0.2);
+      case NotificationType.paymentReminder:
+        return AppTheme.destructive.withOpacity(0.2);
+      case NotificationType.general:
+        return AppTheme.mutedForeground.withOpacity(0.2);
+    }
+  }
+
+  String _formatNotificationTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inHours < 1) {
+      return '${difference.inMinutes}分前';
+    } else if (difference.inDays < 1) {
+      return '${difference.inHours}時間前';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}日前';
+    } else {
+      return '${dateTime.month}/${dateTime.day}';
+    }
   }
 
   Widget _buildEventListSection() {
@@ -180,9 +371,9 @@ class _HomePageState extends State<HomePage> {
         ),
         const SizedBox(height: AppTheme.spacing16),
         
-        // 幹事として管理中のイベントリスト
+        // 幹事として管理中のイベント
         if (_organizerEvents.isNotEmpty) ...[
-          _buildEventSubSection('幹事として管理中のイベントリスト', _organizerEvents),
+          _buildEventSubSection('幹事として管理中のイベント', _organizerEvents),
           const SizedBox(height: AppTheme.spacing20),
         ],
         
@@ -199,95 +390,140 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildEventSubSection(String title, List<EventData> events) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(AppTheme.spacing16),
+          decoration: BoxDecoration(
+            color: AppTheme.mutedColor,
+            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+          ),
+          child: Text(
             title,
-            style: AppTheme.bodyLarge.copyWith(
-              fontWeight: FontWeight.w600,
+            style: AppTheme.bodyMedium.copyWith(
+              color: AppTheme.mutedForeground,
             ),
           ),
-          const SizedBox(height: AppTheme.spacing12),
-          ...events.map((event) => _buildEventListItem(event)).toList(),
-        ],
-      ),
+        ),
+        const SizedBox(height: AppTheme.spacing12),
+        // イベントカードリスト
+        ...events.map((event) => _buildEventCard(event)).toList(),
+      ],
     );
   }
 
-  Widget _buildEventListItem(EventData event) {
+  Widget _buildEventCard(EventData event) {
     return Container(
-      margin: const EdgeInsets.only(bottom: AppTheme.spacing8),
-      child: InkWell(
-        onTap: () => context.go('/events/${event.id}'),
-        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-        child: Container(
-          padding: const EdgeInsets.all(AppTheme.spacing12),
-          decoration: BoxDecoration(
-            color: AppTheme.inputBackground,
-            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-            border: Border.all(
-              color: AppTheme.mutedColor,
-              width: 1,
-            ),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      event.title,
-                      style: AppTheme.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
+      margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
+      child: AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        event.title,
+                        style: AppTheme.headlineSmall.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: AppTheme.spacing4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_today_outlined,
-                          size: 14,
+                      const SizedBox(height: AppTheme.spacing4),
+                      Text(
+                        event.description,
+                        style: AppTheme.bodyMedium.copyWith(
                           color: AppTheme.mutedForeground,
                         ),
-                        const SizedBox(width: AppTheme.spacing4),
-                        Text(
-                          _formatDate(event.date),
-                          style: AppTheme.bodySmall.copyWith(
-                            color: AppTheme.mutedForeground,
-                          ),
-                        ),
-                        const SizedBox(width: AppTheme.spacing8),
-                        Icon(
-                          Icons.people_outline,
-                          size: 14,
-                          color: AppTheme.mutedForeground,
-                        ),
-                        const SizedBox(width: AppTheme.spacing4),
-                        Text(
-                          '${event.participantCount}人',
-                          style: AppTheme.bodySmall.copyWith(
-                            color: AppTheme.mutedForeground,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: AppTheme.mutedForeground,
-              ),
-            ],
-          ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.spacing8,
+                    vertical: AppTheme.spacing4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(event.status).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                    border: Border.all(
+                      color: _getStatusColor(event.status).withOpacity(0.3),
+                    ),
+                  ),
+                  child: Text(
+                    _getStatusText(event.status),
+                    style: AppTheme.bodySmall.copyWith(
+                      color: _getStatusColor(event.status),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.spacing16),
+            Row(
+              children: [
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 16,
+                  color: AppTheme.mutedForeground,
+                ),
+                const SizedBox(width: AppTheme.spacing4),
+                Text(
+                  _formatDate(event.date),
+                  style: AppTheme.bodySmall.copyWith(
+                    color: AppTheme.mutedForeground,
+                  ),
+                ),
+                const Spacer(),
+                Icon(
+                  Icons.people_outline,
+                  size: 16,
+                  color: AppTheme.mutedForeground,
+                ),
+                const SizedBox(width: AppTheme.spacing4),
+                Text(
+                  '${event.participantCount}人',
+                  style: AppTheme.bodySmall.copyWith(
+                    color: AppTheme.mutedForeground,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
+
+  Color _getStatusColor(EventStatus status) {
+    switch (status) {
+      case EventStatus.planning:
+        return AppTheme.mutedForeground;
+      case EventStatus.active:
+        return AppTheme.primaryColor;
+      case EventStatus.completed:
+        return Colors.green;
+    }
+  }
+
+  String _getStatusText(EventStatus status) {
+    switch (status) {
+      case EventStatus.planning:
+        return '準備中';
+      case EventStatus.active:
+        return '開催中';
+      case EventStatus.completed:
+        return '終了';
+    }
+  }
+
 
   Widget _buildRankingSection() {
     return AppCard(
@@ -472,4 +708,31 @@ enum EventStatus {
   planning,
   active,
   completed,
+}
+
+// 通知データモデル（実際のアプリではshared/modelsに移動）
+class NotificationData {
+  final String id;
+  final NotificationType type;
+  final String title;
+  final String message;
+  final String? eventTitle;
+  final DateTime createdAt;
+  final bool isRead;
+
+  const NotificationData({
+    required this.id,
+    required this.type,
+    required this.title,
+    required this.message,
+    this.eventTitle,
+    required this.createdAt,
+    required this.isRead,
+  });
+}
+
+enum NotificationType {
+  invitation,      // イベント招待
+  paymentReminder, // 支払い未完了
+  general,         // 一般的なお知らせ
 }
