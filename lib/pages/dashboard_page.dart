@@ -15,46 +15,48 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('ダッシュボード'),
-        actions: [
-          if (isOrganizer)
-            AppButton.icon(
-              icon: const Icon(Icons.add, size: 20),
-              onPressed: () => context.go('/event-creation'),
-            ),
-          const SizedBox(width: 8),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              if (value == 'logout') {
-                context.go('/login');
-              } else if (value == 'toggle_role') {
-                setState(() {
-                  isOrganizer = !isOrganizer;
-                });
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'toggle_role',
-                child: ListTile(
-                  leading: Icon(Icons.swap_horiz),
-                  title: Text('役割切り替え'),
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'logout',
-                child: ListTile(
-                  leading: Icon(Icons.logout),
-                  title: Text('ログアウト'),
-                ),
-              ),
-            ],
+    return ResponsivePageScaffold(
+      title: 'ダッシュボード',
+      navigationItems: isOrganizer 
+          ? AppBottomNavigationPresets.organizerItems
+          : AppBottomNavigationPresets.participantItems,
+      currentRoute: '/dashboard',
+      actions: [
+        if (isOrganizer)
+          AppButton.icon(
+            icon: const Icon(Icons.add, size: 20),
+            onPressed: () => context.go('/event-creation'),
           ),
-        ],
-      ),
+        const SizedBox(width: 8),
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert),
+          onSelected: (value) {
+            if (value == 'logout') {
+              context.go('/login');
+            } else if (value == 'toggle_role') {
+              setState(() {
+                isOrganizer = !isOrganizer;
+              });
+            }
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'toggle_role',
+              child: ListTile(
+                leading: Icon(Icons.swap_horiz),
+                title: Text('役割切り替え'),
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'logout',
+              child: ListTile(
+                leading: Icon(Icons.logout),
+                title: Text('ログアウト'),
+              ),
+            ),
+          ],
+        ),
+      ],
       body: ResponsivePadding(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,12 +120,6 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: AppBottomNavigation(
-        items: isOrganizer 
-            ? AppBottomNavigationPresets.organizerItems
-            : AppBottomNavigationPresets.participantItems,
-        currentRoute: '/dashboard',
       ),
     );
   }
