@@ -113,6 +113,8 @@ class ResponsiveGrid extends StatelessWidget {
           crossAxisCount: crossAxisCount,
           crossAxisSpacing: spacing,
           mainAxisSpacing: spacing,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           children: children,
         );
       },
