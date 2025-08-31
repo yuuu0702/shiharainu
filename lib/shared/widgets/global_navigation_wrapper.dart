@@ -32,11 +32,6 @@ class GlobalNavigationWrapper extends StatelessWidget {
       route: '/payment-management',
     ),
     AppBottomNavigationItem(
-      label: '通知',
-      icon: Icons.notifications_outlined,
-      route: '/notifications',
-    ),
-    AppBottomNavigationItem(
       label: 'アカウント情報',
       icon: Icons.account_circle_outlined,
       route: '/account',
