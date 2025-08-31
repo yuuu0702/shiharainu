@@ -139,6 +139,9 @@ class _HomePageState extends ConsumerState<HomePage> {
         return SimplePage(
           title: 'アプリホーム',
           actions: [
+            // 通知ベルアイコン（未読バッジ付き）
+            _buildNotificationIcon(),
+            const SizedBox(width: 8),
             AppButton.primary(
               text: 'イベント作成',
               icon: const Icon(Icons.add, size: 18),
@@ -847,6 +850,51 @@ class _HomePageState extends ConsumerState<HomePage> {
     } else {
       return '${date.month}/${date.day}';
     }
+  }
+
+  // 通知ベルアイコン（未読バッジ付き）を構築
+  Widget _buildNotificationIcon() {
+    // 未読通知数を計算
+    final unreadCount = _notifications.where((n) => !n.isRead).length;
+    
+    return Stack(
+      children: [
+        IconButton(
+          onPressed: () => context.go('/notifications'),
+          icon: const Icon(
+            Icons.notifications_outlined,
+            size: 24,
+          ),
+          tooltip: '通知を確認',
+        ),
+        // 未読バッジ
+        if (unreadCount > 0)
+          Positioned(
+            right: 8,
+            top: 8,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor,
+                shape: BoxShape.circle,
+              ),
+              constraints: const BoxConstraints(
+                minWidth: 16,
+                minHeight: 16,
+              ),
+              child: Text(
+                unreadCount > 99 ? '99+' : unreadCount.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }
 

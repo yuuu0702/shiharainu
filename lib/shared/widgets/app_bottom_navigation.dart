@@ -6,11 +6,13 @@ class AppBottomNavigationItem {
   final String label;
   final IconData icon;
   final String route;
+  final int? badgeCount; // 通知バッジ用（nullの場合はバッジなし）
 
   const AppBottomNavigationItem({
     required this.label,
     required this.icon,
     required this.route,
+    this.badgeCount,
   });
 }
 
@@ -68,19 +70,50 @@ class AppBottomNavigation extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: isActive
-                      ? const BoxDecoration(
-                          color: Color(0x0CEA3800), // primary/5
-                          borderRadius: BorderRadius.all(Radius.circular(4)),
-                        )
-                      : null,
-                  child: Icon(
-                    item.icon,
-                    size: 20,
-                    color: isActive ? AppTheme.primaryColor : AppTheme.mutedForeground,
-                  ),
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: isActive
+                          ? const BoxDecoration(
+                              color: Color(0x0CEA3800), // primary/5
+                              borderRadius: BorderRadius.all(Radius.circular(4)),
+                            )
+                          : null,
+                      child: Icon(
+                        item.icon,
+                        size: 20,
+                        color: isActive ? AppTheme.primaryColor : AppTheme.mutedForeground,
+                      ),
+                    ),
+                    // バッジ表示
+                    if (item.badgeCount != null && item.badgeCount! > 0)
+                      Positioned(
+                        right: -2,
+                        top: -2,
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 14,
+                            minHeight: 14,
+                          ),
+                          child: Text(
+                            item.badgeCount! > 99 ? '99+' : item.badgeCount!.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 4),
                 Text(
