@@ -179,12 +179,7 @@ class AccountPage extends ConsumerWidget {
             title: 'プロフィール編集',
             subtitle: '名前、年齢、役職の変更',
             onTap: () {
-              // プロフィール編集画面への遷移（今後実装）
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('プロフィール編集機能は準備中です'),
-                ),
-              );
+              context.go('/profile-edit');
             },
           ),
           const Divider(height: AppTheme.spacing16),

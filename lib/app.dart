@@ -18,6 +18,7 @@ import 'package:shiharainu/pages/event_detail_page.dart';
 import 'package:shiharainu/pages/event_payment_management_page.dart';
 import 'package:shiharainu/pages/event_settings_page.dart';
 import 'package:shiharainu/pages/account_page.dart';
+import 'package:shiharainu/pages/user_profile_edit_page.dart';
 import 'package:shiharainu/shared/widgets/global_navigation_wrapper.dart';
 
 class App extends ConsumerWidget {
@@ -210,6 +211,12 @@ class App extends ConsumerWidget {
               path: '/account',
               name: 'account',
               builder: (context, state) => const AccountPage(),
+            ),
+            // プロフィール編集ページ
+            GoRoute(
+              path: '/profile-edit',
+              name: 'profile-edit',
+              builder: (context, state) => const UserProfileEditPage(),
             ),
             // デバッグ用：既存のダッシュボードを一時保持
             GoRoute(
