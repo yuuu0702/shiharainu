@@ -29,8 +29,8 @@ class AccountPage extends ConsumerWidget {
               _buildAccountSettingsSection(context, ref),
               const SizedBox(height: AppTheme.spacing24),
               
-              // アプリ情報セクション
-              _buildAppInfoSection(context),
+              // その他セクション
+              _buildOtherSection(context),
               const SizedBox(height: AppTheme.spacing24),
               
               // ログアウトセクション
@@ -80,9 +80,9 @@ class AccountPage extends ConsumerWidget {
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
               border: Border.all(
-                color: AppTheme.primaryColor.withOpacity(0.3),
+                color: AppTheme.primaryColor.withValues(alpha: 0.3),
                 width: 2,
               ),
             ),
@@ -215,13 +215,13 @@ class AccountPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildAppInfoSection(BuildContext context) {
+  Widget _buildOtherSection(BuildContext context) {
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'アプリ情報',
+            'その他',
             style: AppTheme.headlineSmall.copyWith(
               color: AppTheme.primaryColor,
             ),
@@ -230,53 +230,10 @@ class AccountPage extends ConsumerWidget {
           
           _buildSettingsItem(
             icon: Icons.info_outline,
-            title: 'バージョン情報',
-            subtitle: 'アプリのバージョンと更新履歴',
+            title: 'アプリについて',
+            subtitle: 'バージョン情報、利用規約など',
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('しはらいぬ v1.0.0'),
-                ),
-              );
-            },
-          ),
-          const Divider(height: AppTheme.spacing16),
-          _buildSettingsItem(
-            icon: Icons.help_outline,
-            title: 'ヘルプ・サポート',
-            subtitle: '使い方やよくある質問',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('ヘルプ・サポート機能は準備中です'),
-                ),
-              );
-            },
-          ),
-          const Divider(height: AppTheme.spacing16),
-          _buildSettingsItem(
-            icon: Icons.privacy_tip_outlined,
-            title: 'プライバシーポリシー',
-            subtitle: '個人情報の取り扱いについて',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('プライバシーポリシーは準備中です'),
-                ),
-              );
-            },
-          ),
-          const Divider(height: AppTheme.spacing16),
-          _buildSettingsItem(
-            icon: Icons.description_outlined,
-            title: '利用規約',
-            subtitle: 'アプリの利用に関する規約',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('利用規約は準備中です'),
-                ),
-              );
+              context.go('/app-info');
             },
           ),
         ],
