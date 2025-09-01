@@ -20,35 +20,25 @@ class AppBadge extends StatelessWidget {
     this.variant = AppBadgeVariant.default_,
   });
 
-  const AppBadge.secondary({
-    super.key,
-    required this.text,
-  }) : variant = AppBadgeVariant.secondary;
+  const AppBadge.secondary({super.key, required this.text})
+    : variant = AppBadgeVariant.secondary;
 
-  const AppBadge.destructive({
-    super.key,
-    required this.text,
-  }) : variant = AppBadgeVariant.destructive;
+  const AppBadge.destructive({super.key, required this.text})
+    : variant = AppBadgeVariant.destructive;
 
-  const AppBadge.success({
-    super.key,
-    required this.text,
-  }) : variant = AppBadgeVariant.success;
+  const AppBadge.success({super.key, required this.text})
+    : variant = AppBadgeVariant.success;
 
-  const AppBadge.warning({
-    super.key,
-    required this.text,
-  }) : variant = AppBadgeVariant.warning;
+  const AppBadge.warning({super.key, required this.text})
+    : variant = AppBadgeVariant.warning;
 
-  const AppBadge.info({
-    super.key,
-    required this.text,
-  }) : variant = AppBadgeVariant.info;
+  const AppBadge.info({super.key, required this.text})
+    : variant = AppBadgeVariant.info;
 
   @override
   Widget build(BuildContext context) {
     final colors = _getColors();
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(

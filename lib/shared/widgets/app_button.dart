@@ -1,20 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 
-enum AppButtonVariant {
-  primary,
-  outline,
-  secondary,
-  ghost,
-  link,
-}
+enum AppButtonVariant { primary, outline, secondary, ghost, link }
 
-enum AppButtonSize {
-  small,
-  medium,
-  large,
-  icon,
-}
+enum AppButtonSize { small, medium, large, icon }
 
 class AppButton extends StatelessWidget {
   final String? text;
@@ -34,7 +23,10 @@ class AppButton extends StatelessWidget {
     this.size = AppButtonSize.medium,
     this.isDestructive = false,
     this.isLoading = false,
-  }) : assert(text != null || icon != null, 'Either text or icon must be provided');
+  }) : assert(
+         text != null || icon != null,
+         'Either text or icon must be provided',
+       );
 
   const AppButton.primary({
     super.key,
@@ -99,7 +91,7 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     if (variant == AppButtonVariant.link) {
       return TextButton(
         onPressed: onPressed,
@@ -117,7 +109,9 @@ class AppButton extends StatelessWidget {
       return ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isDestructive ? AppTheme.destructiveColor : AppTheme.primaryColor,
+          backgroundColor: isDestructive
+              ? AppTheme.destructiveColor
+              : AppTheme.primaryColor,
           foregroundColor: AppTheme.primaryForeground,
           elevation: 0, // Figmaガイドライン: フラットデザイン
           padding: _getPadding(),
@@ -135,9 +129,13 @@ class AppButton extends StatelessWidget {
       return OutlinedButton(
         onPressed: isLoading ? null : onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: isDestructive ? AppTheme.destructiveColor : theme.colorScheme.onSurface,
+          foregroundColor: isDestructive
+              ? AppTheme.destructiveColor
+              : theme.colorScheme.onSurface,
           side: BorderSide(
-            color: isDestructive ? AppTheme.destructiveColor : AppTheme.mutedColor,
+            color: isDestructive
+                ? AppTheme.destructiveColor
+                : AppTheme.mutedColor,
           ),
           padding: _getPadding(),
           minimumSize: _getMinimumSize(),
@@ -172,7 +170,9 @@ class AppButton extends StatelessWidget {
     return TextButton(
       onPressed: isLoading ? null : onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: isDestructive ? AppTheme.destructiveColor : theme.colorScheme.onSurface,
+        foregroundColor: isDestructive
+            ? AppTheme.destructiveColor
+            : theme.colorScheme.onSurface,
         padding: _getPadding(),
         minimumSize: _getMinimumSize(),
         shape: RoundedRectangleBorder(
@@ -195,8 +195,8 @@ class AppButton extends StatelessWidget {
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
-                variant == AppButtonVariant.primary 
-                    ? AppTheme.primaryForeground 
+                variant == AppButtonVariant.primary
+                    ? AppTheme.primaryForeground
                     : AppTheme.primaryColor,
               ),
             ),
@@ -226,17 +226,26 @@ class AppButton extends StatelessWidget {
   EdgeInsets _getPadding() {
     switch (size) {
       case AppButtonSize.small:
-        return icon != null && text == null 
-            ? const EdgeInsets.all(AppTheme.spacing8) 
-            : const EdgeInsets.symmetric(vertical: AppTheme.spacing8, horizontal: AppTheme.spacing12);
+        return icon != null && text == null
+            ? const EdgeInsets.all(AppTheme.spacing8)
+            : const EdgeInsets.symmetric(
+                vertical: AppTheme.spacing8,
+                horizontal: AppTheme.spacing12,
+              );
       case AppButtonSize.medium:
-        return icon != null && text == null 
-            ? const EdgeInsets.all(AppTheme.spacing8) 
-            : const EdgeInsets.symmetric(vertical: AppTheme.spacing12, horizontal: AppTheme.spacing16);
+        return icon != null && text == null
+            ? const EdgeInsets.all(AppTheme.spacing8)
+            : const EdgeInsets.symmetric(
+                vertical: AppTheme.spacing12,
+                horizontal: AppTheme.spacing16,
+              );
       case AppButtonSize.large:
-        return icon != null && text == null 
-            ? const EdgeInsets.all(AppTheme.spacing12) 
-            : const EdgeInsets.symmetric(vertical: AppTheme.spacing16, horizontal: AppTheme.spacing24);
+        return icon != null && text == null
+            ? const EdgeInsets.all(AppTheme.spacing12)
+            : const EdgeInsets.symmetric(
+                vertical: AppTheme.spacing16,
+                horizontal: AppTheme.spacing24,
+              );
       case AppButtonSize.icon:
         return const EdgeInsets.all(AppTheme.spacing8);
     }

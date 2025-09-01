@@ -25,7 +25,7 @@ class _EventListPageState extends ConsumerState<EventListPage> {
       status: EventStatus.active,
     ),
     EventData(
-      id: '2', 
+      id: '2',
       title: 'チーム懇親会',
       description: 'プロジェクト打ち上げ',
       date: DateTime.now().add(const Duration(days: 14)),
@@ -115,43 +115,37 @@ class _EventListPageState extends ConsumerState<EventListPage> {
             ),
           ],
         ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppTheme.spacing16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_organizerEvents.isNotEmpty) ...[
-              _buildSectionHeader('幹事として管理中', _organizerEvents.length),
-              const SizedBox(height: AppTheme.spacing16),
-              _buildEventGrid(_organizerEvents),
-              const SizedBox(height: AppTheme.spacing32),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppTheme.spacing16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_organizerEvents.isNotEmpty) ...[
+                _buildSectionHeader('幹事として管理中', _organizerEvents.length),
+                const SizedBox(height: AppTheme.spacing16),
+                _buildEventGrid(_organizerEvents),
+                const SizedBox(height: AppTheme.spacing32),
+              ],
+              if (_participantEvents.isNotEmpty) ...[
+                _buildSectionHeader('参加中のイベント', _participantEvents.length),
+                const SizedBox(height: AppTheme.spacing16),
+                _buildEventGrid(_participantEvents),
+              ],
+              if (_organizerEvents.isEmpty && _participantEvents.isEmpty)
+                _buildEmptyState(),
             ],
-            if (_participantEvents.isNotEmpty) ...[
-              _buildSectionHeader('参加中のイベント', _participantEvents.length),
-              const SizedBox(height: AppTheme.spacing16),
-              _buildEventGrid(_participantEvents),
-            ],
-            if (_organizerEvents.isEmpty && _participantEvents.isEmpty)
-              _buildEmptyState(),
-          ],
+          ),
         ),
       ),
-    ),
     );
   }
 
   Widget _buildSectionHeader(String title, int count) {
     return Row(
       children: [
-        Text(
-          title,
-          style: AppTheme.headlineMedium,
-        ),
+        Text(title, style: AppTheme.headlineMedium),
         const SizedBox(width: AppTheme.spacing8),
-        AppBadge(
-          text: count.toString(),
-          variant: AppBadgeVariant.secondary,
-        ),
+        AppBadge(text: count.toString(), variant: AppBadgeVariant.secondary),
       ],
     );
   }
@@ -221,7 +215,7 @@ class _EventListPageState extends ConsumerState<EventListPage> {
               ),
               const SizedBox(width: AppTheme.spacing4),
               Text(
-        '${event.participantCount}人',
+                '${event.participantCount}人',
                 style: AppTheme.bodySmall.copyWith(
                   color: AppTheme.mutedForeground,
                 ),
@@ -238,35 +232,20 @@ class _EventListPageState extends ConsumerState<EventListPage> {
   Widget _buildRoleBadge(EventRole role) {
     switch (role) {
       case EventRole.organizer:
-        return AppBadge(
-          text: '幹事',
-          variant: AppBadgeVariant.default_,
-        );
+        return AppBadge(text: '幹事', variant: AppBadgeVariant.default_);
       case EventRole.participant:
-        return AppBadge(
-          text: '参加者',
-          variant: AppBadgeVariant.secondary,
-        );
+        return AppBadge(text: '参加者', variant: AppBadgeVariant.secondary);
     }
   }
 
   Widget _buildStatusBadge(EventStatus status) {
     switch (status) {
       case EventStatus.planning:
-        return AppBadge(
-          text: '企画中',
-          variant: AppBadgeVariant.secondary,
-        );
+        return AppBadge(text: '企画中', variant: AppBadgeVariant.secondary);
       case EventStatus.active:
-        return AppBadge(
-          text: '募集中',
-          variant: AppBadgeVariant.default_,
-        );
+        return AppBadge(text: '募集中', variant: AppBadgeVariant.default_);
       case EventStatus.completed:
-        return AppBadge(
-          text: '完了',
-          variant: AppBadgeVariant.secondary,
-        );
+        return AppBadge(text: '完了', variant: AppBadgeVariant.secondary);
     }
   }
 
@@ -276,16 +255,9 @@ class _EventListPageState extends ConsumerState<EventListPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: AppTheme.spacing64),
-          Icon(
-            Icons.event_outlined,
-            size: 64,
-            color: AppTheme.mutedForeground,
-          ),
+          Icon(Icons.event_outlined, size: 64, color: AppTheme.mutedForeground),
           const SizedBox(height: AppTheme.spacing24),
-          Text(
-            'イベントがありません',
-            style: AppTheme.headlineMedium,
-          ),
+          Text('イベントがありません', style: AppTheme.headlineMedium),
           const SizedBox(height: AppTheme.spacing8),
           Text(
             '新しいイベントを作成するか、\n他のイベントに参加してみましょう',
@@ -308,7 +280,7 @@ class _EventListPageState extends ConsumerState<EventListPage> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = date.difference(now).inDays;
-    
+
     if (difference == 0) {
       return '今日';
     } else if (difference == 1) {
@@ -342,13 +314,6 @@ class EventData {
   });
 }
 
-enum EventRole {
-  organizer,
-  participant,
-}
+enum EventRole { organizer, participant }
 
-enum EventStatus {
-  planning,
-  active,
-  completed,
-}
+enum EventStatus { planning, active, completed }

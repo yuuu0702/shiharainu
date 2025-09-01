@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final container = ProviderScope.containerOf(context);
       final authService = container.read(authServiceProvider);
-      
+
       await authService.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -87,11 +87,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // アプリロゴ・タイトル
-              Icon(
-                Icons.payment,
-                size: 80,
-                color: AppTheme.primaryColor,
-              ),
+              Icon(Icons.payment, size: 80, color: AppTheme.primaryColor),
               const SizedBox(height: 24),
               Text(
                 'Shiharainu',
@@ -131,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                       isRequired: true,
                       prefixIcon: const Icon(Icons.lock_outline, size: 20),
                     ),
-                    
+
                     // エラーメッセージ表示
                     if (_errorMessage != null) ...[
                       const SizedBox(height: 16),
@@ -167,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ],
-                    
+
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
@@ -274,7 +270,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _showPasswordResetDialog() {
     final emailController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -303,12 +299,12 @@ class _LoginPageState extends State<LoginPage> {
             onPressed: () async {
               final email = emailController.text.trim();
               if (email.isEmpty) return;
-              
+
               try {
                 final container = ProviderScope.containerOf(context);
                 final authService = container.read(authServiceProvider);
                 await authService.sendPasswordResetEmail(email: email);
-                
+
                 if (mounted) {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -322,7 +318,9 @@ class _LoginPageState extends State<LoginPage> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(e.toString().replaceFirst('Exception: ', '')),
+                      content: Text(
+                        e.toString().replaceFirst('Exception: ', ''),
+                      ),
                       backgroundColor: AppTheme.destructive,
                     ),
                   );

@@ -6,11 +6,7 @@ class AppTabItem {
   final IconData? icon;
   final Widget content;
 
-  const AppTabItem({
-    required this.label,
-    this.icon,
-    required this.content,
-  });
+  const AppTabItem({required this.label, this.icon, required this.content});
 }
 
 class AppTabs extends StatefulWidget {
@@ -117,12 +113,7 @@ class _AppTabsState extends State<AppTabs> with SingleTickerProviderStateMixin {
             Icon(item.icon, size: 16),
             const SizedBox(width: 4),
           ],
-          Flexible(
-            child: Text(
-              item.label,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Flexible(child: Text(item.label, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );

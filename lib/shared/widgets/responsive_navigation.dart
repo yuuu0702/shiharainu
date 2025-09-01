@@ -23,7 +23,7 @@ class ResponsiveNavigation extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        
+
         if (AppBreakpoints.isDesktop(width)) {
           // デスクトップ: NavigationRail（サイドナビゲーション）
           return _buildDesktopLayout();
@@ -60,7 +60,7 @@ class ResponsiveNavigation extends StatelessWidget {
 
   Widget _buildNavigationRail() {
     final currentIndex = items.indexWhere((item) => item.route == currentRoute);
-    
+
     return Builder(
       builder: (context) => NavigationRail(
         selectedIndex: currentIndex >= 0 ? currentIndex : 0,
@@ -69,32 +69,36 @@ class ResponsiveNavigation extends StatelessWidget {
             context.go(items[index].route);
           }
         },
-      labelType: NavigationRailLabelType.selected,
-      backgroundColor: Colors.white,
-      elevation: 4,
-      selectedLabelTextStyle: const TextStyle(
-        color: AppTheme.primaryColor,
-        fontWeight: FontWeight.w600,
-        fontSize: 12,
-      ),
-      unselectedLabelTextStyle: const TextStyle(
-        color: AppTheme.mutedForeground,
-        fontWeight: FontWeight.w500,
-        fontSize: 12,
-      ),
-      selectedIconTheme: const IconThemeData(
-        color: AppTheme.primaryColor,
-        size: 24,
-      ),
-      unselectedIconTheme: const IconThemeData(
-        color: AppTheme.mutedForeground,
-        size: 20,
-      ),
-        destinations: items.map((item) => NavigationRailDestination(
-          icon: Icon(item.icon),
-          selectedIcon: Icon(item.icon),
-          label: Text(item.label),
-        )).toList(),
+        labelType: NavigationRailLabelType.selected,
+        backgroundColor: Colors.white,
+        elevation: 4,
+        selectedLabelTextStyle: const TextStyle(
+          color: AppTheme.primaryColor,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+        unselectedLabelTextStyle: const TextStyle(
+          color: AppTheme.mutedForeground,
+          fontWeight: FontWeight.w500,
+          fontSize: 12,
+        ),
+        selectedIconTheme: const IconThemeData(
+          color: AppTheme.primaryColor,
+          size: 24,
+        ),
+        unselectedIconTheme: const IconThemeData(
+          color: AppTheme.mutedForeground,
+          size: 20,
+        ),
+        destinations: items
+            .map(
+              (item) => NavigationRailDestination(
+                icon: Icon(item.icon),
+                selectedIcon: Icon(item.icon),
+                label: Text(item.label),
+              ),
+            )
+            .toList(),
       ),
     );
   }
@@ -176,7 +180,7 @@ class ResponsivePageScaffold extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        
+
         if (AppBreakpoints.isDesktop(width)) {
           // デスクトップ: NavigationRail + ヘッダー
           return ResponsiveNavigation(
@@ -194,10 +198,7 @@ class ResponsivePageScaffold extends StatelessWidget {
             items: navigationItems,
             currentRoute: currentRoute,
             child: Scaffold(
-              appBar: AppBar(
-                title: Text(title),
-                actions: actions,
-              ),
+              appBar: AppBar(title: Text(title), actions: actions),
               body: body,
             ),
           );

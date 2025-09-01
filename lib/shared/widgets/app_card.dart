@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 
-enum AppCardElevation {
-  none,
-  low,
-  medium,
-  high,
-}
+enum AppCardElevation { none, low, medium, high }
 
 class AppCard extends StatelessWidget {
   final Widget child;
@@ -41,16 +36,14 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     Widget cardWidget = Container(
       margin: margin,
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
         border: Border.all(
-          color: isSelected 
-              ? AppTheme.primaryColor 
-              : AppTheme.mutedColor,
+          color: isSelected ? AppTheme.primaryColor : AppTheme.mutedColor,
           width: 1,
         ),
         boxShadow: _getElevationShadow(),
@@ -90,7 +83,7 @@ class AppCard extends StatelessWidget {
         ...AppTheme.elevationMedium,
       ];
     }
-    
+
     switch (elevation) {
       case AppCardElevation.none:
         return [];
@@ -124,10 +117,7 @@ class AppCardHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: AppTheme.headlineMedium,
-              ),
+              Text(title, style: AppTheme.headlineMedium),
               if (subtitle != null) ...[
                 const SizedBox(height: AppTheme.spacing4),
                 Text(
@@ -153,11 +143,7 @@ class AppCardContent extends StatelessWidget {
   final Widget child;
   final EdgeInsets? padding;
 
-  const AppCardContent({
-    super.key,
-    required this.child,
-    this.padding,
-  });
+  const AppCardContent({super.key, required this.child, this.padding});
 
   @override
   Widget build(BuildContext context) {

@@ -50,16 +50,16 @@ class AppInput extends StatelessWidget {
             text: TextSpan(
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
+                color:
+                    Theme.of(context).textTheme.bodyLarge?.color ??
+                    Colors.black87,
               ),
               children: [
                 TextSpan(text: label!),
                 if (isRequired)
                   const TextSpan(
                     text: ' *',
-                    style: TextStyle(
-                      color: AppTheme.destructiveColor,
-                    ),
+                    style: TextStyle(color: AppTheme.destructiveColor),
                   ),
               ],
             ),
@@ -127,16 +127,16 @@ class AppTextarea extends StatelessWidget {
             text: TextSpan(
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
+                color:
+                    Theme.of(context).textTheme.bodyLarge?.color ??
+                    Colors.black87,
               ),
               children: [
                 TextSpan(text: label!),
                 if (isRequired)
                   const TextSpan(
                     text: ' *',
-                    style: TextStyle(
-                      color: AppTheme.destructiveColor,
-                    ),
+                    style: TextStyle(color: AppTheme.destructiveColor),
                   ),
               ],
             ),
@@ -157,7 +157,10 @@ class AppTextarea extends StatelessWidget {
             counterText: maxLength != null ? null : '',
             alignLabelWithHint: true,
             // Figmaガイドライン: px-3 py-2 = 左右12px、上下8px
-            contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 8,
+              horizontal: 12,
+            ),
           ),
         ),
       ],
@@ -195,16 +198,16 @@ class AppSelect<T> extends StatelessWidget {
             text: TextSpan(
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
+                color:
+                    Theme.of(context).textTheme.bodyLarge?.color ??
+                    Colors.black87,
               ),
               children: [
                 TextSpan(text: label!),
                 if (isRequired)
                   const TextSpan(
                     text: ' *',
-                    style: TextStyle(
-                      color: AppTheme.destructiveColor,
-                    ),
+                    style: TextStyle(color: AppTheme.destructiveColor),
                   ),
               ],
             ),
@@ -221,7 +224,8 @@ class AppSelect<T> extends StatelessWidget {
             errorText: errorText,
           ),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
+            color:
+                Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
           ),
         ),
       ],

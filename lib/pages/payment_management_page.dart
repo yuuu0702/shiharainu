@@ -55,7 +55,8 @@ class _PaymentManagementPageState extends State<PaymentManagementPage> {
   int get paidCount => participants.where((p) => p.isPaid).length;
   int get unpaidCount => totalParticipants - paidCount;
   int get totalAmount => participants.fold(0, (sum, p) => sum + p.amount);
-  int get paidAmount => participants.where((p) => p.isPaid).fold(0, (sum, p) => sum + p.amount);
+  int get paidAmount =>
+      participants.where((p) => p.isPaid).fold(0, (sum, p) => sum + p.amount);
 
   @override
   Widget build(BuildContext context) {
@@ -87,13 +88,10 @@ class _PaymentManagementPageState extends State<PaymentManagementPage> {
             // 参加者リスト
             const Text(
               '参加者一覧',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            
+
             Expanded(
               child: ResponsiveLayout(
                 mobile: _buildMobileList(),
@@ -111,24 +109,60 @@ class _PaymentManagementPageState extends State<PaymentManagementPage> {
     return ResponsiveLayout(
       mobile: Column(
         children: [
-          _buildSummaryCard('支払い完了', '$paidCount人', AppTheme.successColor, Icons.check_circle),
+          _buildSummaryCard(
+            '支払い完了',
+            '$paidCount人',
+            AppTheme.successColor,
+            Icons.check_circle,
+          ),
           const SizedBox(height: 12),
-          _buildSummaryCard('未支払い', '$unpaidCount人', AppTheme.destructiveColor, Icons.pending),
+          _buildSummaryCard(
+            '未支払い',
+            '$unpaidCount人',
+            AppTheme.destructiveColor,
+            Icons.pending,
+          ),
         ],
       ),
       tablet: Row(
         children: [
-          Expanded(child: _buildSummaryCard('支払い完了', '$paidCount人', AppTheme.successColor, Icons.check_circle)),
+          Expanded(
+            child: _buildSummaryCard(
+              '支払い完了',
+              '$paidCount人',
+              AppTheme.successColor,
+              Icons.check_circle,
+            ),
+          ),
           const SizedBox(width: 16),
-          Expanded(child: _buildSummaryCard('未支払い', '$unpaidCount人', AppTheme.destructiveColor, Icons.pending)),
+          Expanded(
+            child: _buildSummaryCard(
+              '未支払い',
+              '$unpaidCount人',
+              AppTheme.destructiveColor,
+              Icons.pending,
+            ),
+          ),
           const SizedBox(width: 16),
-          Expanded(child: _buildSummaryCard('合計金額', '¥${totalAmount.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]},')}', AppTheme.primaryColor, Icons.currency_yen)),
+          Expanded(
+            child: _buildSummaryCard(
+              '合計金額',
+              '¥${totalAmount.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]},')}',
+              AppTheme.primaryColor,
+              Icons.currency_yen,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryCard(String title, String value, Color color, IconData icon) {
+  Widget _buildSummaryCard(
+    String title,
+    String value,
+    Color color,
+    IconData icon,
+  ) {
     return AppCard(
       child: Row(
         children: [
@@ -231,12 +265,14 @@ class _PaymentManagementPageState extends State<PaymentManagementPage> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: participant.isPaid 
-                  ? AppTheme.successColor 
-                  : AppTheme.mutedColor,
+                backgroundColor: participant.isPaid
+                    ? AppTheme.successColor
+                    : AppTheme.mutedColor,
                 child: Icon(
                   participant.isPaid ? Icons.check : Icons.person,
-                  color: participant.isPaid ? Colors.white : AppTheme.mutedForeground,
+                  color: participant.isPaid
+                      ? Colors.white
+                      : AppTheme.mutedForeground,
                   size: 20,
                 ),
               ),
@@ -264,9 +300,9 @@ class _PaymentManagementPageState extends State<PaymentManagementPage> {
               ),
               AppBadge(
                 text: participant.isPaid ? '支払い済み' : '未支払い',
-                variant: participant.isPaid 
-                  ? AppBadgeVariant.success 
-                  : AppBadgeVariant.warning,
+                variant: participant.isPaid
+                    ? AppBadgeVariant.success
+                    : AppBadgeVariant.warning,
               ),
             ],
           ),
@@ -285,12 +321,18 @@ class _PaymentManagementPageState extends State<PaymentManagementPage> {
               Row(
                 children: [
                   if (participant.drinkingStatus)
-                    const Icon(Icons.local_bar, size: 16, color: AppTheme.warningColor),
+                    const Icon(
+                      Icons.local_bar,
+                      size: 16,
+                      color: AppTheme.warningColor,
+                    ),
                   const SizedBox(width: 4),
                   Icon(
                     participant.isPaid ? Icons.check_circle : Icons.schedule,
                     size: 16,
-                    color: participant.isPaid ? AppTheme.successColor : AppTheme.mutedForeground,
+                    color: participant.isPaid
+                        ? AppTheme.successColor
+                        : AppTheme.mutedForeground,
                   ),
                 ],
               ),

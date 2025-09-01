@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 
 enum AppAvatarSize {
-  small,   // 32px
-  medium,  // 40px
-  large,   // 48px
-  xlarge,  // 64px
+  small, // 32px
+  medium, // 40px
+  large, // 48px
+  xlarge, // 64px
 }
 
 class AppAvatar extends StatelessWidget {
@@ -28,7 +28,10 @@ class AppAvatar extends StatelessWidget {
     this.onTap,
     this.showBorder = false,
     this.showOnlineIndicator = false,
-  }) : assert(imageUrl != null || initials != null, 'Either imageUrl or initials must be provided');
+  }) : assert(
+         imageUrl != null || initials != null,
+         'Either imageUrl or initials must be provided',
+       );
 
   const AppAvatar.small({
     super.key,
@@ -40,7 +43,10 @@ class AppAvatar extends StatelessWidget {
     this.showBorder = false,
     this.showOnlineIndicator = false,
   }) : size = AppAvatarSize.small,
-       assert(imageUrl != null || initials != null, 'Either imageUrl or initials must be provided');
+       assert(
+         imageUrl != null || initials != null,
+         'Either imageUrl or initials must be provided',
+       );
 
   const AppAvatar.medium({
     super.key,
@@ -52,7 +58,10 @@ class AppAvatar extends StatelessWidget {
     this.showBorder = false,
     this.showOnlineIndicator = false,
   }) : size = AppAvatarSize.medium,
-       assert(imageUrl != null || initials != null, 'Either imageUrl or initials must be provided');
+       assert(
+         imageUrl != null || initials != null,
+         'Either imageUrl or initials must be provided',
+       );
 
   const AppAvatar.large({
     super.key,
@@ -64,7 +73,10 @@ class AppAvatar extends StatelessWidget {
     this.showBorder = false,
     this.showOnlineIndicator = false,
   }) : size = AppAvatarSize.large,
-       assert(imageUrl != null || initials != null, 'Either imageUrl or initials must be provided');
+       assert(
+         imageUrl != null || initials != null,
+         'Either imageUrl or initials must be provided',
+       );
 
   const AppAvatar.xlarge({
     super.key,
@@ -76,13 +88,16 @@ class AppAvatar extends StatelessWidget {
     this.showBorder = false,
     this.showOnlineIndicator = false,
   }) : size = AppAvatarSize.xlarge,
-       assert(imageUrl != null || initials != null, 'Either imageUrl or initials must be provided');
+       assert(
+         imageUrl != null || initials != null,
+         'Either imageUrl or initials must be provided',
+       );
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final avatarSize = _getSize();
-    
+
     Widget avatar = Stack(
       children: [
         Container(
@@ -91,11 +106,8 @@ class AppAvatar extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: backgroundColor ?? AppTheme.mutedColor,
-            border: showBorder 
-                ? Border.all(
-                    color: theme.colorScheme.outline,
-                    width: 2,
-                  )
+            border: showBorder
+                ? Border.all(color: theme.colorScheme.outline, width: 2)
                 : null,
             boxShadow: AppTheme.elevationLow,
           ),
@@ -144,7 +156,9 @@ class AppAvatar extends StatelessWidget {
                 height: _getSize() * 0.4,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppTheme.primaryColor,
+                  ),
                 ),
               ),
             ),
@@ -152,7 +166,7 @@ class AppAvatar extends StatelessWidget {
         },
       );
     }
-    
+
     return _buildInitialsContent();
   }
 
@@ -175,7 +189,7 @@ class AppAvatar extends StatelessWidget {
   Widget _buildOnlineIndicator() {
     final indicatorSize = _getSize() * 0.25;
     final offset = _getSize() * 0.1;
-    
+
     return Positioned(
       right: offset,
       bottom: offset,
@@ -185,10 +199,7 @@ class AppAvatar extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: const Color(0xFF10B981), // green-500
-          border: Border.all(
-            color: Colors.white,
-            width: 2,
-          ),
+          border: Border.all(color: Colors.white, width: 2),
         ),
       ),
     );

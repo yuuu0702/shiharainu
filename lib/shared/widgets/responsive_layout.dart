@@ -6,10 +6,10 @@ import 'package:shiharainu/shared/constants/app_breakpoints.dart';
 class ResponsiveLayout extends StatelessWidget {
   /// モバイル端末用のウィジェット
   final Widget mobile;
-  
+
   /// タブレット端末用のウィジェット（オプション）
   final Widget? tablet;
-  
+
   /// デスクトップ端末用のウィジェット（オプション）
   final Widget? desktop;
 
@@ -25,7 +25,7 @@ class ResponsiveLayout extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        
+
         if (AppBreakpoints.isDesktop(width)) {
           return desktop ?? tablet ?? mobile;
         } else if (AppBreakpoints.isTablet(width)) {
@@ -59,7 +59,7 @@ class ResponsivePadding extends StatelessWidget {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         double padding;
-        
+
         if (AppBreakpoints.isDesktop(width)) {
           padding = customDesktopPadding ?? AppBreakpoints.getPadding(width);
         } else if (AppBreakpoints.isTablet(width)) {
@@ -68,10 +68,7 @@ class ResponsivePadding extends StatelessWidget {
           padding = customMobilePadding ?? AppBreakpoints.getPadding(width);
         }
 
-        return Padding(
-          padding: EdgeInsets.all(padding),
-          child: child,
-        );
+        return Padding(padding: EdgeInsets.all(padding), child: child);
       },
     );
   }
@@ -100,7 +97,7 @@ class ResponsiveGrid extends StatelessWidget {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         int crossAxisCount;
-        
+
         if (AppBreakpoints.isDesktop(width)) {
           crossAxisCount = desktopColumns ?? mobileColumns + 2;
         } else if (AppBreakpoints.isTablet(width)) {

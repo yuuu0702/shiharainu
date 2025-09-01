@@ -32,9 +32,7 @@ class AppBottomNavigation extends StatelessWidget {
       height: 64,
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(color: AppTheme.mutedColor, width: 1),
-        ),
+        border: Border(top: BorderSide(color: AppTheme.mutedColor, width: 1)),
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
@@ -46,15 +44,20 @@ class AppBottomNavigation extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Row(
-          children: items.map((item) => _buildNavigationItem(context, item)).toList(),
+          children: items
+              .map((item) => _buildNavigationItem(context, item))
+              .toList(),
         ),
       ),
     );
   }
 
-  Widget _buildNavigationItem(BuildContext context, AppBottomNavigationItem item) {
+  Widget _buildNavigationItem(
+    BuildContext context,
+    AppBottomNavigationItem item,
+  ) {
     final isActive = currentRoute.startsWith(item.route);
-    
+
     return Expanded(
       child: Material(
         color: Colors.transparent,
@@ -78,13 +81,17 @@ class AppBottomNavigation extends StatelessWidget {
                       decoration: isActive
                           ? const BoxDecoration(
                               color: Color(0x0CEA3800), // primary/5
-                              borderRadius: BorderRadius.all(Radius.circular(4)),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(4),
+                              ),
                             )
                           : null,
                       child: Icon(
                         item.icon,
                         size: 20,
-                        color: isActive ? AppTheme.primaryColor : AppTheme.mutedForeground,
+                        color: isActive
+                            ? AppTheme.primaryColor
+                            : AppTheme.mutedForeground,
                       ),
                     ),
                     // バッジ表示
@@ -103,7 +110,9 @@ class AppBottomNavigation extends StatelessWidget {
                             minHeight: 14,
                           ),
                           child: Text(
-                            item.badgeCount! > 99 ? '99+' : item.badgeCount!.toString(),
+                            item.badgeCount! > 99
+                                ? '99+'
+                                : item.badgeCount!.toString(),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 9,
@@ -121,7 +130,9 @@ class AppBottomNavigation extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: isActive ? AppTheme.primaryColor : AppTheme.mutedForeground,
+                    color: isActive
+                        ? AppTheme.primaryColor
+                        : AppTheme.mutedForeground,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

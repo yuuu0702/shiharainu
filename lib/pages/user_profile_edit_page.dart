@@ -11,7 +11,8 @@ class UserProfileEditPage extends ConsumerStatefulWidget {
   const UserProfileEditPage({super.key});
 
   @override
-  ConsumerState<UserProfileEditPage> createState() => _UserProfileEditPageState();
+  ConsumerState<UserProfileEditPage> createState() =>
+      _UserProfileEditPageState();
 }
 
 class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
@@ -38,7 +39,7 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
   Future<void> _loadExistingProfile() async {
     try {
       final userProfileAsync = ref.read(userProfileProvider);
-      
+
       userProfileAsync.when(
         data: (profile) {
           if (profile != null) {
@@ -93,16 +94,13 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            
+
             // タイトル
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Row(
                 children: [
-                  Text(
-                    '役職を選択',
-                    style: AppTheme.headlineMedium,
-                  ),
+                  Text('役職を選択', style: AppTheme.headlineMedium),
                   const Spacer(),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
@@ -111,9 +109,9 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                 ],
               ),
             ),
-            
+
             const Divider(),
-            
+
             // 役職リスト（説明付き）
             Expanded(
               child: ListView.separated(
@@ -122,29 +120,32 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                 itemCount: UserPositions.positionsWithDescription.length,
                 separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {
-                  final positionData = UserPositions.positionsWithDescription[index];
+                  final positionData =
+                      UserPositions.positionsWithDescription[index];
                   final positionName = positionData['name']!;
                   final description = positionData['description']!;
                   final isSelected = positionName == _selectedPosition;
-                  
+
                   return ListTile(
                     title: Text(
                       positionName,
                       style: AppTheme.bodyMedium.copyWith(
                         color: isSelected ? AppTheme.primaryColor : null,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                       ),
                     ),
                     subtitle: Text(
                       description,
                       style: AppTheme.bodySmall.copyWith(
-                        color: isSelected 
+                        color: isSelected
                             ? AppTheme.primaryColor.withValues(alpha: 0.8)
                             : AppTheme.mutedForeground,
                         fontSize: 12,
                       ),
                     ),
-                    trailing: isSelected 
+                    trailing: isSelected
                         ? const Icon(Icons.check, color: AppTheme.primaryColor)
                         : null,
                     onTap: () {
@@ -200,7 +201,7 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
 
     try {
       final userService = ref.read(userServiceProvider);
-      
+
       // UserServiceを使用してFirestoreにユーザー情報を保存
       await userService.saveUserProfile(
         name: name,
@@ -211,10 +212,10 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
       if (mounted) {
         // プロバイダーを強制的に更新してキャッシュをクリア
         ref.invalidate(userProfileProvider);
-        
+
         // 少し待ってからナビゲーション（プロバイダーの更新を待つ）
         await Future.delayed(const Duration(milliseconds: 500));
-        
+
         if (mounted) {
           // 成功のスナックバー表示
           ScaffoldMessenger.of(context).showSnackBar(
@@ -224,7 +225,7 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
               duration: Duration(seconds: 2),
             ),
           );
-          
+
           // アカウント画面に戻る（現在のページを置き換え）
           context.pushReplacement('/account');
         }
@@ -234,11 +235,13 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
         setState(() {
           _errorMessage = e.toString().replaceFirst('Exception: ', '');
         });
-        
+
         // エラーのスナックバー表示
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('保存に失敗しました: ${e.toString().replaceFirst('Exception: ', '')}'),
+            content: Text(
+              '保存に失敗しました: ${e.toString().replaceFirst('Exception: ', '')}',
+            ),
             backgroundColor: AppTheme.destructive,
             duration: const Duration(seconds: 4),
           ),
@@ -291,12 +294,9 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 24),
-              
+
               // ページタイトル
-              Text(
-                'プロフィールを編集',
-                style: AppTheme.displayMedium,
-              ),
+              Text('プロフィールを編集', style: AppTheme.displayMedium),
               const SizedBox(height: 8),
               Text(
                 '基本情報を変更できます',
@@ -331,17 +331,14 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // 役職選択
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Text(
-                              '役職',
-                              style: AppTheme.labelMedium,
-                            ),
+                            Text('役職', style: AppTheme.labelMedium),
                             const SizedBox(width: 4),
                             Text(
                               '*',
@@ -423,16 +420,18 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                         ),
                       ),
                     ],
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // 保存・キャンセルボタン
                     Row(
                       children: [
                         Expanded(
                           child: AppButton.outline(
                             text: 'キャンセル',
-                            onPressed: _isLoading ? null : () => context.pushReplacement('/account'),
+                            onPressed: _isLoading
+                                ? null
+                                : () => context.pushReplacement('/account'),
                             size: AppButtonSize.large,
                           ),
                         ),

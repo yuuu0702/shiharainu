@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 
-enum AppSegmentedControlSize {
-  small,
-  medium,
-  large,
-}
+enum AppSegmentedControlSize { small, medium, large }
 
 class AppSegmentedControlOption<T> {
   final T value;
@@ -37,7 +33,7 @@ class AppSegmentedControl<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final height = _getHeight();
     final fontSize = _getFontSize();
-    
+
     return Container(
       height: height,
       padding: const EdgeInsets.all(4),
@@ -46,18 +42,16 @@ class AppSegmentedControl<T> extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
-        children: options.map((option) => 
-          Expanded(
-            child: _buildOption(option, fontSize),
-          ),
-        ).toList(),
+        children: options
+            .map((option) => Expanded(child: _buildOption(option, fontSize)))
+            .toList(),
       ),
     );
   }
 
   Widget _buildOption(AppSegmentedControlOption<T> option, double fontSize) {
     final isSelected = option.value == value;
-    
+
     return GestureDetector(
       onTap: () => onChanged(option.value),
       child: AnimatedContainer(
@@ -72,7 +66,7 @@ class AppSegmentedControl<T> extends StatelessWidget {
                     color: Colors.black12,
                     offset: Offset(0, 1),
                     blurRadius: 2,
-                  )
+                  ),
                 ]
               : null,
         ),
@@ -84,9 +78,7 @@ class AppSegmentedControl<T> extends StatelessWidget {
                 Icon(
                   option.icon,
                   size: 16,
-                  color: isSelected
-                      ? Colors.black87
-                      : AppTheme.mutedForeground,
+                  color: isSelected ? Colors.black87 : AppTheme.mutedForeground,
                 ),
                 const SizedBox(width: 4),
               ],
