@@ -1,9 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
+import 'package:shiharainu/shared/widgets/app_search_bar.dart';
 
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
@@ -13,8 +12,25 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
-  // サンプルデータ - 実際のアプリではRiverpodプロバイダーから取得
-  final List<EventData> _organizerEvents = [
+  // フィルタリングと検索の状態
+  String _searchQuery = '';
+  EventRole? _selectedRole;
+  EventStatus? _selectedStatus;
+  DateTime? _dateFrom;
+  DateTime? _dateTo;
+  String _sortBy = 'date_asc';
+  bool _showFilters = false;
+
+  // ソートオプション
+  static const List<SortOption> _sortOptions = [
+    SortOption(value: 'date_asc', label: '開催日（近い順）', icon: Icons.arrow_upward),
+    SortOption(value: 'date_desc', label: '開催日（遠い順）', icon: Icons.arrow_downward),
+    SortOption(value: 'name_asc', label: '名前（A-Z）', icon: Icons.sort_by_alpha),
+    SortOption(value: 'participants_desc', label: '参加者数（多い順）', icon: Icons.people),
+  ];
+
+  // サンプルデータ
+  final List<EventData> _allEvents = [
     EventData(
       id: '1',
       title: '新年会2024',
@@ -42,9 +58,6 @@ class _EventsPageState extends State<EventsPage> {
       role: EventRole.organizer,
       status: EventStatus.active,
     ),
-  ];
-
-  final List<EventData> _participantEvents = [
     EventData(
       id: '4',
       title: '歓送迎会',
@@ -81,10 +94,21 @@ class _EventsPageState extends State<EventsPage> {
       role: EventRole.participant,
       status: EventStatus.active,
     ),
+    EventData(
+      id: '8',
+      title: 'ゴルフコンペ',
+      description: '年次ゴルフコンペティション',
+      date: DateTime.now().subtract(const Duration(days: 10)),
+      participantCount: 20,
+      role: EventRole.participant,
+      status: EventStatus.completed,
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final filteredEvents = _getFilteredEvents();
+
     return SimplePage(
       title: 'イベント一覧',
       actions: [
@@ -95,47 +119,182 @@ class _EventsPageState extends State<EventsPage> {
           onPressed: () => context.go('/events/create'),
         ),
       ],
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppTheme.spacing16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 幹事として管理中のイベント
-            if (_organizerEvents.isNotEmpty) ...[
-              _buildEventSection('幹事として管理中', _organizerEvents),
-              const SizedBox(height: AppTheme.spacing24),
-            ],
+      body: Column(
+        children: [
+          // 検索・フィルターバー
+          Container(
+            padding: const EdgeInsets.all(AppTheme.spacing16),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                bottom: BorderSide(
+                  color: AppTheme.mutedColor,
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Column(
+              children: [
+                AppSearchFilterBar(
+                  searchQuery: _searchQuery,
+                  onSearchChanged: (query) {
+                    setState(() {
+                      _searchQuery = query;
+                    });
+                  },
+                  onSearchClear: () {
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                  onFilterTap: () {
+                    setState(() {
+                      _showFilters = !_showFilters;
+                    });
+                  },
+                  activeFiltersCount: _getActiveFiltersCount(),
+                  sortWidget: AppSortOptions(
+                    selectedOption: _sortBy,
+                    options: _sortOptions,
+                    onChanged: (value) {
+                      setState(() {
+                        _sortBy = value;
+                      });
+                    },
+                  ),
+                ),
 
-            // 参加者として入っているイベントリスト
-            if (_participantEvents.isNotEmpty) ...[
-              _buildEventSection('参加中', _participantEvents),
-            ],
+                // フィルターオプション
+                if (_showFilters) ...[
+                  const SizedBox(height: AppTheme.spacing16),
+                  _buildFilterOptions(),
+                ],
+              ],
+            ),
+          ),
 
-            // 空状態
-            if (_organizerEvents.isEmpty && _participantEvents.isEmpty)
-              _buildEmptyEventState(),
-          ],
-        ),
+          // イベント一覧
+          Expanded(
+            child: filteredEvents.isEmpty
+                ? _buildEmptyState()
+                : ListView.builder(
+                    padding: const EdgeInsets.all(AppTheme.spacing16),
+                    itemCount: filteredEvents.length,
+                    itemBuilder: (context, index) {
+                      final event = filteredEvents[index];
+                      return _buildEventCard(event);
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildEventSection(String title, List<EventData> events) {
+  Widget _buildFilterOptions() {
     return AppCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: AppTheme.headlineSmall.copyWith(
-              color: AppTheme.primaryColor,
-              fontWeight: FontWeight.w600,
-            ),
+          // ロールフィルター
+          AppFilterSection(
+            title: '参加種別',
+            children: [
+              AppFilterChip(
+                label: 'すべて',
+                isSelected: _selectedRole == null,
+                onSelected: (selected) {
+                  if (selected) {
+                    setState(() {
+                      _selectedRole = null;
+                    });
+                  }
+                },
+              ),
+              AppFilterChip(
+                label: '幹事',
+                icon: Icons.admin_panel_settings_outlined,
+                isSelected: _selectedRole == EventRole.organizer,
+                onSelected: (selected) {
+                  setState(() {
+                    _selectedRole = selected ? EventRole.organizer : null;
+                  });
+                },
+              ),
+              AppFilterChip(
+                label: '参加者',
+                icon: Icons.person_outline,
+                isSelected: _selectedRole == EventRole.participant,
+                onSelected: (selected) {
+                  setState(() {
+                    _selectedRole = selected ? EventRole.participant : null;
+                  });
+                },
+              ),
+            ],
           ),
+
           const SizedBox(height: AppTheme.spacing16),
 
-          // イベントカードリスト
-          ...events.map((event) => _buildEventCard(event)).toList(),
+          // ステータスフィルター
+          AppFilterSection(
+            title: 'ステータス',
+            children: [
+              AppFilterChip(
+                label: 'すべて',
+                isSelected: _selectedStatus == null,
+                onSelected: (selected) {
+                  if (selected) {
+                    setState(() {
+                      _selectedStatus = null;
+                    });
+                  }
+                },
+              ),
+              AppFilterChip(
+                label: '企画中',
+                icon: Icons.schedule,
+                isSelected: _selectedStatus == EventStatus.planning,
+                onSelected: (selected) {
+                  setState(() {
+                    _selectedStatus = selected ? EventStatus.planning : null;
+                  });
+                },
+              ),
+              AppFilterChip(
+                label: '開催予定',
+                icon: Icons.event,
+                isSelected: _selectedStatus == EventStatus.active,
+                onSelected: (selected) {
+                  setState(() {
+                    _selectedStatus = selected ? EventStatus.active : null;
+                  });
+                },
+              ),
+              AppFilterChip(
+                label: '終了',
+                icon: Icons.check_circle_outline,
+                isSelected: _selectedStatus == EventStatus.completed,
+                onSelected: (selected) {
+                  setState(() {
+                    _selectedStatus = selected ? EventStatus.completed : null;
+                  });
+                },
+              ),
+            ],
+          ),
+
+          const SizedBox(height: AppTheme.spacing16),
+
+          // フィルタークリア
+          Row(
+            children: [
+              const Spacer(),
+              TextButton(
+                onPressed: _clearAllFilters,
+                child: const Text('フィルターをクリア'),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -144,190 +303,282 @@ class _EventsPageState extends State<EventsPage> {
   Widget _buildEventCard(EventData event) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => context.go('/events/${event.id}'),
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-          child: Container(
-            padding: const EdgeInsets.all(AppTheme.spacing16),
-            decoration: BoxDecoration(
-              color: AppTheme.inputBackground,
-              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-              border: Border.all(color: AppTheme.mutedColor, width: 1),
-            ),
-            child: Column(
+      child: AppCard(
+        onTap: () => context.go('/events/${event.id}'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            event.title,
-                            style: AppTheme.headlineSmall.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: AppTheme.spacing4),
-                          Text(
-                            event.description,
-                            style: AppTheme.bodyMedium.copyWith(
-                              color: AppTheme.mutedForeground,
-                            ),
-                          ),
-                        ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        event.title,
+                        style: AppTheme.bodyLarge.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: AppTheme.spacing4),
+                      Text(
+                        event.description,
+                        style: AppTheme.bodySmall.copyWith(
+                          color: AppTheme.mutedForegroundAccessible,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppTheme.spacing8,
                         vertical: AppTheme.spacing4,
                       ),
                       decoration: BoxDecoration(
-                        color: _getStatusColor(event).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.radiusSmall,
-                        ),
+                        color: _getStatusColor(event.status).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                         border: Border.all(
-                          color: _getStatusColor(event).withOpacity(0.3),
+                          color: _getStatusColor(event.status).withValues(alpha: 0.3),
                         ),
                       ),
                       child: Text(
-                        _getStatusText(event),
+                        _getStatusText(event.status),
                         style: AppTheme.bodySmall.copyWith(
-                          color: _getStatusColor(event),
+                          color: _getStatusColor(event.status),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: AppTheme.spacing16),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today_outlined,
-                      size: 16,
-                      color: AppTheme.mutedForeground,
-                    ),
-                    const SizedBox(width: AppTheme.spacing4),
+                    const SizedBox(height: AppTheme.spacing4),
                     Text(
                       _formatDate(event.date),
                       style: AppTheme.bodySmall.copyWith(
-                        color: AppTheme.mutedForeground,
-                      ),
-                    ),
-                    const Spacer(),
-                    Icon(
-                      Icons.people_outline,
-                      size: 16,
-                      color: AppTheme.mutedForeground,
-                    ),
-                    const SizedBox(width: AppTheme.spacing4),
-                    Text(
-                      '${event.participantCount}人',
-                      style: AppTheme.bodySmall.copyWith(
-                        color: AppTheme.mutedForeground,
+                        color: AppTheme.mutedForegroundAccessible,
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-          ),
+            
+            const SizedBox(height: AppTheme.spacing12),
+            
+            Row(
+              children: [
+                Icon(
+                  Icons.people_outline,
+                  size: 16,
+                  color: AppTheme.mutedForegroundAccessible,
+                ),
+                const SizedBox(width: AppTheme.spacing4),
+                Text(
+                  '${event.participantCount}人',
+                  style: AppTheme.bodySmall.copyWith(
+                    color: AppTheme.mutedForegroundAccessible,
+                  ),
+                ),
+                const SizedBox(width: AppTheme.spacing16),
+                Icon(
+                  event.role == EventRole.organizer 
+                    ? Icons.admin_panel_settings_outlined
+                    : Icons.person_outline,
+                  size: 16,
+                  color: AppTheme.mutedForegroundAccessible,
+                ),
+                const SizedBox(width: AppTheme.spacing4),
+                Text(
+                  event.role == EventRole.organizer ? '幹事' : '参加者',
+                  style: AppTheme.bodySmall.copyWith(
+                    color: AppTheme.mutedForegroundAccessible,
+                  ),
+                ),
+                const Spacer(),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 12,
+                  color: AppTheme.mutedForegroundAccessible,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Color _getStatusColor(EventData event) {
-    final now = DateTime.now();
-    final eventDate = event.date;
-
-    // 開催日が過去の場合
-    if (eventDate.isBefore(DateTime(now.year, now.month, now.day))) {
-      return Colors.green;
-    }
-
-    // 開催日が未来の場合
-    return AppTheme.primaryColor;
-  }
-
-  String _getStatusText(EventData event) {
-    final now = DateTime.now();
-    final eventDate = event.date;
-    final difference = eventDate
-        .difference(DateTime(now.year, now.month, now.day))
-        .inDays;
-
-    // 開催日が過去の場合
-    if (difference < 0) {
-      return '終了';
-    }
-
-    // 開催日が今日の場合
-    if (difference == 0) {
-      return '本日開催';
-    }
-
-    // 開催日が未来の場合
-    return '開催日まであと${difference}日';
-  }
-
-  Widget _buildEmptyEventState() {
-    return AppCard(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: AppTheme.spacing16),
-          Icon(Icons.event_outlined, size: 48, color: AppTheme.mutedForeground),
-          const SizedBox(height: AppTheme.spacing16),
-          Text(
-            'イベントがありません',
-            style: AppTheme.bodyLarge.copyWith(color: AppTheme.mutedForeground),
-          ),
-          const SizedBox(height: AppTheme.spacing8),
-          Text(
-            '新しいイベントを作成するか\nイベントの招待を受けてみましょう',
-            style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.mutedForeground,
+  Widget _buildEmptyState() {
+    final hasActiveFilters = _getActiveFiltersCount() > 0;
+    
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.spacing32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              hasActiveFilters ? Icons.search_off : Icons.event_outlined,
+              size: 64,
+              color: AppTheme.mutedForegroundAccessible,
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppTheme.spacing16),
-          AppButton.primary(
-            text: 'イベントを作成',
-            icon: const Icon(Icons.add, size: 18),
-            size: AppButtonSize.small,
-            onPressed: () => context.go('/events/create'),
-          ),
-          const SizedBox(height: AppTheme.spacing16),
-        ],
+            const SizedBox(height: AppTheme.spacing16),
+            Text(
+              hasActiveFilters 
+                ? '検索結果が見つかりませんでした'
+                : 'イベントがありません',
+              style: AppTheme.headlineSmall.copyWith(
+                color: AppTheme.mutedForegroundAccessible,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppTheme.spacing8),
+            Text(
+              hasActiveFilters 
+                ? '検索条件やフィルターを変更してみてください'
+                : '新しいイベントを作成してみましょう',
+              style: AppTheme.bodyMedium.copyWith(
+                color: AppTheme.mutedForegroundAccessible,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppTheme.spacing24),
+            if (hasActiveFilters) ...[
+              AppButton.outline(
+                text: 'フィルターをクリア',
+                onPressed: () {
+                  _clearAllFilters();
+                  setState(() {
+                    _showFilters = false;
+                  });
+                },
+              ),
+            ] else ...[
+              AppButton.primary(
+                text: 'イベントを作成',
+                icon: const Icon(Icons.add, size: 18),
+                onPressed: () => context.go('/events/create'),
+              ),
+            ],
+          ],
+        ),
       ),
     );
+  }
+
+  List<EventData> _getFilteredEvents() {
+    var events = List<EventData>.from(_allEvents);
+
+    // 検索フィルター
+    if (_searchQuery.isNotEmpty) {
+      events = events.where((event) {
+        return event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+               event.description.toLowerCase().contains(_searchQuery.toLowerCase());
+      }).toList();
+    }
+
+    // ロールフィルター
+    if (_selectedRole != null) {
+      events = events.where((event) => event.role == _selectedRole).toList();
+    }
+
+    // ステータスフィルター
+    if (_selectedStatus != null) {
+      events = events.where((event) => event.status == _selectedStatus).toList();
+    }
+
+    // 日付フィルター
+    if (_dateFrom != null) {
+      events = events.where((event) => event.date.isAfter(_dateFrom!)).toList();
+    }
+    if (_dateTo != null) {
+      events = events.where((event) => event.date.isBefore(_dateTo!)).toList();
+    }
+
+    // ソート
+    events.sort((a, b) {
+      switch (_sortBy) {
+        case 'date_asc':
+          return a.date.compareTo(b.date);
+        case 'date_desc':
+          return b.date.compareTo(a.date);
+        case 'name_asc':
+          return a.title.compareTo(b.title);
+        case 'participants_desc':
+          return b.participantCount.compareTo(a.participantCount);
+        default:
+          return a.date.compareTo(b.date);
+      }
+    });
+
+    return events;
+  }
+
+  int _getActiveFiltersCount() {
+    int count = 0;
+    if (_selectedRole != null) count++;
+    if (_selectedStatus != null) count++;
+    if (_dateFrom != null) count++;
+    if (_dateTo != null) count++;
+    return count;
+  }
+
+  void _clearAllFilters() {
+    setState(() {
+      _searchQuery = '';
+      _selectedRole = null;
+      _selectedStatus = null;
+      _dateFrom = null;
+      _dateTo = null;
+    });
+  }
+
+  Color _getStatusColor(EventStatus status) {
+    switch (status) {
+      case EventStatus.planning:
+        return AppTheme.warningColor;
+      case EventStatus.active:
+        return AppTheme.primaryColor;
+      case EventStatus.completed:
+        return Colors.green;
+    }
+  }
+
+  String _getStatusText(EventStatus status) {
+    switch (status) {
+      case EventStatus.planning:
+        return '企画中';
+      case EventStatus.active:
+        return '開催予定';
+      case EventStatus.completed:
+        return '終了';
+    }
   }
 
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = date.difference(now).inDays;
 
-    if (difference == 0) {
+    if (difference < 0) {
+      return '${date.month}/${date.day} (終了)';
+    } else if (difference == 0) {
       return '今日';
     } else if (difference == 1) {
       return '明日';
     } else if (difference < 7) {
-      return '${difference}日後';
+      return '$difference日後';
     } else {
       return '${date.month}/${date.day}';
     }
   }
 }
 
-// データモデル（実際のアプリではshared/modelsに移動）
+// データモデル
 class EventData {
   final String id;
   final String title;
@@ -349,5 +600,4 @@ class EventData {
 }
 
 enum EventRole { organizer, participant }
-
 enum EventStatus { planning, active, completed }
