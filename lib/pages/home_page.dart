@@ -16,23 +16,21 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   // 犬のアイコンリスト（しはらいぬにちなんで）
-  static const List<String> _dogEmojis = [
-    '🐕', '🐶', '🦮', '🐕‍🦺', '🎾🐕', 
-  ];
-  
+  static const List<String> _dogEmojis = ['🐕', '🐶', '🦮', '🐕‍🦺', '🎾🐕'];
+
   // ランダムな犬アイコンを取得
   String get _randomDogEmoji {
     final random = Random();
     return _dogEmojis[random.nextInt(_dogEmojis.length)];
   }
-  
-  // サンプルデータ - 実際のアプリではRiverpodプロバイダーから取得
-  final List<EventData> _organizerEvents = [
+
+  // サンプルデータ - 近日中のイベントのみ（3件まで）
+  final List<EventData> _upcomingEvents = [
     EventData(
       id: '1',
       title: '新年会2024',
       description: '会社の新年会です',
-      date: DateTime.now().add(const Duration(days: 7)),
+      date: DateTime.now().add(const Duration(days: 2)),
       participantCount: 15,
       role: EventRole.organizer,
       status: EventStatus.active,
@@ -41,274 +39,161 @@ class _HomePageState extends ConsumerState<HomePage> {
       id: '2',
       title: 'チーム懇親会',
       description: 'プロジェクト打ち上げ',
-      date: DateTime.now().add(const Duration(days: 14)),
+      date: DateTime.now().add(const Duration(days: 7)),
       participantCount: 8,
-      role: EventRole.organizer,
+      role: EventRole.participant,
       status: EventStatus.planning,
     ),
     EventData(
       id: '3',
       title: '送別会',
       description: '田中さんの送別会',
-      date: DateTime.now().add(const Duration(days: 3)),
+      date: DateTime.now().add(const Duration(days: 14)),
       participantCount: 12,
-      role: EventRole.organizer,
-      status: EventStatus.active,
-    ),
-  ];
-
-  final List<EventData> _participantEvents = [
-    EventData(
-      id: '4',
-      title: '歓送迎会',
-      description: '春の歓送迎会',
-      date: DateTime.now().add(const Duration(days: 21)),
-      participantCount: 25,
-      role: EventRole.participant,
-      status: EventStatus.active,
-    ),
-    EventData(
-      id: '5',
-      title: '部署BBQ',
-      description: '夏のBBQ大会',
-      date: DateTime.now().add(const Duration(days: 35)),
-      participantCount: 30,
-      role: EventRole.participant,
-      status: EventStatus.active,
-    ),
-    EventData(
-      id: '6',
-      title: '忘年会2024',
-      description: '年末の懇親会',
-      date: DateTime.now().add(const Duration(days: 60)),
-      participantCount: 40,
-      role: EventRole.participant,
-      status: EventStatus.planning,
-    ),
-    EventData(
-      id: '7',
-      title: '結婚式二次会',
-      description: '山田夫妻の結婚式二次会',
-      date: DateTime.now().add(const Duration(days: 45)),
-      participantCount: 35,
       role: EventRole.participant,
       status: EventStatus.active,
     ),
   ];
 
-  // 通知データ - 実際のアプリではRiverpodプロバイダーから取得
-  final List<NotificationData> _notifications = [
+  // 重要な通知のみ（最大2件）
+  final List<NotificationData> _importantNotifications = [
     NotificationData(
       id: '1',
-      type: NotificationType.invitation,
-      title: 'イベント招待',
-      message: '「部署BBQ」に招待されました',
-      eventTitle: '部署BBQ',
+      type: NotificationType.paymentReminder,
+      title: '支払い未完了',
+      message: '新年会の参加費をお支払いください',
+      eventTitle: '新年会2024',
       createdAt: DateTime.now().subtract(const Duration(hours: 2)),
       isRead: false,
     ),
     NotificationData(
       id: '2',
-      type: NotificationType.paymentReminder,
-      title: '支払い未完了',
-      message: '「新年会2024」の支払い期限が過ぎています',
-      eventTitle: '新年会2024',
-      createdAt: DateTime.now().subtract(const Duration(days: 3)),
+      type: NotificationType.invitation,
+      title: 'イベント招待',
+      message: 'チーム懇親会に招待されました',
+      eventTitle: 'チーム懇親会',
+      createdAt: DateTime.now().subtract(const Duration(hours: 6)),
       isRead: false,
     ),
-    NotificationData(
-      id: '3',
-      type: NotificationType.general,
-      title: '一般的なお知らせ',
-      message: '参加確認が遅いています',
-      createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      isRead: true,
-    ),
   ];
-
 
   @override
   Widget build(BuildContext context) {
     final userProfile = ref.watch(userProfileProvider);
-    
-    print('[HomePage] UserProfile状態: ${userProfile.toString()}');
-    
+
     return userProfile.when(
       data: (profile) {
-        print('[HomePage] プロフィールデータ取得完了: ${profile?.name}');
         return SimplePage(
-          title: 'アプリホーム',
+          title: 'ホーム',
           actions: [
             // 通知ベルアイコン（未読バッジ付き）
             _buildNotificationIcon(),
-            const SizedBox(width: 8),
-            AppButton.primary(
-              text: 'イベント作成',
-              icon: const Icon(Icons.add, size: 18),
-              size: AppButtonSize.small,
-              onPressed: () => context.go('/events/create'),
-            ),
-            const SizedBox(width: 8),
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
-              onSelected: (value) {
-                if (value == 'components') {
-                  context.go('/components');
-                }
-              },
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'components',
-                  child: ListTile(
-                    leading: Icon(Icons.palette),
-                    title: Text('コンポーネント素材集'),
-                  ),
-                ),
-              ],
-            ),
           ],
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppTheme.spacing16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ユーザー情報セクション
-                _buildUserInfoSection(context, profile),
-                const SizedBox(height: AppTheme.spacing24),
-                
-                // お知らせセクション
-                _buildNotificationSection(context),
-                const SizedBox(height: AppTheme.spacing24),
-                
-                // イベント一覧セクション
-                _buildEventListSection(context),
-                const SizedBox(height: AppTheme.spacing24),
-                
-                // 今月のランキングセクション
-                _buildRankingSection(context),
-              ],
-            ),
-          ),
-        );
-      },
-      loading: () {
-        print('[HomePage] プロフィール情報ローディング中');
-        return SimplePage(
-          title: 'アプリホーム',
-          body: Container(
-            padding: const EdgeInsets.all(AppTheme.spacing16),
-            child: Center(
+          body: RefreshIndicator(
+            onRefresh: () async {
+              // データの再読み込み
+              ref.invalidate(userProfileProvider);
+              await Future.delayed(const Duration(milliseconds: 800));
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(AppTheme.spacing16),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: AppTheme.spacing16),
-                  Text(
-                    'ユーザー情報を読み込み中...',
-                    style: AppTheme.bodyMedium.copyWith(
-                      color: AppTheme.mutedForeground,
-                    ),
-                  ),
+                  // ウェルカムセクション（簡潔に）
+                  _buildWelcomeSection(context, profile),
+                  const SizedBox(height: AppTheme.spacing24),
+
+                  // アクションカード（主要機能へのショートカット）
+                  _buildQuickActionsSection(context),
+                  const SizedBox(height: AppTheme.spacing24),
+
+                  // 重要な通知（2件まで）
+                  if (_importantNotifications.isNotEmpty) ...[
+                    _buildImportantNotificationsSection(context),
+                    const SizedBox(height: AppTheme.spacing24),
+                  ],
+
+                  // 近日中のイベント（3件まで）
+                  _buildUpcomingEventsSection(context),
+                  const SizedBox(height: AppTheme.spacing24),
+
+                  // 今月の活動サマリー（簡素化）
+                  _buildActivitySummarySection(context),
+
+                  // 下部余白
+                  const SizedBox(height: AppTheme.spacing32),
                 ],
               ),
             ),
           ),
         );
       },
+      loading: () => SimplePage(
+        title: 'ホーム',
+        body: const Center(
+          child: AppProgress.circular(
+            size: AppProgressSize.large,
+            label: 'データを読み込み中...',
+          ),
+        ),
+      ),
       error: (error, stack) {
-        print('[HomePage] プロフィール取得エラー: $error');
         return SimplePage(
-          title: 'アプリホーム',
-          body: Container(
-            padding: const EdgeInsets.all(AppTheme.spacing16),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 48,
-                    color: AppTheme.destructive,
-                  ),
-                  const SizedBox(height: AppTheme.spacing16),
-                  Text(
-                    'ユーザー情報の読み込みに失敗しました',
-                    style: AppTheme.bodyMedium.copyWith(
-                      color: AppTheme.destructive,
-                    ),
-                  ),
-                  const SizedBox(height: AppTheme.spacing16),
-                  AppButton.primary(
-                    text: '再試行',
-                    onPressed: () {
-                      ref.invalidate(userProfileProvider);
-                    },
-                  ),
-                ],
-              ),
+          title: 'ホーム',
+          body: Center(
+            child: AppErrorWidget.networkError(
+              onRetry: () {
+                ref.invalidate(userProfileProvider);
+              },
             ),
           ),
         );
       },
     );
-}
+  }
 
-  Widget _buildUserInfoSection(BuildContext context, profile) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppTheme.spacing20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.primaryColor.withOpacity(0.1),
-            AppTheme.primaryColor.withOpacity(0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        border: Border.all(
-          color: AppTheme.primaryColor.withOpacity(0.2),
-        ),
-      ),
+  Widget _buildWelcomeSection(BuildContext context, profile) {
+    return AppCard(
       child: Row(
         children: [
-          // ユーザーアバター（犬のアイコン）
+          // シンプルなアバター
           Container(
-            width: 48,
-            height: 48,
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
               border: Border.all(
-                color: AppTheme.primaryColor.withOpacity(0.3),
+                color: AppTheme.primaryColor.withValues(alpha: 0.3),
                 width: 2,
               ),
             ),
             child: Center(
               child: Text(
                 _randomDogEmoji,
-                style: const TextStyle(fontSize: 28),
+                style: const TextStyle(fontSize: 32),
               ),
             ),
           ),
           const SizedBox(width: AppTheme.spacing16),
-          
-          // ユーザー情報
+
+          // ウェルカムメッセージ（シンプルに）
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'おかえりなさい！',
-                  style: AppTheme.bodySmall.copyWith(
-                    color: AppTheme.mutedForeground,
+                  'おかえりなさい',
+                  style: AppTheme.bodyMedium.copyWith(
+                    color: AppTheme.mutedForegroundAccessible,
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacing4),
                 Text(
                   profile?.name ?? 'ゲスト',
-                  style: AppTheme.headlineMedium.copyWith(
+                  style: AppTheme.headlineLarge.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppTheme.primaryColor,
                   ),
@@ -316,258 +201,220 @@ class _HomePageState extends ConsumerState<HomePage> {
               ],
             ),
           ),
-          
-          // 設定ボタン
-          AppButton.icon(
-            icon: const Icon(Icons.settings_outlined, size: 20),
-            onPressed: () {
-              // アカウント設定画面への遷移
-              context.go('/account');
-            },
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildNotificationSection(BuildContext context) {
-    // 未読通知のみ表示
-    final unreadNotifications = _notifications.where((n) => !n.isRead).toList();
-    
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => context.go('/notifications'),
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        child: AppCard(
-          child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.notifications_outlined,
-                size: 20,
-                color: AppTheme.primaryColor,
-              ),
-              const SizedBox(width: AppTheme.spacing8),
-              Text(
-                '通知',
-                style: AppTheme.headlineSmall.copyWith(
-                  color: AppTheme.primaryColor,
-                ),
-              ),
-              const Spacer(),
-              if (unreadNotifications.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.spacing8,
-                    vertical: AppTheme.spacing4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.destructive,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusRound),
-                  ),
-                  child: Text(
-                    '${unreadNotifications.length}',
-                    style: AppTheme.bodySmall.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: AppTheme.spacing12),
-          
-          if (unreadNotifications.isEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(AppTheme.spacing16),
-              decoration: BoxDecoration(
-                color: AppTheme.mutedColor,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-              ),
-              child: Text(
-                '新しい通知はありません',
-                style: AppTheme.bodyMedium.copyWith(
-                  color: AppTheme.mutedForeground,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            )
-          else
-            ...unreadNotifications.map((notification) => 
-              _buildNotificationItem(notification)).toList(),
-        ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNotificationItem(NotificationData notification) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppTheme.spacing8),
-      padding: const EdgeInsets.all(AppTheme.spacing12),
-      decoration: BoxDecoration(
-        color: _getNotificationBackgroundColor(notification.type),
-        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-        border: Border.all(
-          color: _getNotificationBorderColor(notification.type),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            _getNotificationIcon(notification.type),
-            size: 20,
-            color: _getNotificationIconColor(notification.type),
-          ),
-          const SizedBox(width: AppTheme.spacing8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  notification.message,
-                  style: AppTheme.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: AppTheme.spacing4),
-                Text(
-                  _formatNotificationTime(notification.createdAt),
-                  style: AppTheme.bodySmall.copyWith(
-                    color: AppTheme.mutedForeground,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  IconData _getNotificationIcon(NotificationType type) {
-    switch (type) {
-      case NotificationType.invitation:
-        return Icons.event_outlined;
-      case NotificationType.paymentReminder:
-        return Icons.payment_outlined;
-      case NotificationType.general:
-        return Icons.info_outline;
-    }
-  }
-
-  Color _getNotificationIconColor(NotificationType type) {
-    switch (type) {
-      case NotificationType.invitation:
-        return AppTheme.primaryColor;
-      case NotificationType.paymentReminder:
-        return AppTheme.destructive;
-      case NotificationType.general:
-        return AppTheme.mutedForeground;
-    }
-  }
-
-  Color _getNotificationBackgroundColor(NotificationType type) {
-    switch (type) {
-      case NotificationType.invitation:
-        return AppTheme.primaryColor.withOpacity(0.05);
-      case NotificationType.paymentReminder:
-        return AppTheme.destructive.withOpacity(0.05);
-      case NotificationType.general:
-        return AppTheme.mutedColor;
-    }
-  }
-
-  Color _getNotificationBorderColor(NotificationType type) {
-    switch (type) {
-      case NotificationType.invitation:
-        return AppTheme.primaryColor.withOpacity(0.2);
-      case NotificationType.paymentReminder:
-        return AppTheme.destructive.withOpacity(0.2);
-      case NotificationType.general:
-        return AppTheme.mutedForeground.withOpacity(0.2);
-    }
-  }
-
-  String _formatNotificationTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inHours < 1) {
-      return '${difference.inMinutes}分前';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours}時間前';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}日前';
-    } else {
-      return '${dateTime.month}/${dateTime.day}';
-    }
-  }
-
-  Widget _buildEventListSection(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.event_note_outlined,
-                size: 20,
-                color: AppTheme.primaryColor,
-              ),
-              const SizedBox(width: AppTheme.spacing8),
-              Text(
-                'イベント一覧',
-                style: AppTheme.headlineSmall.copyWith(
-                  color: AppTheme.primaryColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppTheme.spacing16),
-          
-          // 幹事として管理中のイベント
-          if (_organizerEvents.isNotEmpty) ...[
-            _buildEventSubSection('幹事として管理中', _organizerEvents),
-            const SizedBox(height: AppTheme.spacing20),
-          ],
-          
-          // 参加者として入っているイベントリスト
-          if (_participantEvents.isNotEmpty) ...[
-            _buildEventSubSection('参加中', _participantEvents),
-          ],
-          
-          // 空状態
-          if (_organizerEvents.isEmpty && _participantEvents.isEmpty)
-            _buildEmptyEventState(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEventSubSection(String title, List<EventData> events) {
+  Widget _buildQuickActionsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: AppTheme.spacing4, bottom: AppTheme.spacing8),
-          child: Text(
-            title,
-            style: AppTheme.bodySmall.copyWith(
-              color: AppTheme.mutedForeground,
-              fontWeight: FontWeight.w500,
-            ),
+        Text(
+          'よく使う機能',
+          style: AppTheme.headlineSmall.copyWith(
+            fontWeight: FontWeight.w600,
           ),
         ),
-        // イベントカードリスト
-        ...events.map((event) => _buildEventCard(context, event)).toList(),
+        const SizedBox(height: AppTheme.spacing12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionCard(
+                context,
+                icon: Icons.add_circle_outline,
+                title: 'イベント作成',
+                subtitle: '新しいイベントを企画',
+                onTap: () => context.go('/events/create'),
+              ),
+            ),
+            const SizedBox(width: AppTheme.spacing12),
+            Expanded(
+              child: _buildActionCard(
+                context,
+                icon: Icons.event_outlined,
+                title: 'イベント一覧',
+                subtitle: '参加中のイベント',
+                onTap: () => context.go('/events'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return AppCard(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppTheme.spacing12),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            ),
+            child: Icon(
+              icon,
+              color: AppTheme.primaryColor,
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: AppTheme.spacing12),
+          Text(
+            title,
+            style: AppTheme.bodyLarge.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppTheme.spacing4),
+          Text(
+            subtitle,
+            style: AppTheme.bodySmall.copyWith(
+              color: AppTheme.mutedForegroundAccessible,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImportantNotificationsSection(BuildContext context) {
+    final unreadNotifications = _importantNotifications.where((n) => !n.isRead).take(2).toList();
+
+    if (unreadNotifications.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              '重要な通知',
+              style: AppTheme.headlineSmall.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: () => context.go('/notifications'),
+              child: const Text('すべて見る'),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppTheme.spacing12),
+        ...unreadNotifications.map((notification) => 
+          _buildNotificationCard(context, notification)).toList(),
+      ],
+    );
+  }
+
+  Widget _buildNotificationCard(BuildContext context, NotificationData notification) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppTheme.spacing8),
+      child: AppCard(
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppTheme.spacing8),
+              decoration: BoxDecoration(
+                color: _getNotificationColor(notification.type).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+              ),
+              child: Icon(
+                _getNotificationIcon(notification.type),
+                color: _getNotificationColor(notification.type),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: AppTheme.spacing12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    notification.title,
+                    style: AppTheme.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacing2),
+                  Text(
+                    notification.message,
+                    style: AppTheme.bodySmall.copyWith(
+                      color: AppTheme.mutedForegroundAccessible,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpcomingEventsSection(BuildContext context) {
+    final upcomingEvents = _upcomingEvents.take(3).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              '近日中のイベント',
+              style: AppTheme.headlineSmall.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: () => context.go('/events'),
+              child: const Text('すべて見る'),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppTheme.spacing12),
+
+        if (upcomingEvents.isEmpty)
+          AppCard(
+            child: Column(
+              children: [
+                Icon(
+                  Icons.event_outlined,
+                  size: 48,
+                  color: AppTheme.mutedForegroundAccessible,
+                ),
+                const SizedBox(height: AppTheme.spacing12),
+                Text(
+                  '近日中のイベントはありません',
+                  style: AppTheme.bodyMedium.copyWith(
+                    color: AppTheme.mutedForegroundAccessible,
+                  ),
+                ),
+                const SizedBox(height: AppTheme.spacing8),
+                AppButton.outline(
+                  text: 'イベントを作成',
+                  size: AppButtonSize.small,
+                  onPressed: () => context.go('/events/create'),
+                ),
+              ],
+            ),
+          )
+        else
+          ...upcomingEvents.map((event) => _buildEventCard(context, event)).toList(),
       ],
     );
   }
@@ -575,15 +422,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _buildEventCard(BuildContext context, EventData event) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => context.go('/events/${event.id}'),
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-          child: AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+      child: AppCard(
+        onTap: () => context.go('/events/${event.id}'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -593,16 +436,18 @@ class _HomePageState extends ConsumerState<HomePage> {
                     children: [
                       Text(
                         event.title,
-                        style: AppTheme.headlineSmall.copyWith(
+                        style: AppTheme.bodyLarge.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: AppTheme.spacing4),
                       Text(
                         event.description,
-                        style: AppTheme.bodyMedium.copyWith(
-                          color: AppTheme.mutedForeground,
+                        style: AppTheme.bodySmall.copyWith(
+                          color: AppTheme.mutedForegroundAccessible,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -613,258 +458,207 @@ class _HomePageState extends ConsumerState<HomePage> {
                     vertical: AppTheme.spacing4,
                   ),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(event).withOpacity(0.1),
+                    color: _getEventStatusColor(event).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                     border: Border.all(
-                      color: _getStatusColor(event).withOpacity(0.3),
+                      color: _getEventStatusColor(event).withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
-                    _getStatusText(event),
+                    _getEventDaysUntil(event),
                     style: AppTheme.bodySmall.copyWith(
-                      color: _getStatusColor(event),
+                      color: _getEventStatusColor(event),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: AppTheme.spacing16),
+            const SizedBox(height: AppTheme.spacing12),
             Row(
               children: [
                 Icon(
-                  Icons.calendar_today_outlined,
-                  size: 16,
-                  color: AppTheme.mutedForeground,
-                ),
-                const SizedBox(width: AppTheme.spacing4),
-                Text(
-                  _formatDate(event.date),
-                  style: AppTheme.bodySmall.copyWith(
-                    color: AppTheme.mutedForeground,
-                  ),
-                ),
-                const Spacer(),
-                Icon(
                   Icons.people_outline,
                   size: 16,
-                  color: AppTheme.mutedForeground,
+                  color: AppTheme.mutedForegroundAccessible,
                 ),
                 const SizedBox(width: AppTheme.spacing4),
                 Text(
                   '${event.participantCount}人',
                   style: AppTheme.bodySmall.copyWith(
-                    color: AppTheme.mutedForeground,
+                    color: AppTheme.mutedForegroundAccessible,
+                  ),
+                ),
+                const SizedBox(width: AppTheme.spacing16),
+                Icon(
+                  event.role == EventRole.organizer 
+                    ? Icons.admin_panel_settings_outlined
+                    : Icons.person_outline,
+                  size: 16,
+                  color: AppTheme.mutedForegroundAccessible,
+                ),
+                const SizedBox(width: AppTheme.spacing4),
+                Text(
+                  event.role == EventRole.organizer ? '幹事' : '参加者',
+                  style: AppTheme.bodySmall.copyWith(
+                    color: AppTheme.mutedForegroundAccessible,
                   ),
                 ),
               ],
             ),
-              ],
-            ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Color _getStatusColor(EventData event) {
-    final now = DateTime.now();
-    final eventDate = event.date;
-    
-    // 開催日が過去の場合
-    if (eventDate.isBefore(DateTime(now.year, now.month, now.day))) {
-      return Colors.green;
-    }
-    
-    // 開催日が未来の場合
-    return AppTheme.primaryColor;
-  }
-
-  String _getStatusText(EventData event) {
-    final now = DateTime.now();
-    final eventDate = event.date;
-    final difference = eventDate.difference(DateTime(now.year, now.month, now.day)).inDays;
-    
-    // 開催日が過去の場合
-    if (difference < 0) {
-      return '終了';
-    }
-    
-    // 開催日が今日の場合
-    if (difference == 0) {
-      return '本日開催';
-    }
-    
-    // 開催日が未来の場合
-    return '開催日まであと${difference}日';
-  }
-
-
-  Widget _buildRankingSection(BuildContext context) {
+  Widget _buildActivitySummarySection(BuildContext context) {
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '今月のランキング何位',
-            style: AppTheme.headlineSmall,
+            '今月の活動',
+            style: AppTheme.headlineSmall.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: AppTheme.spacing16),
           
-          // ユーザー情報エリア
-          Container(
-            padding: const EdgeInsets.all(AppTheme.spacing16),
-            decoration: BoxDecoration(
-              color: AppTheme.inputBackground,
-              borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-              border: Border.all(
-                color: AppTheme.mutedColor,
-                width: 1,
+          Row(
+            children: [
+              Expanded(
+                child: _buildSummaryItem(
+                  icon: Icons.event_outlined,
+                  label: '参加イベント',
+                  value: '3',
+                  color: AppTheme.primaryColor,
+                ),
               ),
-            ),
-            child: Column(
-              children: [
-                // ランキング表示
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppTheme.spacing16,
-                        vertical: AppTheme.spacing8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryColor,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusRound),
-                      ),
-                      child: Text(
-                        '3位',
-                        style: AppTheme.headlineSmall.copyWith(
-                          color: AppTheme.primaryForeground,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ],
+              const SizedBox(width: AppTheme.spacing16),
+              Expanded(
+                child: _buildSummaryItem(
+                  icon: Icons.payments_outlined,
+                  label: '支払い完了',
+                  value: '2',
+                  color: Colors.green,
                 ),
-                const SizedBox(height: AppTheme.spacing16),
-                
-                // ユーザー情報ボタン群
-                Row(
-                  children: [
-                    Expanded(
-                      child: AppButton.outline(
-                        text: 'ユーザー情報',
-                        size: AppButtonSize.small,
-                        onPressed: () {
-                          // ユーザー情報画面へ遷移
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: AppTheme.spacing8),
-                    Expanded(
-                      child: AppButton.outline(
-                        text: 'ユーザー情報',
-                        size: AppButtonSize.small,
-                        onPressed: () {
-                          // ユーザー情報画面へ遷移
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: AppTheme.spacing8),
-                    Expanded(
-                      child: AppButton.outline(
-                        text: 'ユーザー情報',
-                        size: AppButtonSize.small,
-                        onPressed: () {
-                          // ユーザー情報画面へ遷移
-                        },
-                      ),
-                    ),
-                  ],
+              ),
+              const SizedBox(width: AppTheme.spacing16),
+              Expanded(
+                child: _buildSummaryItem(
+                  icon: Icons.group_outlined,
+                  label: '新しい友人',
+                  value: '5',
+                  color: Colors.blue,
                 ),
-                const SizedBox(height: AppTheme.spacing12),
-                AppButton.secondary(
-                  text: '詳しく',
-                  onPressed: () {
-                    // ランキング詳細画面へ遷移
-                  },
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyEventState() {
-    return AppCard(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: AppTheme.spacing16),
-          Icon(
-            Icons.event_outlined,
-            size: 48,
-            color: AppTheme.mutedForeground,
+  Widget _buildSummaryItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(AppTheme.spacing12),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           ),
-          const SizedBox(height: AppTheme.spacing16),
-          Text(
-            'イベントがありません',
-            style: AppTheme.bodyLarge.copyWith(
-              color: AppTheme.mutedForeground,
-            ),
+          child: Icon(
+            icon,
+            color: color,
+            size: 24,
           ),
-          const SizedBox(height: AppTheme.spacing8),
-          Text(
-            '新しいイベントを作成するか\nイベントの招待を受けてみましょう',
-            style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppTheme.spacing8),
+        Text(
+          value,
+          style: AppTheme.headlineMedium.copyWith(
+            fontWeight: FontWeight.w700,
+            color: color,
           ),
-          const SizedBox(height: AppTheme.spacing16),
-          AppButton.primary(
-            text: 'イベントを作成',
-            icon: const Icon(Icons.add, size: 18),
-            size: AppButtonSize.small,
-            onPressed: () => context.go('/events/create'),
+        ),
+        const SizedBox(height: AppTheme.spacing4),
+        Text(
+          label,
+          style: AppTheme.bodySmall.copyWith(
+            color: AppTheme.mutedForegroundAccessible,
           ),
-          const SizedBox(height: AppTheme.spacing16),
-        ],
-      ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 
-  String _formatDate(DateTime date) {
+  Color _getNotificationColor(NotificationType type) {
+    switch (type) {
+      case NotificationType.paymentReminder:
+        return AppTheme.destructiveColor;
+      case NotificationType.invitation:
+        return AppTheme.primaryColor;
+      case NotificationType.general:
+        return AppTheme.infoColor;
+    }
+  }
+
+  IconData _getNotificationIcon(NotificationType type) {
+    switch (type) {
+      case NotificationType.paymentReminder:
+        return Icons.payment;
+      case NotificationType.invitation:
+        return Icons.mail_outline;
+      case NotificationType.general:
+        return Icons.info_outline;
+    }
+  }
+
+  Color _getEventStatusColor(EventData event) {
     final now = DateTime.now();
-    final difference = date.difference(now).inDays;
-    
-    if (difference == 0) {
+    final difference = event.date.difference(now).inDays;
+
+    if (difference <= 1) {
+      return AppTheme.destructiveColor; // 緊急
+    } else if (difference <= 3) {
+      return AppTheme.warningColor; // 注意
+    } else {
+      return AppTheme.primaryColor; // 通常
+    }
+  }
+
+  String _getEventDaysUntil(EventData event) {
+    final now = DateTime.now();
+    final difference = event.date.difference(now).inDays;
+
+    if (difference < 0) {
+      return '終了';
+    } else if (difference == 0) {
       return '今日';
     } else if (difference == 1) {
       return '明日';
-    } else if (difference < 7) {
-      return '${difference}日後';
     } else {
-      return '${date.month}/${date.day}';
+      return 'あと${difference}日';
     }
   }
 
   // 通知ベルアイコン（未読バッジ付き）を構築
   Widget _buildNotificationIcon() {
-    // 未読通知数を計算
-    final unreadCount = _notifications.where((n) => !n.isRead).length;
-    
+    final unreadCount = _importantNotifications.where((n) => !n.isRead).length;
+
     return Stack(
       children: [
         IconButton(
           onPressed: () => context.go('/notifications'),
-          icon: const Icon(
-            Icons.notifications_outlined,
-            size: 24,
-          ),
+          icon: const Icon(Icons.notifications_outlined, size: 24),
           tooltip: '通知を確認',
         ),
         // 未読バッジ
@@ -874,14 +668,11 @@ class _HomePageState extends ConsumerState<HomePage> {
             top: 8,
             child: Container(
               padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryColor,
+              decoration: const BoxDecoration(
+                color: AppTheme.destructiveColor,
                 shape: BoxShape.circle,
               ),
-              constraints: const BoxConstraints(
-                minWidth: 16,
-                minHeight: 16,
-              ),
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               child: Text(
                 unreadCount > 99 ? '99+' : unreadCount.toString(),
                 style: const TextStyle(
@@ -898,7 +689,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 }
 
-// データモデル（実際のアプリではshared/modelsに移動）
+// データモデル（既存のものを使用）
 class EventData {
   final String id;
   final String title;
@@ -919,18 +710,9 @@ class EventData {
   });
 }
 
-enum EventRole {
-  organizer,
-  participant,
-}
+enum EventRole { organizer, participant }
+enum EventStatus { planning, active, completed }
 
-enum EventStatus {
-  planning,
-  active,
-  completed,
-}
-
-// 通知データモデル（実際のアプリではshared/modelsに移動）
 class NotificationData {
   final String id;
   final NotificationType type;
@@ -952,24 +734,7 @@ class NotificationData {
 }
 
 enum NotificationType {
-  invitation,      // イベント招待
-  paymentReminder, // 支払い未完了
-  general,         // 一般的なお知らせ
-}
-
-// ユーザー情報データモデル（実際のアプリではshared/modelsに移動）
-class UserInfo {
-  final String id;
-  final String name;
-  final String email;
-  final String? avatarUrl;
-  final DateTime joinDate;
-
-  const UserInfo({
-    required this.id,
-    required this.name,
-    required this.email,
-    this.avatarUrl,
-    required this.joinDate,
-  });
+  invitation,
+  paymentReminder,
+  general,
 }
