@@ -9,10 +9,7 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 class GlobalNavigationWrapper extends StatelessWidget {
   final Widget child;
 
-  const GlobalNavigationWrapper({
-    super.key,
-    required this.child,
-  });
+  const GlobalNavigationWrapper({super.key, required this.child});
 
   // グローバルナビゲーション項目（アプリ全体で統一）
   static const List<AppBottomNavigationItem> _navigationItems = [
@@ -42,23 +39,23 @@ class GlobalNavigationWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     // 現在のルートを自動的に取得
     final currentLocation = GoRouterState.of(context).matchedLocation;
-    
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        
-        if (AppBreakpoints.isDesktop(width)) {
-          // デスクトップ: NavigationRail（サイドナビゲーション）
-          return _buildDesktopLayout(currentLocation);
-        } else {
-          // モバイル・タブレット: BottomNavigation
-          return _buildMobileLayout(currentLocation);
+        final navigationType = AppBreakpoints.getNavigationType(width);
+
+        switch (navigationType) {
+          case NavigationType.rail:
+            return _buildNavigationRailLayout(currentLocation);
+          case NavigationType.bottom:
+            return _buildBottomNavigationLayout(currentLocation);
         }
       },
     );
   }
 
-  Widget _buildDesktopLayout(String currentLocation) {
+  Widget _buildNavigationRailLayout(String currentLocation) {
     return Scaffold(
       body: Row(
         children: [
@@ -71,7 +68,7 @@ class GlobalNavigationWrapper extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileLayout(String currentLocation) {
+  Widget _buildBottomNavigationLayout(String currentLocation) {
     return Scaffold(
       body: child,
       bottomNavigationBar: AppBottomNavigation(
@@ -82,8 +79,10 @@ class GlobalNavigationWrapper extends StatelessWidget {
   }
 
   Widget _buildNavigationRail(String currentLocation) {
-    final currentIndex = _navigationItems.indexWhere((item) => item.route == currentLocation);
-    
+    final currentIndex = _navigationItems.indexWhere(
+      (item) => item.route == currentLocation,
+    );
+
     return Builder(
       builder: (context) => NavigationRail(
         selectedIndex: currentIndex >= 0 ? currentIndex : 0,
@@ -113,11 +112,15 @@ class GlobalNavigationWrapper extends StatelessWidget {
           color: AppTheme.mutedForeground,
           size: 20,
         ),
-        destinations: _navigationItems.map((item) => NavigationRailDestination(
-          icon: Icon(item.icon),
-          selectedIcon: Icon(item.icon),
-          label: Text(item.label),
-        )).toList(),
+        destinations: _navigationItems
+            .map(
+              (item) => NavigationRailDestination(
+                icon: Icon(item.icon),
+                selectedIcon: Icon(item.icon),
+                label: Text(item.label),
+              ),
+            )
+            .toList(),
       ),
     );
   }
@@ -128,12 +131,12 @@ class GlobalNavigationWrapper extends StatelessWidget {
     if (route == '/login') {
       return false;
     }
-    
+
     // デバッグ用ページでは非表示
     if (route == '/components') {
       return false;
     }
-    
+
     // その他は表示
     return true;
   }
@@ -157,7 +160,7 @@ class SimplePage extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        
+
         if (AppBreakpoints.isDesktop(width)) {
           // デスクトップ: 専用ヘッダーレイアウト
           return _buildDesktopLayout();
@@ -209,10 +212,7 @@ class SimplePage extends StatelessWidget {
 
   Widget _buildMobileLayout() {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: actions,
-      ),
+      appBar: AppBar(title: Text(title), actions: actions),
       body: body,
     );
   }

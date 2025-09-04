@@ -14,7 +14,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
   final _eventNameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _totalAmountController = TextEditingController();
-  
+
   String _eventType = 'drinking_party';
   String _calculationMethod = 'equal';
   bool _isLoading = false;
@@ -39,14 +39,14 @@ class _EventCreationPageState extends State<EventCreationPage> {
       setState(() {
         _isLoading = false;
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('イベントが作成されました！'),
           backgroundColor: AppTheme.successColor,
         ),
       );
-      
+
       context.go('/dashboard');
     }
   }
@@ -75,11 +75,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     title: '基本情報',
                     subtitle: 'イベントの基本的な情報を入力してください',
                   ),
-                  const AppCardContent(
-                    child: Column(
-                      children: [],
-                    ),
-                  ),
+                  const AppCardContent(child: Column(children: [])),
                   AppInput(
                     label: 'イベント名',
                     placeholder: '例：新年会、歓送迎会',
@@ -112,10 +108,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                         value: 'year_end_party',
                         child: Text('忘年会・新年会'),
                       ),
-                      DropdownMenuItem(
-                        value: 'other',
-                        child: Text('その他'),
-                      ),
+                      DropdownMenuItem(value: 'other', child: Text('その他')),
                     ],
                     onChanged: (value) {
                       if (value != null) {
@@ -139,11 +132,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     title: '支払い設定',
                     subtitle: '支払い金額と計算方法を設定してください',
                   ),
-                  const AppCardContent(
-                    child: Column(
-                      children: [],
-                    ),
-                  ),
+                  const AppCardContent(child: Column(children: [])),
                   AppInput(
                     label: '総支払い金額',
                     placeholder: '20000',
@@ -155,10 +144,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                   const SizedBox(height: 16),
                   const Text(
                     '計算方法',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 8),
                   AppSegmentedControl<String>(

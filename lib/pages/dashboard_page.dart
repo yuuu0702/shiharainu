@@ -63,7 +63,9 @@ class _DashboardPageState extends State<DashboardPage> {
                 children: [
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: isOrganizer ? AppTheme.primaryColor : AppTheme.infoColor,
+                    backgroundColor: isOrganizer
+                        ? AppTheme.primaryColor
+                        : AppTheme.infoColor,
                     child: Icon(
                       isOrganizer ? Icons.admin_panel_settings : Icons.person,
                       color: Colors.white,
@@ -85,8 +87,8 @@ class _DashboardPageState extends State<DashboardPage> {
                         const SizedBox(height: 4),
                         AppBadge(
                           text: isOrganizer ? '幹事' : '参加者',
-                          variant: isOrganizer 
-                              ? AppBadgeVariant.success 
+                          variant: isOrganizer
+                              ? AppBadgeVariant.success
                               : AppBadgeVariant.info,
                         ),
                       ],
@@ -101,23 +103,15 @@ class _DashboardPageState extends State<DashboardPage> {
             // 機能セクション
             Text(
               isOrganizer ? '幹事機能' : '参加者機能',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
 
             // 機能カードグリッド
-            Expanded(
-              child: DashboardFeatureCards(
-                isOrganizer: isOrganizer,
-              ),
-            ),
+            Expanded(child: DashboardFeatureCards(isOrganizer: isOrganizer)),
           ],
         ),
       ),
     );
   }
-
 }

@@ -10,11 +10,9 @@ class UserService {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
 
-  UserService({
-    FirebaseFirestore? firestore,
-    FirebaseAuth? auth,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+  UserService({FirebaseFirestore? firestore, FirebaseAuth? auth})
+    : _firestore = firestore ?? FirebaseFirestore.instance,
+      _auth = auth ?? FirebaseAuth.instance;
 
   Future<void> saveUserProfile({
     required String name,
@@ -28,7 +26,7 @@ class UserService {
         print('[UserService] エラー: ユーザーがログインしていません');
         throw Exception('ユーザーがログインしていません');
       }
-      
+
       print('[UserService] ログイン中のユーザーID: ${user.uid}');
       print('[UserService] ユーザーメール: ${user.email}');
 
@@ -44,12 +42,12 @@ class UserService {
 
       print('[UserService] UserProfile作成完了: ${userProfile.toJson()}');
       print('[UserService] Firestoreに保存中...');
-      
+
       await _firestore
           .collection('users')
           .doc(user.uid)
           .set(userProfile.toJson());
-          
+
       print('[UserService] Firestore保存完了');
     } catch (e) {
       print('[UserService] エラー発生: $e');
@@ -65,10 +63,7 @@ class UserService {
         return null;
       }
 
-      final doc = await _firestore
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      final doc = await _firestore.collection('users').doc(user.uid).get();
 
       if (!doc.exists) {
         return null;
@@ -87,10 +82,7 @@ class UserService {
         return false;
       }
 
-      final doc = await _firestore
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      final doc = await _firestore.collection('users').doc(user.uid).get();
 
       return doc.exists;
     } catch (e) {
@@ -109,10 +101,7 @@ class UserService {
         throw Exception('ユーザーがログインしていません');
       }
 
-      await _firestore
-          .collection('users')
-          .doc(user.uid)
-          .update({
+      await _firestore.collection('users').doc(user.uid).update({
         'name': name,
         'age': age,
         'position': position,

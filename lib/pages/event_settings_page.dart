@@ -4,10 +4,7 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 class EventSettingsPage extends StatefulWidget {
   final String eventId;
 
-  const EventSettingsPage({
-    super.key,
-    required this.eventId,
-  });
+  const EventSettingsPage({super.key, required this.eventId});
 
   @override
   State<EventSettingsPage> createState() => _EventSettingsPageState();
@@ -33,17 +30,12 @@ class _EventSettingsPageState extends State<EventSettingsPage> {
               color: AppTheme.mutedForeground,
             ),
             SizedBox(height: AppTheme.spacing16),
-            Text(
-              'イベント設定画面',
-              style: AppTheme.headlineMedium,
-            ),
+            Text('イベント設定画面', style: AppTheme.headlineMedium),
             SizedBox(height: AppTheme.spacing8),
             Text(
               'イベント情報の編集、\n参加者管理、削除等の機能を実装予定',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppTheme.mutedForeground,
-              ),
+              style: TextStyle(color: AppTheme.mutedForeground),
             ),
           ],
         ),

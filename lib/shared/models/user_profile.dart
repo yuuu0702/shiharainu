@@ -84,29 +84,17 @@ class UserPositions {
   // 階層化された役職リスト（下位から上位順）
   static const List<String> hierarchicalPositions = [
     '一般',
-    'チーフ', 
+    'チーフ',
     'マネージャー',
     'グループ長',
   ];
 
   // 表示用の説明付き役職リスト
   static const List<Map<String, String>> positionsWithDescription = [
-    {
-      'name': '一般',
-      'description': '標準的な役職レベル（支払い係数: 1.0倍）',
-    },
-    {
-      'name': 'チーフ',
-      'description': '小チームのリーダー（支払い係数: 1.2倍）',
-    },
-    {
-      'name': 'マネージャー',
-      'description': '部門の管理職（支払い係数: 1.5倍）',
-    },
-    {
-      'name': 'グループ長',
-      'description': '大きな組織の責任者（支払い係数: 2.0倍）',
-    },
+    {'name': '一般', 'description': '標準的な役職レベル（支払い係数: 1.0倍）'},
+    {'name': 'チーフ', 'description': '小チームのリーダー（支払い係数: 1.2倍）'},
+    {'name': 'マネージャー', 'description': '部門の管理職（支払い係数: 1.5倍）'},
+    {'name': 'グループ長', 'description': '大きな組織の責任者（支払い係数: 2.0倍）'},
   ];
 
   // 後方互換性のための従来の役職リスト（非推奨）

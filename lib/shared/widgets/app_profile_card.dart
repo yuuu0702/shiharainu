@@ -3,7 +3,7 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
 
 enum AppProfileCardSize {
-  compact,  // 小型（アバター + 名前のみ）
+  compact, // 小型（アバター + 名前のみ）
   standard, // 標準（アバター + 名前 + サブタイトル）
   detailed, // 詳細（アバター + 名前 + サブタイトル + 説明）
 }
@@ -87,9 +87,7 @@ class AppProfileCard extends StatelessWidget {
             showOnlineIndicator: showOnlineIndicator,
           ),
           const SizedBox(width: AppTheme.spacing12),
-          Expanded(
-            child: _buildContent(),
-          ),
+          Expanded(child: _buildContent()),
           if (trailing != null) ...[
             const SizedBox(width: AppTheme.spacing8),
             trailing!,
@@ -112,9 +110,7 @@ class AppProfileCard extends StatelessWidget {
               showOnlineIndicator: showOnlineIndicator,
             ),
             const SizedBox(width: AppTheme.spacing12),
-            Expanded(
-              child: _buildContent(),
-            ),
+            Expanded(child: _buildContent()),
             if (trailing != null) ...[
               const SizedBox(width: AppTheme.spacing8),
               trailing!,
@@ -194,9 +190,7 @@ class AppProfileCard extends StatelessWidget {
           const SizedBox(height: AppTheme.spacing4),
           Text(
             subtitle!,
-            style: AppTheme.bodyLarge.copyWith(
-              color: AppTheme.mutedForeground,
-            ),
+            style: AppTheme.bodyLarge.copyWith(color: AppTheme.mutedForeground),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -230,7 +224,8 @@ class AppProfileCard extends StatelessWidget {
     if (words.length == 1) {
       return words[0].isNotEmpty ? words[0][0].toUpperCase() : '?';
     } else {
-      return words.take(2)
+      return words
+          .take(2)
           .map((word) => word.isNotEmpty ? word[0].toUpperCase() : '')
           .join();
     }
@@ -266,22 +261,19 @@ class AppProfileCardGroup extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: AppTheme.spacing16),
             child: Row(
               children: [
-                Expanded(
-                  child: Text(
-                    title!,
-                    style: AppTheme.headlineMedium,
-                  ),
-                ),
+                Expanded(child: Text(title!, style: AppTheme.headlineMedium)),
                 if (trailing != null) trailing!,
               ],
             ),
           ),
         Column(
           children: [
-            ...visibleProfiles.map((profile) => Padding(
-              padding: const EdgeInsets.only(bottom: AppTheme.spacing8),
-              child: profile,
-            )),
+            ...visibleProfiles.map(
+              (profile) => Padding(
+                padding: const EdgeInsets.only(bottom: AppTheme.spacing8),
+                child: profile,
+              ),
+            ),
             if (hasMore && onSeeAll != null)
               Padding(
                 padding: const EdgeInsets.only(top: AppTheme.spacing8),

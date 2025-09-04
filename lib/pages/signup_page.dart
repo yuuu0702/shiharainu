@@ -70,7 +70,7 @@ class _SignUpPageState extends State<SignUpPage> {
     try {
       final container = ProviderScope.containerOf(context);
       final authService = container.read(authServiceProvider);
-      
+
       await authService.signUpWithEmailAndPassword(
         email: email,
         password: password,
@@ -115,12 +115,9 @@ class _SignUpPageState extends State<SignUpPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 24),
-              
+
               // ページタイトル
-              Text(
-                'アカウントを作成',
-                style: AppTheme.displayMedium,
-              ),
+              Text('アカウントを作成', style: AppTheme.displayMedium),
               const SizedBox(height: 8),
               Text(
                 'Shiharainuでイベントの支払い管理を始めましょう',
@@ -160,7 +157,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       isRequired: true,
                       prefixIcon: const Icon(Icons.lock_outline, size: 20),
                     ),
-                    
+
                     const SizedBox(height: 24),
 
                     // 利用規約同意
@@ -243,7 +240,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                       ),
                     ],
-                    
+
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,

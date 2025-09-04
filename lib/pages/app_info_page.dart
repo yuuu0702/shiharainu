@@ -17,11 +17,11 @@ class AppInfoPage extends StatelessWidget {
             // アプリ情報セクション
             _buildAppDetailsSection(context),
             const SizedBox(height: AppTheme.spacing24),
-            
+
             // サポート・ヘルプセクション
             _buildSupportSection(context),
             const SizedBox(height: AppTheme.spacing24),
-            
+
             // 法的情報セクション
             _buildLegalSection(context),
           ],
@@ -51,10 +51,7 @@ class AppInfoPage extends StatelessWidget {
                     ),
                   ),
                   child: const Center(
-                    child: Text(
-                      '🐕',
-                      style: TextStyle(fontSize: 32),
-                    ),
+                    child: Text('🐕', style: TextStyle(fontSize: 32)),
                   ),
                 ),
                 const SizedBox(height: AppTheme.spacing16),
@@ -76,7 +73,7 @@ class AppInfoPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppTheme.spacing24),
-          
+
           Text(
             'アプリ情報',
             style: AppTheme.headlineSmall.copyWith(
@@ -84,7 +81,7 @@ class AppInfoPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppTheme.spacing16),
-          
+
           _buildInfoItem(
             icon: Icons.info_outline,
             title: 'バージョン',
@@ -128,7 +125,7 @@ class AppInfoPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppTheme.spacing16),
-          
+
           _buildInfoItem(
             icon: Icons.help_outline,
             title: '使い方ガイド',
@@ -172,7 +169,7 @@ class AppInfoPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppTheme.spacing16),
-          
+
           _buildInfoItem(
             icon: Icons.privacy_tip_outlined,
             title: 'プライバシーポリシー',
@@ -219,11 +216,7 @@ class AppInfoPage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: AppTheme.spacing12),
           child: Row(
             children: [
-              Icon(
-                icon,
-                size: 24,
-                color: AppTheme.mutedForeground,
-              ),
+              Icon(icon, size: 24, color: AppTheme.mutedForeground),
               const SizedBox(width: AppTheme.spacing16),
               Expanded(
                 child: Column(
@@ -337,10 +330,7 @@ class AppInfoPage extends StatelessWidget {
         return AlertDialog(
           title: Text(title),
           content: SingleChildScrollView(
-            child: Text(
-              content,
-              style: AppTheme.bodyMedium,
-            ),
+            child: Text(content, style: AppTheme.bodyMedium),
           ),
           actions: [
             TextButton(

@@ -12,7 +12,7 @@ class AccountPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userProfile = ref.watch(userProfileProvider);
-    
+
     return userProfile.when(
       data: (profile) => SimplePage(
         title: 'アカウント情報',
@@ -24,15 +24,15 @@ class AccountPage extends ConsumerWidget {
               // プロフィールカード
               _buildProfileCard(context, profile),
               const SizedBox(height: AppTheme.spacing24),
-              
+
               // アカウント設定セクション
               _buildAccountSettingsSection(context, ref),
               const SizedBox(height: AppTheme.spacing24),
-              
+
               // その他セクション
               _buildOtherSection(context),
               const SizedBox(height: AppTheme.spacing24),
-              
+
               // ログアウトセクション
               _buildLogoutSection(context, ref),
             ],
@@ -41,9 +41,7 @@ class AccountPage extends ConsumerWidget {
       ),
       loading: () => const SimplePage(
         title: 'アカウント情報',
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
+        body: Center(child: CircularProgressIndicator()),
       ),
       error: (error, stack) => SimplePage(
         title: 'アカウント情報',
@@ -51,11 +49,7 @@ class AccountPage extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.error_outline,
-                size: 48,
-                color: AppTheme.destructive,
-              ),
+              Icon(Icons.error_outline, size: 48, color: AppTheme.destructive),
               const SizedBox(height: AppTheme.spacing16),
               Text(
                 'アカウント情報の読み込みに失敗しました',
@@ -88,9 +82,9 @@ class AccountPage extends ConsumerWidget {
             ),
             child: Center(
               child: Text(
-                profile?.name.isNotEmpty == true 
-                  ? profile.name.substring(0, 1).toUpperCase()
-                  : '?',
+                profile?.name.isNotEmpty == true
+                    ? profile.name.substring(0, 1).toUpperCase()
+                    : '?',
                 style: AppTheme.headlineLarge.copyWith(
                   color: AppTheme.primaryColor,
                   fontWeight: FontWeight.w700,
@@ -99,7 +93,7 @@ class AccountPage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppTheme.spacing16),
-          
+
           // ユーザー情報
           Text(
             profile?.name ?? 'ゲスト',
@@ -115,7 +109,7 @@ class AccountPage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppTheme.spacing16),
-          
+
           // 追加情報
           if (profile != null) ...[
             Container(
@@ -147,15 +141,11 @@ class AccountPage extends ConsumerWidget {
       children: [
         Text(
           label,
-          style: AppTheme.bodyMedium.copyWith(
-            color: AppTheme.mutedForeground,
-          ),
+          style: AppTheme.bodyMedium.copyWith(color: AppTheme.mutedForeground),
         ),
         Text(
           value,
-          style: AppTheme.bodyMedium.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+          style: AppTheme.bodyMedium.copyWith(fontWeight: FontWeight.w500),
         ),
       ],
     );
@@ -173,7 +163,7 @@ class AccountPage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppTheme.spacing16),
-          
+
           _buildSettingsItem(
             icon: Icons.edit_outlined,
             title: 'プロフィール編集',
@@ -189,11 +179,9 @@ class AccountPage extends ConsumerWidget {
             subtitle: 'ログインパスワードの変更',
             onTap: () {
               // パスワード変更画面への遷移（今後実装）
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('パスワード変更機能は準備中です'),
-                ),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('パスワード変更機能は準備中です')));
             },
           ),
           const Divider(height: AppTheme.spacing16),
@@ -203,11 +191,9 @@ class AccountPage extends ConsumerWidget {
             subtitle: 'プッシュ通知やメール通知の設定',
             onTap: () {
               // 通知設定画面への遷移（今後実装）
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('通知設定機能は準備中です'),
-                ),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('通知設定機能は準備中です')));
             },
           ),
         ],
@@ -227,7 +213,7 @@ class AccountPage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppTheme.spacing16),
-          
+
           _buildSettingsItem(
             icon: Icons.info_outline,
             title: 'アプリについて',
@@ -248,12 +234,10 @@ class AccountPage extends ConsumerWidget {
         children: [
           Text(
             'アカウント操作',
-            style: AppTheme.headlineSmall.copyWith(
-              color: AppTheme.destructive,
-            ),
+            style: AppTheme.headlineSmall.copyWith(color: AppTheme.destructive),
           ),
           const SizedBox(height: AppTheme.spacing16),
-          
+
           AppButton.secondary(
             text: 'ログアウト',
             icon: const Icon(Icons.logout, size: 18),
@@ -279,11 +263,7 @@ class AccountPage extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(vertical: AppTheme.spacing12),
           child: Row(
             children: [
-              Icon(
-                icon,
-                size: 24,
-                color: AppTheme.mutedForeground,
-              ),
+              Icon(icon, size: 24, color: AppTheme.mutedForeground),
               const SizedBox(width: AppTheme.spacing16),
               Expanded(
                 child: Column(

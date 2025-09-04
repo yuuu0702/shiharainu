@@ -20,6 +20,7 @@ import 'package:shiharainu/pages/event_settings_page.dart';
 import 'package:shiharainu/pages/account_page.dart';
 import 'package:shiharainu/pages/user_profile_edit_page.dart';
 import 'package:shiharainu/pages/app_info_page.dart';
+import 'package:shiharainu/pages/notifications_page.dart';
 import 'package:shiharainu/shared/widgets/global_navigation_wrapper.dart';
 
 class App extends ConsumerWidget {
@@ -44,7 +45,7 @@ class App extends ConsumerWidget {
         final authState = ref.read(authStateProvider);
         final isLoggedIn = authState.value != null;
         final currentPath = state.matchedLocation;
-        
+
         print('[Router] リダイレクト処理: $currentPath, ログイン状態: $isLoggedIn');
 
         // 未ログインの場合
@@ -60,20 +61,23 @@ class App extends ConsumerWidget {
         // ログイン済みの場合
         print('[Router] ログイン済み、プロフィール確認中...');
         final hasProfileAsync = ref.read(hasUserProfileProvider);
-        
+
         return hasProfileAsync.when(
           data: (hasProfile) {
             print('[Router] プロフィール存在: $hasProfile');
-            
+
             // プロフィールが存在する場合
             if (hasProfile) {
               // ログイン・サインアップ・プロフィール設定ページの場合はホームにリダイレクト
-              if (currentPath == '/login' || currentPath == '/signup' || currentPath == '/profile-setup' || currentPath == '/') {
+              if (currentPath == '/login' ||
+                  currentPath == '/signup' ||
+                  currentPath == '/profile-setup' ||
+                  currentPath == '/') {
                 print('[Router] プロフィール設定済み、/homeにリダイレクト');
                 return '/home';
               }
               return null; // その他のページは表示
-            } 
+            }
             // プロフィールが存在しない場合
             else {
               // プロフィール設定ページ以外はプロフィール設定にリダイレクト
@@ -95,7 +99,9 @@ class App extends ConsumerWidget {
           error: (error, stack) {
             print('[Router] プロフィール情報取得エラー: $error');
             // エラー時はホームに飛ばす
-            if (currentPath == '/login' || currentPath == '/signup' || currentPath == '/') {
+            if (currentPath == '/login' ||
+                currentPath == '/signup' ||
+                currentPath == '/') {
               return '/home';
             }
             return null;
@@ -110,11 +116,8 @@ class App extends ConsumerWidget {
         GoRoute(
           path: '/',
           name: 'root',
-          builder: (context, state) => const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          ),
+          builder: (context, state) =>
+              const Scaffold(body: Center(child: CircularProgressIndicator())),
         ),
         // ログインページ（ナビゲーション非表示）
         GoRoute(
@@ -123,14 +126,14 @@ class App extends ConsumerWidget {
           builder: (context, state) => const LoginPage(),
         ),
         GoRoute(
-	        path: '/signup',
-	        name: 'signup',
-	        builder: (context, state) => const SignUpPage(),
+          path: '/signup',
+          name: 'signup',
+          builder: (context, state) => const SignUpPage(),
         ),
         GoRoute(
-        path: '/profile-setup',
-        name: 'profile-setup',
-        builder: (context, state) => const UserProfileSetupPage(),
+          path: '/profile-setup',
+          name: 'profile-setup',
+          builder: (context, state) => const UserProfileSetupPage(),
         ),
         // デバッグ用ページ（ナビゲーション非表示）
         GoRoute(
@@ -191,21 +194,14 @@ class App extends ConsumerWidget {
             GoRoute(
               path: '/payment-management',
               name: 'payment-management',
-              builder: (context, state) => const Scaffold(
-                body: Center(
-                  child: Text('支払い管理ページ（準備中）'),
-                ),
-              ),
+              builder: (context, state) =>
+                  const Scaffold(body: Center(child: Text('支払い管理ページ（準備中）'))),
             ),
-            // 通知ページ（今後実装）
+            // 通知ページ
             GoRoute(
               path: '/notifications',
               name: 'notifications',
-              builder: (context, state) => const Scaffold(
-                body: Center(
-                  child: Text('通知ページ（準備中）'),
-                ),
-              ),
+              builder: (context, state) => const NotificationsPage(),
             ),
             // アカウント情報ページ
             GoRoute(

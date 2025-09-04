@@ -11,7 +11,8 @@ class UserProfileSetupPage extends ConsumerStatefulWidget {
   const UserProfileSetupPage({super.key});
 
   @override
-  ConsumerState<UserProfileSetupPage> createState() => _UserProfileSetupPageState();
+  ConsumerState<UserProfileSetupPage> createState() =>
+      _UserProfileSetupPageState();
 }
 
 class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
@@ -53,16 +54,13 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            
+
             // タイトル
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Row(
                 children: [
-                  Text(
-                    '役職を選択',
-                    style: AppTheme.headlineMedium,
-                  ),
+                  Text('役職を選択', style: AppTheme.headlineMedium),
                   const Spacer(),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
@@ -71,9 +69,9 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                 ],
               ),
             ),
-            
+
             const Divider(),
-            
+
             // 役職リスト（説明付き）
             Expanded(
               child: ListView.separated(
@@ -82,29 +80,32 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                 itemCount: UserPositions.positionsWithDescription.length,
                 separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {
-                  final positionData = UserPositions.positionsWithDescription[index];
+                  final positionData =
+                      UserPositions.positionsWithDescription[index];
                   final positionName = positionData['name']!;
                   final description = positionData['description']!;
                   final isSelected = positionName == _selectedPosition;
-                  
+
                   return ListTile(
                     title: Text(
                       positionName,
                       style: AppTheme.bodyMedium.copyWith(
                         color: isSelected ? AppTheme.primaryColor : null,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                       ),
                     ),
                     subtitle: Text(
                       description,
                       style: AppTheme.bodySmall.copyWith(
-                        color: isSelected 
+                        color: isSelected
                             ? AppTheme.primaryColor.withValues(alpha: 0.8)
                             : AppTheme.mutedForeground,
                         fontSize: 12,
                       ),
                     ),
-                    trailing: isSelected 
+                    trailing: isSelected
                         ? const Icon(Icons.check, color: AppTheme.primaryColor)
                         : null,
                     onTap: () {
@@ -130,7 +131,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
     // 最大5秒間、プロフィールが更新されるまで待機
     const maxAttempts = 50; // 5秒間 (100ms x 50回)
     int attempts = 0;
-    
+
     while (attempts < maxAttempts) {
       try {
         final hasProfile = await ref.refresh(hasUserProfileProvider.future);
@@ -141,12 +142,12 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
       } catch (e) {
         print('プロフィール確認中にエラー: $e');
       }
-      
+
       // 100ms待機
       await Future.delayed(const Duration(milliseconds: 100));
       attempts++;
     }
-    
+
     print('プロフィール更新の待機タイムアウト（5秒）');
   }
 
@@ -194,7 +195,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
       print('UserServiceを取得中...');
       final userService = ref.read(userServiceProvider);
       print('UserService取得完了');
-      
+
       // UserServiceを使用してFirestoreにユーザー情報を保存
       print('Firestoreに保存中...');
       await userService.saveUserProfile(
@@ -210,17 +211,17 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
         ref.invalidate(hasUserProfileProvider);
         ref.invalidate(userProfileProvider);
         print('プロバイダー更新完了');
-        
+
         // プロフィールが正常に保存されるまで待機
         print('プロフィール情報の更新を待機中...');
         await _waitForProfileUpdate();
-        
+
         // mountedチェックを再度実行（非同期処理後）
         if (mounted) {
           print('ホーム画面に遷移中...');
           // プロフィール設定完了後、ホーム画面に遷移
           context.go('/home');
-          
+
           // 成功のスナックバー表示
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -234,16 +235,18 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
     } catch (e) {
       print('エラー発生: $e');
       print('エラータイプ: ${e.runtimeType}');
-      
+
       if (mounted) {
         setState(() {
           _errorMessage = e.toString().replaceFirst('Exception: ', '');
         });
-        
+
         // エラーのスナックバー表示
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('保存に失敗しました: ${e.toString().replaceFirst('Exception: ', '')}'),
+            content: Text(
+              '保存に失敗しました: ${e.toString().replaceFirst('Exception: ', '')}',
+            ),
             backgroundColor: AppTheme.destructive,
             duration: const Duration(seconds: 4),
           ),
@@ -275,12 +278,9 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 24),
-              
+
               // ページタイトル
-              Text(
-                'プロフィールを設定',
-                style: AppTheme.displayMedium,
-              ),
+              Text('プロフィールを設定', style: AppTheme.displayMedium),
               const SizedBox(height: 8),
               Text(
                 'あなたの基本情報を入力して、プロフィールを完成させましょう',
@@ -315,17 +315,14 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // 役職選択
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Text(
-                              '役職',
-                              style: AppTheme.labelMedium,
-                            ),
+                            Text('役職', style: AppTheme.labelMedium),
                             const SizedBox(width: 4),
                             Text(
                               '*',
@@ -407,7 +404,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                         ),
                       ),
                     ],
-                    
+
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,

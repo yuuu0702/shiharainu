@@ -44,7 +44,9 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                   ]),
                   const SizedBox(height: 12),
                   _buildRow([
-                    Expanded(child: AppButton.secondary(text: 'Secondary Button')),
+                    Expanded(
+                      child: AppButton.secondary(text: 'Secondary Button'),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(child: AppButton.ghost(text: 'Ghost Button')),
                   ]),
@@ -52,10 +54,12 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                   _buildRow([
                     Expanded(child: AppButton.link(text: 'Link Button')),
                     const SizedBox(width: 12),
-                    Expanded(child: AppButton.primary(
-                      text: 'Loading...',
-                      isLoading: true,
-                    )),
+                    Expanded(
+                      child: AppButton.primary(
+                        text: 'Loading...',
+                        isLoading: true,
+                      ),
+                    ),
                   ]),
                   const SizedBox(height: 12),
                   _buildRow([
@@ -88,7 +92,10 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                     placeholder: 'パスワードを入力',
                     obscureText: true,
                     prefixIcon: const Icon(Icons.lock_outline, size: 20),
-                    suffixIcon: const Icon(Icons.visibility_off_outlined, size: 20),
+                    suffixIcon: const Icon(
+                      Icons.visibility_off_outlined,
+                      size: 20,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   AppInput(
@@ -115,7 +122,8 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                       DropdownMenuItem(value: 'option2', child: Text('オプション2')),
                       DropdownMenuItem(value: 'option3', child: Text('オプション3')),
                     ],
-                    onChanged: (value) => setState(() => _selectValue = value ?? 'option1'),
+                    onChanged: (value) =>
+                        setState(() => _selectValue = value ?? 'option1'),
                   ),
                 ],
               ),
@@ -166,7 +174,10 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                     child: AppCardHeader(
                       title: '選択状態のカード',
                       subtitle: '選択されているカード',
-                      trailing: Icon(Icons.check_circle, color: AppTheme.primaryColor),
+                      trailing: Icon(
+                        Icons.check_circle,
+                        color: AppTheme.primaryColor,
+                      ),
                     ),
                   ),
                 ],
@@ -202,8 +213,14 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                   AppSegmentedControl<String>(
                     size: AppSegmentedControlSize.small,
                     options: const [
-                      AppSegmentedControlOption(value: 'small1', label: 'Small 1'),
-                      AppSegmentedControlOption(value: 'small2', label: 'Small 2'),
+                      AppSegmentedControlOption(
+                        value: 'small1',
+                        label: 'Small 1',
+                      ),
+                      AppSegmentedControlOption(
+                        value: 'small2',
+                        label: 'Small 2',
+                      ),
                     ],
                     value: 'small1',
                     onChanged: (value) {},
@@ -212,8 +229,14 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                   AppSegmentedControl<String>(
                     size: AppSegmentedControlSize.large,
                     options: const [
-                      AppSegmentedControlOption(value: 'large1', label: 'Large 1'),
-                      AppSegmentedControlOption(value: 'large2', label: 'Large 2'),
+                      AppSegmentedControlOption(
+                        value: 'large1',
+                        label: 'Large 1',
+                      ),
+                      AppSegmentedControlOption(
+                        value: 'large2',
+                        label: 'Large 2',
+                      ),
                     ],
                     value: 'large1',
                     onChanged: (value) {},
@@ -292,10 +315,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         content,
@@ -305,9 +325,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
   }
 
   Widget _buildRow(List<Widget> children) {
-    return Row(
-      children: children,
-    );
+    return Row(children: children);
   }
 
   Widget _buildColorSwatch(String name, Color color) {
@@ -330,10 +348,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
         ),
         Text(
           '#${color.value.toRadixString(16).toUpperCase().substring(2)}',
-          style: const TextStyle(
-            fontSize: 10,
-            color: AppTheme.mutedForeground,
-          ),
+          style: const TextStyle(fontSize: 10, color: AppTheme.mutedForeground),
           textAlign: TextAlign.center,
         ),
       ],

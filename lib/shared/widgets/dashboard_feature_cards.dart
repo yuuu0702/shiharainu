@@ -6,10 +6,7 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 class DashboardFeatureCards extends StatelessWidget {
   final bool isOrganizer;
 
-  const DashboardFeatureCards({
-    super.key,
-    required this.isOrganizer,
-  });
+  const DashboardFeatureCards({super.key, required this.isOrganizer});
 
   @override
   Widget build(BuildContext context) {
@@ -87,19 +84,12 @@ class DashboardFeatureCards extends StatelessWidget {
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              icon,
-              size: 32,
-              color: color,
-            ),
+            child: Icon(icon, size: 32, color: color),
           ),
           const SizedBox(height: 12),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),

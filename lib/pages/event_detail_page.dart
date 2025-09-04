@@ -7,10 +7,7 @@ import 'package:shiharainu/pages/event_list_page.dart';
 class EventDetailPage extends StatefulWidget {
   final String eventId;
 
-  const EventDetailPage({
-    super.key,
-    required this.eventId,
-  });
+  const EventDetailPage({super.key, required this.eventId});
 
   @override
   State<EventDetailPage> createState() => _EventDetailPageState();
@@ -19,7 +16,7 @@ class EventDetailPage extends StatefulWidget {
 class _EventDetailPageState extends State<EventDetailPage> {
   // TODO: 実際のデータはRiverpodプロバイダーから取得
   late EventDetailData _eventData;
-  
+
   @override
   void initState() {
     super.initState();
@@ -53,7 +50,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
           paymentStatus: PaymentStatus.paid,
         ),
         ParticipantData(
-          id: 'p2', 
+          id: 'p2',
           name: '鈴木一郎',
           email: 'suzuki@example.com',
           paymentStatus: PaymentStatus.pending,
@@ -76,14 +73,15 @@ class _EventDetailPageState extends State<EventDetailPage> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 1,
-        actions: _eventData.role == EventRole.organizer 
+        actions: _eventData.role == EventRole.organizer
             ? [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: AppButton.outline(
                     text: '設定',
                     icon: const Icon(Icons.settings_outlined, size: 18),
-                    onPressed: () => context.go('/events/${widget.eventId}/settings'),
+                    onPressed: () =>
+                        context.go('/events/${widget.eventId}/settings'),
                   ),
                 ),
               ]
@@ -115,19 +113,13 @@ class _EventDetailPageState extends State<EventDetailPage> {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  _eventData.title,
-                  style: AppTheme.headlineLarge,
-                ),
+                child: Text(_eventData.title, style: AppTheme.headlineLarge),
               ),
               _buildStatusBadge(_eventData.status),
             ],
           ),
           const SizedBox(height: AppTheme.spacing12),
-          Text(
-            _eventData.description,
-            style: AppTheme.bodyLarge,
-          ),
+          Text(_eventData.description, style: AppTheme.bodyLarge),
           const SizedBox(height: AppTheme.spacing16),
           Row(
             children: [
@@ -272,11 +264,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
             ),
-            child: Icon(
-              icon,
-              size: 24,
-              color: color,
-            ),
+            child: Icon(icon, size: 24, color: color),
           ),
           const SizedBox(height: AppTheme.spacing12),
           Text(
@@ -287,9 +275,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
           const SizedBox(height: AppTheme.spacing4),
           Text(
             description,
-            style: AppTheme.bodySmall.copyWith(
-              color: AppTheme.mutedForeground,
-            ),
+            style: AppTheme.bodySmall.copyWith(color: AppTheme.mutedForeground),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -303,21 +289,26 @@ class _EventDetailPageState extends State<EventDetailPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'イベント情報',
-          style: AppTheme.headlineMedium,
-        ),
+        Text('イベント情報', style: AppTheme.headlineMedium),
         const SizedBox(height: AppTheme.spacing16),
         AppCard(
           child: Column(
             children: [
-              _buildInfoRow('参加人数', '${_eventData.participantCount}/${_eventData.maxParticipants}人'),
+              _buildInfoRow(
+                '参加人数',
+                '${_eventData.participantCount}/${_eventData.maxParticipants}人',
+              ),
               const Divider(),
               _buildInfoRow('予算', '¥${_eventData.budget.toStringAsFixed(0)}'),
               const Divider(),
               _buildInfoRow('幹事', _eventData.organizer.name),
               const Divider(),
-              _buildInfoRow('作成日', _formatFullDate(_eventData.date.subtract(const Duration(days: 30)))),
+              _buildInfoRow(
+                '作成日',
+                _formatFullDate(
+                  _eventData.date.subtract(const Duration(days: 30)),
+                ),
+              ),
             ],
           ),
         ),
@@ -347,7 +338,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
   }
 
   Widget _buildParticipantsSection() {
-    final paidCount = _eventData.participants.where((p) => p.paymentStatus == PaymentStatus.paid).length + 1; // +1 for organizer
+    final paidCount =
+        _eventData.participants
+            .where((p) => p.paymentStatus == PaymentStatus.paid)
+            .length +
+        1; // +1 for organizer
     final unpaidCount = _eventData.participants.length + 1 - paidCount;
 
     return Column(
@@ -355,15 +350,9 @@ class _EventDetailPageState extends State<EventDetailPage> {
       children: [
         Row(
           children: [
-            Text(
-              '参加者',
-              style: AppTheme.headlineMedium,
-            ),
+            Text('参加者', style: AppTheme.headlineMedium),
             const Spacer(),
-            AppBadge(
-              text: '支払済 $paidCount',
-              variant: AppBadgeVariant.default_,
-            ),
+            AppBadge(text: '支払済 $paidCount', variant: AppBadgeVariant.default_),
             const SizedBox(width: AppTheme.spacing8),
             AppBadge(
               text: '未払 $unpaidCount',
@@ -394,11 +383,16 @@ class _EventDetailPageState extends State<EventDetailPage> {
                   children: [
                     AppProfileCard.standard(
                       name: participant.name,
-                      subtitle: _getPaymentStatusText(participant.paymentStatus),
+                      subtitle: _getPaymentStatusText(
+                        participant.paymentStatus,
+                      ),
                       initials: _getInitials(participant.name),
-                      trailing: _buildPaymentStatusBadge(participant.paymentStatus),
+                      trailing: _buildPaymentStatusBadge(
+                        participant.paymentStatus,
+                      ),
                     ),
-                    if (index < _eventData.participants.length - 1) const Divider(),
+                    if (index < _eventData.participants.length - 1)
+                      const Divider(),
                   ],
                 );
               }),
@@ -412,40 +406,22 @@ class _EventDetailPageState extends State<EventDetailPage> {
   Widget _buildStatusBadge(EventStatus status) {
     switch (status) {
       case EventStatus.planning:
-        return AppBadge(
-          text: '企画中',
-          variant: AppBadgeVariant.secondary,
-        );
+        return AppBadge(text: '企画中', variant: AppBadgeVariant.secondary);
       case EventStatus.active:
-        return AppBadge(
-          text: '募集中',
-          variant: AppBadgeVariant.default_,
-        );
+        return AppBadge(text: '募集中', variant: AppBadgeVariant.default_);
       case EventStatus.completed:
-        return AppBadge(
-          text: '完了',
-          variant: AppBadgeVariant.secondary,
-        );
+        return AppBadge(text: '完了', variant: AppBadgeVariant.secondary);
     }
   }
 
   Widget _buildPaymentStatusBadge(PaymentStatus status) {
     switch (status) {
       case PaymentStatus.paid:
-        return AppBadge(
-          text: '支払済',
-          variant: AppBadgeVariant.default_,
-        );
+        return AppBadge(text: '支払済', variant: AppBadgeVariant.default_);
       case PaymentStatus.pending:
-        return AppBadge(
-          text: '確認中',
-          variant: AppBadgeVariant.warning,
-        );
+        return AppBadge(text: '確認中', variant: AppBadgeVariant.warning);
       case PaymentStatus.unpaid:
-        return AppBadge(
-          text: '未払',
-          variant: AppBadgeVariant.destructive,
-        );
+        return AppBadge(text: '未払', variant: AppBadgeVariant.destructive);
     }
   }
 
@@ -515,8 +491,4 @@ class ParticipantData {
   });
 }
 
-enum PaymentStatus {
-  paid,
-  pending,
-  unpaid,
-}
+enum PaymentStatus { paid, pending, unpaid }
