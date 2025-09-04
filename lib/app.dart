@@ -22,6 +22,7 @@ import 'package:shiharainu/pages/user_profile_edit_page.dart';
 import 'package:shiharainu/pages/app_info_page.dart';
 import 'package:shiharainu/pages/notifications_page.dart';
 import 'package:shiharainu/shared/widgets/global_navigation_wrapper.dart';
+import 'package:shiharainu/shared/animations/page_transitions.dart';
 
 class App extends ConsumerWidget {
   const App({super.key});
@@ -150,40 +151,64 @@ class App extends ConsumerWidget {
             GoRoute(
               path: '/home',
               name: 'home',
-              builder: (context, state) => const HomePage(),
+              pageBuilder: (context, state) => AppPageTransitions.buildPageWithTransition(
+                child: const HomePage(),
+                name: 'home',
+                transitionType: PageTransitionType.slideWithFade,
+              ),
             ),
             GoRoute(
               path: '/events',
               name: 'events',
-              builder: (context, state) => const EventsPage(),
+              pageBuilder: (context, state) => AppPageTransitions.buildPageWithTransition(
+                child: const EventsPage(),
+                name: 'events',
+                transitionType: PageTransitionType.slideWithFade,
+              ),
               routes: [
                 GoRoute(
                   path: 'create',
                   name: 'event-creation',
-                  builder: (context, state) => const EventCreationPage(),
+                  pageBuilder: (context, state) => AppPageTransitions.buildPageWithTransition(
+                    child: const EventCreationPage(),
+                    name: 'event-creation',
+                    transitionType: PageTransitionType.slideUp,
+                  ),
                 ),
                 GoRoute(
                   path: ':eventId',
                   name: 'event-detail',
-                  builder: (context, state) {
+                  pageBuilder: (context, state) {
                     final eventId = state.pathParameters['eventId']!;
-                    return EventDetailPage(eventId: eventId);
+                    return AppPageTransitions.buildPageWithTransition(
+                      child: EventDetailPage(eventId: eventId),
+                      name: 'event-detail',
+                      transitionType: PageTransitionType.slide,
+                    );
                   },
                   routes: [
                     GoRoute(
                       path: 'payments',
                       name: 'event-payments',
-                      builder: (context, state) {
+                      pageBuilder: (context, state) {
                         final eventId = state.pathParameters['eventId']!;
-                        return EventPaymentManagementPage(eventId: eventId);
+                        return AppPageTransitions.buildPageWithTransition(
+                          child: EventPaymentManagementPage(eventId: eventId),
+                          name: 'event-payments',
+                          transitionType: PageTransitionType.slide,
+                        );
                       },
                     ),
                     GoRoute(
                       path: 'settings',
                       name: 'event-settings',
-                      builder: (context, state) {
+                      pageBuilder: (context, state) {
                         final eventId = state.pathParameters['eventId']!;
-                        return EventSettingsPage(eventId: eventId);
+                        return AppPageTransitions.buildPageWithTransition(
+                          child: EventSettingsPage(eventId: eventId),
+                          name: 'event-settings',
+                          transitionType: PageTransitionType.slideUp,
+                        );
                       },
                     ),
                   ],
@@ -201,19 +226,31 @@ class App extends ConsumerWidget {
             GoRoute(
               path: '/notifications',
               name: 'notifications',
-              builder: (context, state) => const NotificationsPage(),
+              pageBuilder: (context, state) => AppPageTransitions.buildPageWithTransition(
+                child: const NotificationsPage(),
+                name: 'notifications',
+                transitionType: PageTransitionType.slide,
+              ),
             ),
             // アカウント情報ページ
             GoRoute(
               path: '/account',
               name: 'account',
-              builder: (context, state) => const AccountPage(),
+              pageBuilder: (context, state) => AppPageTransitions.buildPageWithTransition(
+                child: const AccountPage(),
+                name: 'account',
+                transitionType: PageTransitionType.slide,
+              ),
             ),
             // プロフィール編集ページ
             GoRoute(
               path: '/profile-edit',
               name: 'profile-edit',
-              builder: (context, state) => const UserProfileEditPage(),
+              pageBuilder: (context, state) => AppPageTransitions.buildPageWithTransition(
+                child: const UserProfileEditPage(),
+                name: 'profile-edit',
+                transitionType: PageTransitionType.slideUp,
+              ),
             ),
             // アプリ情報ページ
             GoRoute(

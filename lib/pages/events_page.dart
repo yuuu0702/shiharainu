@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
-import 'package:shiharainu/shared/widgets/app_search_bar.dart';
 
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
