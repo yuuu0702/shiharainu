@@ -62,7 +62,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppTheme.spacing16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -82,7 +82,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     controller: _eventNameController,
                     isRequired: true,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   AppTextarea(
                     label: '詳細説明',
                     placeholder: 'イベントの詳細を入力してください',
@@ -90,7 +90,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     minLines: 3,
                     maxLines: 5,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   AppSelect<String>(
                     label: 'イベント種別',
                     value: _eventType,
@@ -121,7 +121,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppTheme.spacing24),
 
             // 支払い設定セクション
             AppCard(
@@ -141,12 +141,12 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     isRequired: true,
                     prefixIcon: const Icon(Icons.currency_yen, size: 20),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   const Text(
                     '計算方法',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    style: AppTheme.labelLarge,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppTheme.spacing8),
                   AppSegmentedControl<String>(
                     options: const [
                       AppSegmentedControlOption(
@@ -168,9 +168,9 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     },
                   ),
                   if (_calculationMethod == 'proportional') ...[
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppTheme.spacing16),
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(AppTheme.spacing12),
                       decoration: BoxDecoration(
                         color: AppTheme.infoColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
@@ -185,12 +185,11 @@ class _EventCreationPageState extends State<EventCreationPage> {
                             size: 16,
                             color: AppTheme.infoColor,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: AppTheme.spacing8),
                           Expanded(
                             child: Text(
                               '比例割りでは役職、年齢、性別、飲酒状況に基づいて自動計算されます',
-                              style: TextStyle(
-                                fontSize: 12,
+                              style: AppTheme.bodySmall.copyWith(
                                 color: AppTheme.infoColor,
                               ),
                             ),
@@ -202,7 +201,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: AppTheme.spacing32),
 
             // アクションボタン
             Row(
@@ -213,7 +212,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     onPressed: () => context.pop(),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: AppTheme.spacing16),
                 Expanded(
                   child: AppButton.primary(
                     text: 'イベントを作成',
@@ -223,7 +222,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: AppTheme.spacing32),
           ],
         ),
       ),

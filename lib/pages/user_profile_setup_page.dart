@@ -46,7 +46,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
           children: [
             // ハンドル
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
+              margin: const EdgeInsets.symmetric(vertical: AppTheme.spacing12),
               width: 40,
               height: 4,
               decoration: BoxDecoration(
@@ -57,7 +57,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
 
             // タイトル
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacing24),
               child: Row(
                 children: [
                   Text('役職を選択', style: AppTheme.headlineMedium),
@@ -76,7 +76,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
             Expanded(
               child: ListView.separated(
                 controller: scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacing24),
                 itemCount: UserPositions.positionsWithDescription.length,
                 separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {
@@ -273,22 +273,22 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(AppTheme.spacing24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 24),
+              const SizedBox(height: AppTheme.spacing24),
 
               // ページタイトル
               Text('プロフィールを設定', style: AppTheme.displayMedium),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppTheme.spacing8),
               Text(
                 'あなたの基本情報を入力して、プロフィールを完成させましょう',
                 style: AppTheme.bodyMedium.copyWith(
                   color: AppTheme.mutedForeground,
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppTheme.spacing32),
 
               // プロフィール入力フォーム
               AppCard(
@@ -301,7 +301,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                       isRequired: true,
                       prefixIcon: const Icon(Icons.person_outline, size: 20),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppTheme.spacing16),
                     AppInput(
                       label: '年齢',
                       placeholder: '例: 25',
@@ -314,7 +314,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                         LengthLimitingTextInputFormatter(3),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppTheme.spacing16),
 
                     // 役職選択
                     Column(
@@ -323,7 +323,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                         Row(
                           children: [
                             Text('役職', style: AppTheme.labelMedium),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: AppTheme.spacing4),
                             Text(
                               '*',
                               style: TextStyle(
@@ -333,13 +333,13 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppTheme.spacing8),
                         InkWell(
                           onTap: _showPositionSelector,
                           borderRadius: BorderRadius.circular(6),
                           child: Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(AppTheme.spacing12),
                             decoration: BoxDecoration(
                               color: AppTheme.inputBackground,
                               borderRadius: BorderRadius.circular(6),
@@ -351,7 +351,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                                   size: 20,
                                   color: AppTheme.mutedForeground,
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: AppTheme.spacing12),
                                 Expanded(
                                   child: Text(
                                     _selectedPosition,
@@ -371,10 +371,10 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
 
                     // エラーメッセージ表示
                     if (_errorMessage != null) ...[
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppTheme.spacing16),
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(AppTheme.spacing12),
                         decoration: BoxDecoration(
                           color: AppTheme.destructive.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
@@ -390,7 +390,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                               size: 20,
                               color: AppTheme.destructive,
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppTheme.spacing8),
                             Expanded(
                               child: Text(
                                 _errorMessage!,
@@ -405,7 +405,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                       ),
                     ],
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppTheme.spacing24),
                     SizedBox(
                       width: double.infinity,
                       child: AppButton.primary(
@@ -419,7 +419,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: AppTheme.spacing24),
 
               // 後で設定するオプション
               Center(

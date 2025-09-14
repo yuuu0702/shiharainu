@@ -173,7 +173,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: Center(
               child: Text(
                 _randomDogEmoji,
-                style: const TextStyle(fontSize: 32),
+                style: AppTheme.displayMedium,
               ),
             ),
           ),
@@ -667,7 +667,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             right: 8,
             top: 8,
             child: Container(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(AppTheme.spacing4),
               decoration: const BoxDecoration(
                 color: AppTheme.destructiveColor,
                 shape: BoxShape.circle,
@@ -675,9 +675,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               child: Text(
                 unreadCount > 99 ? '99+' : unreadCount.toString(),
-                style: const TextStyle(
+                style: AppTheme.labelSmall.copyWith(
                   color: Colors.white,
-                  fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
