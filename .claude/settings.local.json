@@ -19,7 +19,8 @@
       "Bash(R)",
       "Bash(dart format:*)",
       "Bash(move libpageshome_page.dart libpageshome_page_old.dart)",
-      "Bash(move libpageshome_page_new.dart libpageshome_page.dart)"
+      "Bash(move libpageshome_page_new.dart libpageshome_page.dart)",
+      "Bash(rm:*)"
     ],
     "deny": []
   },

@@ -47,7 +47,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
         ),
       );
 
-      context.go('/dashboard');
+      context.go('/home');
     }
   }
 
@@ -58,7 +58,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
         title: const Text('イベント作成'),
         leading: AppButton.icon(
           icon: const Icon(Icons.arrow_back, size: 20),
-          onPressed: () => context.go('/dashboard'),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SingleChildScrollView(
@@ -210,7 +210,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                 Expanded(
                   child: AppButton.outline(
                     text: 'キャンセル',
-                    onPressed: () => context.go('/dashboard'),
+                    onPressed: () => context.pop(),
                   ),
                 ),
                 const SizedBox(width: 16),

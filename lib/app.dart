@@ -6,7 +6,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/services/auth_service.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
-import 'package:shiharainu/pages/dashboard_page.dart';
 import 'package:shiharainu/pages/login_page.dart';
 import 'package:shiharainu/pages/signup_page.dart';
 import 'package:shiharainu/pages/user_profile_setup_page.dart';
@@ -257,12 +256,6 @@ class App extends ConsumerWidget {
               path: '/app-info',
               name: 'app-info',
               builder: (context, state) => const AppInfoPage(),
-            ),
-            // デバッグ用：既存のダッシュボードを一時保持
-            GoRoute(
-              path: '/dashboard',
-              name: 'dashboard',
-              builder: (context, state) => const DashboardPage(),
             ),
           ],
         ),

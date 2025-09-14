@@ -16,6 +16,10 @@ class AccountPage extends ConsumerWidget {
     return userProfile.when(
       data: (profile) => SimplePage(
         title: 'アカウント情報',
+        leading: AppButton.icon(
+          icon: const Icon(Icons.arrow_back, size: 20),
+          onPressed: () => context.pop(),
+        ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(AppTheme.spacing16),
           child: Column(

@@ -103,9 +103,9 @@ class _SignUpPageState extends State<SignUpPage> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 1,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/login'),
+        leading: AppButton.icon(
+          icon: const Icon(Icons.arrow_back, size: 20),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(

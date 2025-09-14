@@ -21,7 +21,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
         title: const Text('コンポーネント素材集'),
         leading: AppButton.icon(
           icon: const Icon(Icons.arrow_back, size: 20),
-          onPressed: () => context.go('/dashboard'),
+          onPressed: () => context.pop(),
         ),
         actions: [
           AppBadge.info(text: 'DEBUG'),
