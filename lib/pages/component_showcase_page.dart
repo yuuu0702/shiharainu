@@ -347,7 +347,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
           textAlign: TextAlign.center,
         ),
         Text(
-          '#${color.value.toRadixString(16).toUpperCase().substring(2)}',
+          '#${color.toARGB32().toRadixString(16).toUpperCase().substring(2)}',
           style: AppTheme.labelSmall.copyWith(color: AppTheme.mutedForeground),
           textAlign: TextAlign.center,
         ),

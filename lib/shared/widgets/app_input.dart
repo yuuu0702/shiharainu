@@ -215,7 +215,7 @@ class AppSelect<T> extends StatelessWidget {
           const SizedBox(height: 8),
         ],
         DropdownButtonFormField<T>(
-          value: value,
+          initialValue: value,
           items: items,
           onChanged: onChanged,
           isExpanded: true, // オーバーフロー防止のため幅を最大化
