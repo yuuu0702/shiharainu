@@ -20,7 +20,10 @@
       "Bash(dart format:*)",
       "Bash(move libpageshome_page.dart libpageshome_page_old.dart)",
       "Bash(move libpageshome_page_new.dart libpageshome_page.dart)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "mcp__dart__add_roots",
+      "mcp__dart__analyze_files",
+      "mcp__dart__run_tests"
     ],
     "deny": []
   },
