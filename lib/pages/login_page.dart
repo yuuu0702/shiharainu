@@ -295,14 +295,18 @@ class _LoginPageState extends State<LoginPage> {
               final email = emailController.text.trim();
               if (email.isEmpty) return;
 
+              // BuildContextを非同期処理前に取得
+              final container = ProviderScope.containerOf(context);
+              final navigator = Navigator.of(context);
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+
               try {
-                final container = ProviderScope.containerOf(context);
                 final authService = container.read(authServiceProvider);
                 await authService.sendPasswordResetEmail(email: email);
 
                 if (mounted) {
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  navigator.pop();
+                  scaffoldMessenger.showSnackBar(
                     const SnackBar(
                       content: Text('パスワードリセットメールを送信しました'),
                       backgroundColor: Colors.green,
@@ -311,7 +315,7 @@ class _LoginPageState extends State<LoginPage> {
                 }
               } catch (e) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  scaffoldMessenger.showSnackBar(
                     SnackBar(
                       content: Text(
                         e.toString().replaceFirst('Exception: ', ''),
