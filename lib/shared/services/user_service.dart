@@ -5,14 +5,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:shiharainu/shared/models/user_profile.dart';
+import 'package:shiharainu/shared/utils/app_logger.dart';
+import 'package:shiharainu/shared/services/cache_service.dart';
 
 class UserService {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+  final CacheService? _cacheService;
 
-  UserService({FirebaseFirestore? firestore, FirebaseAuth? auth})
-    : _firestore = firestore ?? FirebaseFirestore.instance,
-      _auth = auth ?? FirebaseAuth.instance;
+  UserService({
+    FirebaseFirestore? firestore,
+    FirebaseAuth? auth,
+    CacheService? cacheService,
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _auth = auth ?? FirebaseAuth.instance,
+       _cacheService = cacheService;
 
   Future<void> saveUserProfile({
     required String name,
@@ -20,15 +27,15 @@ class UserService {
     required String position,
   }) async {
     try {
-      print('[UserService] 保存処理開始');
+      AppLogger.database('保存処理開始', operation: 'saveUserProfile');
       final user = _auth.currentUser;
       if (user == null) {
-        print('[UserService] エラー: ユーザーがログインしていません');
+        AppLogger.auth('エラー: ユーザーがログインしていません');
         throw Exception('ユーザーがログインしていません');
       }
 
-      print('[UserService] ログイン中のユーザーID: ${user.uid}');
-      print('[UserService] ユーザーメール: ${user.email}');
+      AppLogger.auth('ログイン中のユーザー', userId: user.uid);
+      AppLogger.debug('ユーザーメール: ${user.email}', name: 'UserService');
 
       final userProfile = UserProfile(
         id: user.uid,
@@ -40,18 +47,24 @@ class UserService {
         updatedAt: DateTime.now(),
       );
 
-      print('[UserService] UserProfile作成完了: ${userProfile.toJson()}');
-      print('[UserService] Firestoreに保存中...');
+      AppLogger.debug('UserProfile作成完了: ${userProfile.toJson()}', name: 'UserService');
+      AppLogger.database('Firestoreに保存中...', operation: 'saveUserProfile');
 
       await _firestore
           .collection('users')
           .doc(user.uid)
           .set(userProfile.toJson());
 
-      print('[UserService] Firestore保存完了');
+      // キャッシュにも保存
+      if (_cacheService != null) {
+        await _cacheService!.cacheUserProfile(userProfile.toJson());
+        AppLogger.debug('ユーザープロフィールをキャッシュに保存', name: 'UserService');
+      }
+
+      AppLogger.database('Firestore保存完了', operation: 'saveUserProfile');
     } catch (e) {
-      print('[UserService] エラー発生: $e');
-      print('[UserService] エラータイプ: ${e.runtimeType}');
+      AppLogger.error('エラー発生', name: 'UserService', error: e);
+      AppLogger.debug('エラータイプ: ${e.runtimeType}', name: 'UserService');
       throw Exception('ユーザー情報の保存に失敗しました: $e');
     }
   }
@@ -63,14 +76,34 @@ class UserService {
         return null;
       }
 
+      // まずキャッシュから取得を試行
+      if (_cacheService != null) {
+        final cachedProfile = await _cacheService!.getCachedUserProfile();
+        if (cachedProfile != null) {
+          AppLogger.debug('キャッシュからユーザープロフィール取得', name: 'UserService');
+          return UserProfile.fromJson(cachedProfile);
+        }
+      }
+
+      // キャッシュにない場合はFirestoreから取得
+      AppLogger.database('Firestoreからユーザープロフィール取得', operation: 'getUserProfile');
       final doc = await _firestore.collection('users').doc(user.uid).get();
 
       if (!doc.exists) {
         return null;
       }
 
-      return UserProfile.fromJson(doc.data()!);
+      final profile = UserProfile.fromJson(doc.data()!);
+
+      // 取得したデータをキャッシュに保存
+      if (_cacheService != null) {
+        await _cacheService!.cacheUserProfile(profile.toJson());
+        AppLogger.debug('取得したユーザープロフィールをキャッシュに保存', name: 'UserService');
+      }
+
+      return profile;
     } catch (e) {
+      AppLogger.error('ユーザープロフィール取得エラー', name: 'UserService', error: e);
       throw Exception('ユーザー情報の取得に失敗しました: $e');
     }
   }
@@ -107,6 +140,12 @@ class UserService {
         'position': position,
         'updatedAt': DateTime.now().toIso8601String(),
       });
+
+      // キャッシュをクリア（次回取得時に最新データを取得するため）
+      if (_cacheService != null) {
+        await _cacheService!.clearCache('cached_user_profile');
+        AppLogger.debug('ユーザープロフィール更新によりキャッシュをクリア', name: 'UserService');
+      }
     } catch (e) {
       throw Exception('ユーザー情報の更新に失敗しました: $e');
     }
@@ -114,7 +153,14 @@ class UserService {
 }
 
 final userServiceProvider = Provider<UserService>((ref) {
-  return UserService();
+  // キャッシュサービスを注入（利用可能な場合）
+  try {
+    final cacheService = ref.watch(cacheServiceInitProvider).value;
+    return UserService(cacheService: cacheService);
+  } catch (e) {
+    // キャッシュサービスが利用できない場合は通常のUserServiceを返す
+    return UserService();
+  }
 });
 
 final userProfileProvider = StreamProvider<UserProfile?>((ref) {

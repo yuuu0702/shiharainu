@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/services/auth_service.dart';
+import 'package:shiharainu/shared/utils/app_logger.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
 import 'package:shiharainu/pages/login_page.dart';
 import 'package:shiharainu/pages/signup_page.dart';
@@ -46,25 +47,25 @@ class App extends ConsumerWidget {
         final isLoggedIn = authState.value != null;
         final currentPath = state.matchedLocation;
 
-        print('[Router] リダイレクト処理: $currentPath, ログイン状態: $isLoggedIn');
+        AppLogger.navigation('リダイレクト処理: ログイン状態: $isLoggedIn', route: currentPath);
 
         // 未ログインの場合
         if (!isLoggedIn) {
           // ログイン・サインアップ以外はログインページにリダイレクト
           if (currentPath != '/login' && currentPath != '/signup') {
-            print('[Router] 未ログインのため/loginにリダイレクト');
+            AppLogger.navigation('未ログインのため/loginにリダイレクト', route: currentPath);
             return '/login';
           }
           return null; // ログイン・サインアップページは表示
         }
 
         // ログイン済みの場合
-        print('[Router] ログイン済み、プロフィール確認中...');
+        AppLogger.navigation('ログイン済み、プロフィール確認中...', route: currentPath);
         final hasProfileAsync = ref.read(hasUserProfileProvider);
 
         return hasProfileAsync.when(
           data: (hasProfile) {
-            print('[Router] プロフィール存在: $hasProfile');
+            AppLogger.navigation('プロフィール存在: $hasProfile', route: currentPath);
 
             // プロフィールが存在する場合
             if (hasProfile) {
@@ -73,7 +74,7 @@ class App extends ConsumerWidget {
                   currentPath == '/signup' ||
                   currentPath == '/profile-setup' ||
                   currentPath == '/') {
-                print('[Router] プロフィール設定済み、/homeにリダイレクト');
+                AppLogger.navigation('プロフィール設定済み、/homeにリダイレクト', route: currentPath);
                 return '/home';
               }
               return null; // その他のページは表示
@@ -82,14 +83,14 @@ class App extends ConsumerWidget {
             else {
               // プロフィール設定ページ以外はプロフィール設定にリダイレクト
               if (currentPath != '/profile-setup') {
-                print('[Router] プロフィール未設定、/profile-setupにリダイレクト');
+                AppLogger.navigation('プロフィール未設定、/profile-setupにリダイレクト', route: currentPath);
                 return '/profile-setup';
               }
               return null; // プロフィール設定ページは表示
             }
           },
           loading: () {
-            print('[Router] プロフィール情報ローディング中');
+            AppLogger.navigation('プロフィール情報ローディング中', route: currentPath);
             // ローディング中はログイン・サインアップページ以外はホームに飛ばす
             if (currentPath == '/login' || currentPath == '/signup') {
               return '/home';
@@ -97,7 +98,7 @@ class App extends ConsumerWidget {
             return null;
           },
           error: (error, stack) {
-            print('[Router] プロフィール情報取得エラー: $error');
+            AppLogger.error('プロフィール情報取得エラー', name: 'Router', error: error);
             // エラー時はホームに飛ばす
             if (currentPath == '/login' ||
                 currentPath == '/signup' ||

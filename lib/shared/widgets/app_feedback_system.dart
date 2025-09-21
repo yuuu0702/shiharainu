@@ -18,8 +18,8 @@ class AppFeedbackSystem {
     if (hapticFeedback) {
       await HapticFeedback.lightImpact();
     }
-    
-    if (showToast && message != null) {
+
+    if (showToast && message != null && context.mounted) {
       _showFeedbackSnackBar(
         context: context,
         message: message,
@@ -38,8 +38,8 @@ class AppFeedbackSystem {
     if (hapticFeedback) {
       await HapticFeedback.mediumImpact();
     }
-    
-    if (showToast && message != null) {
+
+    if (showToast && message != null && context.mounted) {
       _showFeedbackSnackBar(
         context: context,
         message: message,
@@ -58,8 +58,8 @@ class AppFeedbackSystem {
     if (hapticFeedback) {
       await HapticFeedback.selectionClick();
     }
-    
-    if (showToast && message != null) {
+
+    if (showToast && message != null && context.mounted) {
       _showFeedbackSnackBar(
         context: context,
         message: message,
@@ -78,8 +78,8 @@ class AppFeedbackSystem {
     if (hapticFeedback) {
       await HapticFeedback.selectionClick();
     }
-    
-    if (showToast && message != null) {
+
+    if (showToast && message != null && context.mounted) {
       _showFeedbackSnackBar(
         context: context,
         message: message,
@@ -294,12 +294,15 @@ class AppPullFeedback extends HookWidget {
       onRefresh: () async {
         await AppFeedbackSystem.lightImpact();
         await onRefresh();
-        await AppFeedbackSystem.success(
-          context: context,
-          message: '更新が完了しました',
-          showToast: false,
-          hapticFeedback: true,
-        );
+        // BuildContextを非同期処理前に取得してフィードバックを実行
+        if (context.mounted) {
+          await AppFeedbackSystem.success(
+            context: context,
+            message: '更新が完了しました',
+            showToast: false,
+            hapticFeedback: true,
+          );
+        }
       },
       color: indicatorColor,
       backgroundColor: Colors.white,

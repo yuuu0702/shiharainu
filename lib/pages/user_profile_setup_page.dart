@@ -6,6 +6,7 @@ import 'package:shiharainu/shared/widgets/widgets.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/models/user_profile.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
+import 'package:shiharainu/shared/utils/app_logger.dart';
 
 class UserProfileSetupPage extends ConsumerStatefulWidget {
   const UserProfileSetupPage({super.key});
@@ -136,11 +137,11 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
       try {
         final hasProfile = await ref.refresh(hasUserProfileProvider.future);
         if (hasProfile) {
-          print('プロフィール情報の更新確認完了');
+          AppLogger.info('プロフィール情報の更新確認完了', name: 'UserProfileSetup');
           return;
         }
       } catch (e) {
-        print('プロフィール確認中にエラー: $e');
+        AppLogger.warning('プロフィール確認中にエラー', name: 'UserProfileSetup', error: e);
       }
 
       // 100ms待機
@@ -148,21 +149,19 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
       attempts++;
     }
 
-    print('プロフィール更新の待機タイムアウト（5秒）');
+    AppLogger.warning('プロフィール更新の待機タイムアウト（5秒）', name: 'UserProfileSetup');
   }
 
   void _handleSaveProfile() async {
     final name = _nameController.text.trim();
     final ageText = _ageController.text.trim();
 
-    print('=== プロフィール保存開始 ===');
-    print('名前: $name');
-    print('年齢: $ageText');
-    print('役職: $_selectedPosition');
+    AppLogger.info('=== プロフィール保存開始 ===', name: 'UserProfileSetup');
+    AppLogger.debug('名前: $name, 年齢: $ageText, 役職: $_selectedPosition', name: 'UserProfileSetup');
 
     // バリデーション
     if (name.isEmpty) {
-      print('エラー: 名前が空です');
+      AppLogger.warning('エラー: 名前が空です', name: 'UserProfileSetup');
       setState(() {
         _errorMessage = '名前を入力してください';
       });
@@ -170,7 +169,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
     }
 
     if (ageText.isEmpty) {
-      print('エラー: 年齢が空です');
+      AppLogger.warning('エラー: 年齢が空です', name: 'UserProfileSetup');
       setState(() {
         _errorMessage = '年齢を入力してください';
       });
@@ -179,7 +178,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
 
     final age = int.tryParse(ageText);
     if (age == null || age < 1 || age > 150) {
-      print('エラー: 年齢が無効です ($ageText)');
+      AppLogger.warning('エラー: 年齢が無効です ($ageText)', name: 'UserProfileSetup');
       setState(() {
         _errorMessage = '正しい年齢を入力してください';
       });
@@ -192,33 +191,33 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
     });
 
     try {
-      print('UserServiceを取得中...');
+      AppLogger.debug('UserServiceを取得中...', name: 'UserProfileSetup');
       final userService = ref.read(userServiceProvider);
-      print('UserService取得完了');
+      AppLogger.debug('UserService取得完了', name: 'UserProfileSetup');
 
       // UserServiceを使用してFirestoreにユーザー情報を保存
-      print('Firestoreに保存中...');
+      AppLogger.database('Firestoreに保存中...', operation: 'saveUserProfile');
       await userService.saveUserProfile(
         name: name,
         age: age,
         position: _selectedPosition,
       );
-      print('Firestore保存完了');
+      AppLogger.database('Firestore保存完了', operation: 'saveUserProfile');
 
       if (mounted) {
-        print('プロバイダーを更新中...');
+        AppLogger.debug('プロバイダーを更新中...', name: 'UserProfileSetup');
         // プロバイダーを強制的に更新してキャッシュをクリア
         ref.invalidate(hasUserProfileProvider);
         ref.invalidate(userProfileProvider);
-        print('プロバイダー更新完了');
+        AppLogger.debug('プロバイダー更新完了', name: 'UserProfileSetup');
 
         // プロフィールが正常に保存されるまで待機
-        print('プロフィール情報の更新を待機中...');
+        AppLogger.debug('プロフィール情報の更新を待機中...', name: 'UserProfileSetup');
         await _waitForProfileUpdate();
 
         // mountedチェックを再度実行（非同期処理後）
         if (mounted) {
-          print('ホーム画面に遷移中...');
+          AppLogger.navigation('ホーム画面に遷移中...', route: '/home');
           // プロフィール設定完了後、ホーム画面に遷移
           context.go('/home');
 
@@ -233,8 +232,8 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
         }
       }
     } catch (e) {
-      print('エラー発生: $e');
-      print('エラータイプ: ${e.runtimeType}');
+      AppLogger.error('エラー発生', name: 'UserProfileSetup', error: e);
+      AppLogger.debug('エラータイプ: ${e.runtimeType}', name: 'UserProfileSetup');
 
       if (mounted) {
         setState(() {
