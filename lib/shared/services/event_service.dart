@@ -249,3 +249,76 @@ final eventServiceProvider = Provider<EventService>((ref) {
     userService: userService,
   );
 });
+
+/// 特定イベントのStreamProviderファミリー（リアルタイム更新）
+final eventStreamProvider = StreamProvider.family<EventModel, String>((ref, eventId) {
+  final eventsCollection = ref.watch(eventsCollectionProvider);
+  return eventsCollection.doc(eventId).snapshots().map((snapshot) {
+    if (!snapshot.exists) {
+      throw Exception('イベントが存在しません');
+    }
+    return snapshot.data()!;
+  });
+});
+
+/// 特定イベントのFutureProviderファミリー（1回だけ取得）
+final eventProvider = FutureProvider.family<EventModel, String>((ref, eventId) async {
+  final eventsCollection = ref.watch(eventsCollectionProvider);
+  final snapshot = await eventsCollection.doc(eventId).get();
+
+  if (!snapshot.exists) {
+    throw Exception('イベントが存在しません');
+  }
+
+  return snapshot.data()!;
+});
+
+/// イベント参加者一覧のStreamProviderファミリー（リアルタイム更新）
+final eventParticipantsStreamProvider = StreamProvider.family<List<ParticipantModel>, String>((ref, eventId) {
+  final participantsCollection = ref.watch(participantsCollectionProvider(eventId));
+  return participantsCollection.snapshots().map((snapshot) {
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  });
+});
+
+/// イベント参加者一覧のFutureProviderファミリー（1回だけ取得）
+final eventParticipantsProvider = FutureProvider.family<List<ParticipantModel>, String>((ref, eventId) async {
+  final participantsCollection = ref.watch(participantsCollectionProvider(eventId));
+  final snapshot = await participantsCollection.get();
+  return snapshot.docs.map((doc) => doc.data()).toList();
+});
+
+/// 現在のユーザーがイベントの主催者かどうかを判定するプロバイダー
+final isEventOrganizerProvider = FutureProvider.family<bool, String>((ref, eventId) async {
+  final event = await ref.watch(eventProvider(eventId).future);
+  final auth = FirebaseAuth.instance;
+  final currentUserId = auth.currentUser?.uid;
+
+  if (currentUserId == null) {
+    return false;
+  }
+
+  return event.organizerIds.contains(currentUserId);
+});
+
+/// 現在のユーザーの参加者情報を取得するプロバイダー
+final currentUserParticipantProvider = FutureProvider.family<ParticipantModel?, String>((ref, eventId) async {
+  final auth = FirebaseAuth.instance;
+  final currentUserId = auth.currentUser?.uid;
+
+  if (currentUserId == null) {
+    return null;
+  }
+
+  final participantsCollection = ref.watch(participantsCollectionProvider(eventId));
+  final query = await participantsCollection
+      .where('userId', isEqualTo: currentUserId)
+      .limit(1)
+      .get();
+
+  if (query.docs.isEmpty) {
+    return null;
+  }
+
+  return query.docs.first.data();
+});
