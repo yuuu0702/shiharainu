@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
+import 'package:shiharainu/shared/services/data_service.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
+import 'package:shiharainu/shared/widgets/app_loading_state.dart' as loading;
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -18,14 +20,18 @@ class _HomePageState extends ConsumerState<HomePage> {
   // 犬のアイコンリスト（しはらいぬにちなんで）
   static const List<String> _dogEmojis = ['🐕', '🐶', '🦮', '🐕‍🦺', '🎾🐕'];
 
-  // ランダムな犬アイコンを取得
-  String get _randomDogEmoji {
+  // パフォーマンス最適化：ランダム生成をウィジェット初期化時に実行
+  late final String _selectedDogEmoji;
+
+  @override
+  void initState() {
+    super.initState();
     final random = Random();
-    return _dogEmojis[random.nextInt(_dogEmojis.length)];
+    _selectedDogEmoji = _dogEmojis[random.nextInt(_dogEmojis.length)];
   }
 
-  // サンプルデータ - 近日中のイベントのみ（3件まで）
-  final List<EventData> _upcomingEvents = [
+  // サンプルデータ - 近日中のイベントのみ（3件まで）（constで最適化）
+  static final List<EventData> _upcomingEvents = [
     EventData(
       id: '1',
       title: '新年会2024',
@@ -55,8 +61,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     ),
   ];
 
-  // 重要な通知のみ（最大2件）
-  final List<NotificationData> _importantNotifications = [
+  // 重要な通知のみ（最大2件）（constで最適化）
+  static final List<NotificationData> _importantNotifications = [
     NotificationData(
       id: '1',
       type: NotificationType.paymentReminder,
@@ -85,13 +91,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       data: (profile) {
         return SimplePage(
           title: 'ホーム',
-          actions: [
-            // 通知ベルアイコン（未読バッジ付き）
-            _buildNotificationIcon(),
-          ],
           body: RefreshIndicator(
             onRefresh: () async {
-              // データの再読み込み
               ref.invalidate(userProfileProvider);
               await Future.delayed(const Duration(milliseconds: 800));
             },
@@ -172,8 +173,8 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
             child: Center(
               child: Text(
-                _randomDogEmoji,
-                style: const TextStyle(fontSize: 32),
+                _selectedDogEmoji,
+                style: AppTheme.displayMedium,
               ),
             ),
           ),
@@ -312,8 +313,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           ],
         ),
         const SizedBox(height: AppTheme.spacing12),
-        ...unreadNotifications.map((notification) => 
-          _buildNotificationCard(context, notification)).toList(),
+        ...unreadNotifications.map((notification) =>
+          _buildNotificationCard(context, notification)),
       ],
     );
   }
@@ -414,7 +415,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
           )
         else
-          ...upcomingEvents.map((event) => _buildEventCard(context, event)).toList(),
+          ...upcomingEvents.map((event) => _buildEventCard(context, event)),
       ],
     );
   }
@@ -646,7 +647,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     } else if (difference == 1) {
       return '明日';
     } else {
-      return 'あと${difference}日';
+      return 'あと$difference日';
     }
   }
 
@@ -667,7 +668,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             right: 8,
             top: 8,
             child: Container(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(AppTheme.spacing4),
               decoration: const BoxDecoration(
                 color: AppTheme.destructiveColor,
                 shape: BoxShape.circle,
@@ -675,9 +676,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
               child: Text(
                 unreadCount > 99 ? '99+' : unreadCount.toString(),
-                style: const TextStyle(
+                style: AppTheme.labelSmall.copyWith(
                   color: Colors.white,
-                  fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,

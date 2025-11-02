@@ -147,12 +147,14 @@ class SimplePage extends StatelessWidget {
   final String title;
   final Widget body;
   final List<Widget>? actions;
+  final Widget? leading;
 
   const SimplePage({
     super.key,
     required this.title,
     required this.body,
     this.actions,
+    this.leading,
   });
 
   @override
@@ -187,6 +189,10 @@ class SimplePage extends StatelessWidget {
           ),
           child: Row(
             children: [
+              if (leading != null) ...[
+                leading!,
+                const SizedBox(width: 16),
+              ],
               Text(
                 title,
                 style: const TextStyle(
@@ -212,7 +218,7 @@ class SimplePage extends StatelessWidget {
 
   Widget _buildMobileLayout() {
     return Scaffold(
-      appBar: AppBar(title: Text(title), actions: actions),
+      appBar: AppBar(title: Text(title), actions: actions, leading: leading),
       body: body,
     );
   }

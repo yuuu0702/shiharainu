@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
-import 'package:shiharainu/pages/event_list_page.dart';
+import 'package:shiharainu/shared/models/event_models.dart';
 
 class EventDetailPage extends StatefulWidget {
   final String eventId;

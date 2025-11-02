@@ -150,9 +150,9 @@ class AppBottomNavigation extends StatelessWidget {
 class AppBottomNavigationPresets {
   static const List<AppBottomNavigationItem> organizerItems = [
     AppBottomNavigationItem(
-      label: 'ダッシュボード',
-      icon: Icons.dashboard_outlined,
-      route: '/dashboard',
+      label: 'ホーム',
+      icon: Icons.home_outlined,
+      route: '/home',
     ),
     AppBottomNavigationItem(
       label: 'イベント作成',
@@ -175,7 +175,7 @@ class AppBottomNavigationPresets {
     AppBottomNavigationItem(
       label: 'ホーム',
       icon: Icons.home_outlined,
-      route: '/dashboard',
+      route: '/home',
     ),
     AppBottomNavigationItem(
       label: '支払い',

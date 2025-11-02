@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
 
@@ -9,6 +10,10 @@ class AppInfoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SimplePage(
       title: 'アプリについて',
+      leading: AppButton.icon(
+        icon: const Icon(Icons.arrow_back, size: 20),
+        onPressed: () => context.pop(),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.spacing16),
         child: Column(

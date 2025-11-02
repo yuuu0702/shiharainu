@@ -21,7 +21,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
         title: const Text('コンポーネント素材集'),
         leading: AppButton.icon(
           icon: const Icon(Icons.arrow_back, size: 20),
-          onPressed: () => context.go('/dashboard'),
+          onPressed: () => context.pop(),
         ),
         actions: [
           AppBadge.info(text: 'DEBUG'),
@@ -29,7 +29,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppTheme.spacing16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -39,21 +39,21 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                 children: [
                   _buildRow([
                     Expanded(child: AppButton.primary(text: 'Primary Button')),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spacing12),
                     Expanded(child: AppButton.outline(text: 'Outline Button')),
                   ]),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppTheme.spacing12),
                   _buildRow([
                     Expanded(
                       child: AppButton.secondary(text: 'Secondary Button'),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spacing12),
                     Expanded(child: AppButton.ghost(text: 'Ghost Button')),
                   ]),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppTheme.spacing12),
                   _buildRow([
                     Expanded(child: AppButton.link(text: 'Link Button')),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spacing12),
                     Expanded(
                       child: AppButton.primary(
                         text: 'Loading...',
@@ -61,14 +61,14 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                       ),
                     ),
                   ]),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppTheme.spacing12),
                   _buildRow([
                     AppButton.primary(text: 'Large', size: AppButtonSize.large),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spacing12),
                     AppButton.primary(text: 'Medium'),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spacing12),
                     AppButton.primary(text: 'Small', size: AppButtonSize.small),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.spacing12),
                     AppButton.icon(icon: const Icon(Icons.add, size: 20)),
                   ]),
                 ],
@@ -86,7 +86,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                     onChanged: (value) {}, // デモ用
                     prefixIcon: const Icon(Icons.email_outlined, size: 20),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   AppInput(
                     label: 'パスワード入力',
                     placeholder: 'パスワードを入力',
@@ -97,13 +97,13 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                       size: 20,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   AppInput(
                     label: 'エラー状態',
                     placeholder: 'エラーのある入力',
                     errorText: 'この項目は必須です',
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   AppTextarea(
                     label: 'テキストエリア',
                     placeholder: '詳細説明を入力してください',
@@ -111,7 +111,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                     maxLines: 5,
                     isRequired: true,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   AppSelect<String>(
                     label: 'セレクト',
                     value: _selectValue,
@@ -155,7 +155,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                       subtitle: 'シンプルなカードコンポーネント',
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   AppCard.interactive(
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -168,7 +168,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                       trailing: Icon(Icons.arrow_forward_ios, size: 16),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   const AppCard(
                     isSelected: true,
                     child: AppCardHeader(
@@ -209,7 +209,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                     value: _segmentValue,
                     onChanged: (value) => setState(() => _segmentValue = value),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   AppSegmentedControl<String>(
                     size: AppSegmentedControlSize.small,
                     options: const [
@@ -225,7 +225,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
                     value: 'small1',
                     onChanged: (value) {},
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.spacing16),
                   AppSegmentedControl<String>(
                     size: AppSegmentedControlSize.large,
                     options: const [
@@ -302,7 +302,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
               ),
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: AppTheme.spacing32),
           ],
         ),
       ),
@@ -315,11 +315,11 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: AppTheme.headlineLarge,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppTheme.spacing16),
         content,
-        const SizedBox(height: 32),
+        const SizedBox(height: AppTheme.spacing32),
       ],
     );
   }
@@ -340,15 +340,15 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
             border: Border.all(color: AppTheme.mutedColor),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppTheme.spacing8),
         Text(
           name,
-          style: const TextStyle(fontSize: 12),
+          style: AppTheme.bodySmall,
           textAlign: TextAlign.center,
         ),
         Text(
-          '#${color.value.toRadixString(16).toUpperCase().substring(2)}',
-          style: const TextStyle(fontSize: 10, color: AppTheme.mutedForeground),
+          '#${color.toARGB32().toRadixString(16).toUpperCase().substring(2)}',
+          style: AppTheme.labelSmall.copyWith(color: AppTheme.mutedForeground),
           textAlign: TextAlign.center,
         ),
       ],

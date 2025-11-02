@@ -289,22 +289,22 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(AppTheme.spacing24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 24),
+              const SizedBox(height: AppTheme.spacing24),
 
               // ページタイトル
               Text('プロフィールを編集', style: AppTheme.displayMedium),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppTheme.spacing8),
               Text(
                 '基本情報を変更できます',
                 style: AppTheme.bodyMedium.copyWith(
                   color: AppTheme.mutedForeground,
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppTheme.spacing32),
 
               // プロフィール編集フォーム
               AppCard(
@@ -317,7 +317,7 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                       isRequired: true,
                       prefixIcon: const Icon(Icons.person_outline, size: 20),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppTheme.spacing16),
                     AppInput(
                       label: '年齢',
                       placeholder: '例: 25',
@@ -330,7 +330,7 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                         LengthLimitingTextInputFormatter(3),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppTheme.spacing16),
 
                     // 役職選択
                     Column(
@@ -339,7 +339,7 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                         Row(
                           children: [
                             Text('役職', style: AppTheme.labelMedium),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: AppTheme.spacing4),
                             Text(
                               '*',
                               style: TextStyle(
@@ -349,13 +349,13 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppTheme.spacing8),
                         InkWell(
                           onTap: _showPositionSelector,
                           borderRadius: BorderRadius.circular(6),
                           child: Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(AppTheme.spacing12),
                             decoration: BoxDecoration(
                               color: AppTheme.inputBackground,
                               borderRadius: BorderRadius.circular(6),
@@ -367,7 +367,7 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                                   size: 20,
                                   color: AppTheme.mutedForeground,
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: AppTheme.spacing12),
                                 Expanded(
                                   child: Text(
                                     _selectedPosition,
@@ -387,10 +387,10 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
 
                     // エラーメッセージ表示
                     if (_errorMessage != null) ...[
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppTheme.spacing16),
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(AppTheme.spacing12),
                         decoration: BoxDecoration(
                           color: AppTheme.destructive.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
@@ -406,7 +406,7 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                               size: 20,
                               color: AppTheme.destructive,
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppTheme.spacing8),
                             Expanded(
                               child: Text(
                                 _errorMessage!,
@@ -421,7 +421,7 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                       ),
                     ],
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppTheme.spacing24),
 
                     // 保存・キャンセルボタン
                     Row(
@@ -435,7 +435,7 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
                             size: AppButtonSize.large,
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: AppTheme.spacing16),
                         Expanded(
                           flex: 2,
                           child: AppButton.primary(

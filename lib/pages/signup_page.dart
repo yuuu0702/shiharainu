@@ -103,29 +103,29 @@ class _SignUpPageState extends State<SignUpPage> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 1,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/login'),
+        leading: AppButton.icon(
+          icon: const Icon(Icons.arrow_back, size: 20),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(AppTheme.spacing24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 24),
+              const SizedBox(height: AppTheme.spacing24),
 
               // ページタイトル
               Text('アカウントを作成', style: AppTheme.displayMedium),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppTheme.spacing8),
               Text(
                 'Shiharainuでイベントの支払い管理を始めましょう',
                 style: AppTheme.bodyMedium.copyWith(
                   color: AppTheme.mutedForeground,
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppTheme.spacing32),
 
               // サインアップフォーム
               AppCard(
@@ -139,7 +139,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       isRequired: true,
                       prefixIcon: const Icon(Icons.email_outlined, size: 20),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppTheme.spacing16),
                     AppInput(
                       label: 'パスワード',
                       placeholder: '6文字以上で入力',
@@ -148,7 +148,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       isRequired: true,
                       prefixIcon: const Icon(Icons.lock_outline, size: 20),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppTheme.spacing16),
                     AppInput(
                       label: 'パスワード確認',
                       placeholder: 'もう一度パスワードを入力',
@@ -158,7 +158,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       prefixIcon: const Icon(Icons.lock_outline, size: 20),
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppTheme.spacing24),
 
                     // 利用規約同意
                     Row(
@@ -173,7 +173,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           },
                           activeColor: AppTheme.primaryColor,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppTheme.spacing8),
                         Expanded(
                           child: RichText(
                             text: TextSpan(
@@ -207,10 +207,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
                     // エラーメッセージ表示
                     if (_errorMessage != null) ...[
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppTheme.spacing16),
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(AppTheme.spacing12),
                         decoration: BoxDecoration(
                           color: AppTheme.destructive.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
@@ -226,12 +226,11 @@ class _SignUpPageState extends State<SignUpPage> {
                               size: 20,
                               color: AppTheme.destructive,
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppTheme.spacing8),
                             Expanded(
                               child: Text(
                                 _errorMessage!,
-                                style: TextStyle(
-                                  fontSize: 14,
+                                style: AppTheme.bodyMedium.copyWith(
                                   color: AppTheme.destructive,
                                 ),
                               ),
@@ -241,7 +240,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ],
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppTheme.spacing24),
                     SizedBox(
                       width: double.infinity,
                       child: AppButton.primary(
@@ -255,7 +254,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: AppTheme.spacing24),
 
               // ログインへのリンク
               Center(
@@ -268,7 +267,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         color: AppTheme.mutedForeground,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppTheme.spacing8),
                     AppButton.link(
                       text: 'ログイン',
                       onPressed: () => context.go('/login'),

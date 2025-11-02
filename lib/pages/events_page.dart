@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
+import 'package:shiharainu/shared/utils/performance_utils.dart';
 
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
@@ -28,8 +29,8 @@ class _EventsPageState extends State<EventsPage> {
     SortOption(value: 'participants_desc', label: '参加者数（多い順）', icon: Icons.people),
   ];
 
-  // サンプルデータ
-  final List<EventData> _allEvents = [
+  // サンプルデータ（staticで最適化）
+  static final List<EventData> _allEvents = [
     EventData(
       id: '1',
       title: '新年会2024',
@@ -104,9 +105,13 @@ class _EventsPageState extends State<EventsPage> {
     ),
   ];
 
+  // フィルタリング結果をキャッシュ
+  List<EventData>? _cachedFilteredEvents;
+  String? _lastFilterKey;
+
   @override
   Widget build(BuildContext context) {
-    final filteredEvents = _getFilteredEvents();
+    final filteredEvents = _getFilteredEventsOptimized();
 
     return SimplePage(
       title: 'イベント一覧',
@@ -137,11 +142,13 @@ class _EventsPageState extends State<EventsPage> {
                 AppSearchFilterBar(
                   searchQuery: _searchQuery,
                   onSearchChanged: (query) {
+                    _clearFilterCache();
                     setState(() {
                       _searchQuery = query;
                     });
                   },
                   onSearchClear: () {
+                    _clearFilterCache();
                     setState(() {
                       _searchQuery = '';
                     });
@@ -156,6 +163,7 @@ class _EventsPageState extends State<EventsPage> {
                     selectedOption: _sortBy,
                     options: _sortOptions,
                     onChanged: (value) {
+                      _clearFilterCache();
                       setState(() {
                         _sortBy = value;
                       });
@@ -172,17 +180,18 @@ class _EventsPageState extends State<EventsPage> {
             ),
           ),
 
-          // イベント一覧
+          // イベント一覧（パフォーマンス最適化済み）
           Expanded(
             child: filteredEvents.isEmpty
                 ? _buildEmptyState()
-                : ListView.builder(
+                : Padding(
                     padding: const EdgeInsets.all(AppTheme.spacing16),
-                    itemCount: filteredEvents.length,
-                    itemBuilder: (context, index) {
-                      final event = filteredEvents[index];
-                      return _buildEventCard(event);
-                    },
+                    child: PerformanceUtils.optimizedListView<EventData>(
+                      items: filteredEvents,
+                      itemBuilder: (context, event) => _buildEventCard(event),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: AppTheme.spacing12),
+                    ),
                   ),
           ),
         ],
@@ -203,6 +212,7 @@ class _EventsPageState extends State<EventsPage> {
                 isSelected: _selectedRole == null,
                 onSelected: (selected) {
                   if (selected) {
+                    _clearFilterCache();
                     setState(() {
                       _selectedRole = null;
                     });
@@ -214,6 +224,7 @@ class _EventsPageState extends State<EventsPage> {
                 icon: Icons.admin_panel_settings_outlined,
                 isSelected: _selectedRole == EventRole.organizer,
                 onSelected: (selected) {
+                  _clearFilterCache();
                   setState(() {
                     _selectedRole = selected ? EventRole.organizer : null;
                   });
@@ -224,6 +235,7 @@ class _EventsPageState extends State<EventsPage> {
                 icon: Icons.person_outline,
                 isSelected: _selectedRole == EventRole.participant,
                 onSelected: (selected) {
+                  _clearFilterCache();
                   setState(() {
                     _selectedRole = selected ? EventRole.participant : null;
                   });
@@ -243,6 +255,7 @@ class _EventsPageState extends State<EventsPage> {
                 isSelected: _selectedStatus == null,
                 onSelected: (selected) {
                   if (selected) {
+                    _clearFilterCache();
                     setState(() {
                       _selectedStatus = null;
                     });
@@ -254,6 +267,7 @@ class _EventsPageState extends State<EventsPage> {
                 icon: Icons.schedule,
                 isSelected: _selectedStatus == EventStatus.planning,
                 onSelected: (selected) {
+                  _clearFilterCache();
                   setState(() {
                     _selectedStatus = selected ? EventStatus.planning : null;
                   });
@@ -264,6 +278,7 @@ class _EventsPageState extends State<EventsPage> {
                 icon: Icons.event,
                 isSelected: _selectedStatus == EventStatus.active,
                 onSelected: (selected) {
+                  _clearFilterCache();
                   setState(() {
                     _selectedStatus = selected ? EventStatus.active : null;
                   });
@@ -274,6 +289,7 @@ class _EventsPageState extends State<EventsPage> {
                 icon: Icons.check_circle_outline,
                 isSelected: _selectedStatus == EventStatus.completed,
                 onSelected: (selected) {
+                  _clearFilterCache();
                   setState(() {
                     _selectedStatus = selected ? EventStatus.completed : null;
                   });
@@ -300,11 +316,9 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   Widget _buildEventCard(EventData event) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
-      child: AppCard(
-        onTap: () => context.go('/events/${event.id}'),
-        child: Column(
+    return AppCard(
+      onTap: () => context.go('/events/${event.id}'),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -408,8 +422,7 @@ class _EventsPageState extends State<EventsPage> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildEmptyState() {
@@ -470,36 +483,46 @@ class _EventsPageState extends State<EventsPage> {
     );
   }
 
-  List<EventData> _getFilteredEvents() {
-    var events = List<EventData>.from(_allEvents);
-
-    // 検索フィルター
-    if (_searchQuery.isNotEmpty) {
-      events = events.where((event) {
-        return event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-               event.description.toLowerCase().contains(_searchQuery.toLowerCase());
-      }).toList();
+  List<EventData> _getFilteredEventsOptimized() {
+    // フィルターキーを生成してキャッシュ判定
+    final filterKey = _generateFilterKey();
+    if (_cachedFilteredEvents != null && _lastFilterKey == filterKey) {
+      return _cachedFilteredEvents!;
     }
 
-    // ロールフィルター
-    if (_selectedRole != null) {
-      events = events.where((event) => event.role == _selectedRole).toList();
-    }
+    // フィルタリング実行（単一パスで効率化）
+    final searchLower = _searchQuery.toLowerCase();
+    final events = _allEvents.where((event) {
+      // 検索フィルター
+      if (_searchQuery.isNotEmpty) {
+        if (!event.title.toLowerCase().contains(searchLower) &&
+            !event.description.toLowerCase().contains(searchLower)) {
+          return false;
+        }
+      }
 
-    // ステータスフィルター
-    if (_selectedStatus != null) {
-      events = events.where((event) => event.status == _selectedStatus).toList();
-    }
+      // ロールフィルター
+      if (_selectedRole != null && event.role != _selectedRole) {
+        return false;
+      }
 
-    // 日付フィルター
-    if (_dateFrom != null) {
-      events = events.where((event) => event.date.isAfter(_dateFrom!)).toList();
-    }
-    if (_dateTo != null) {
-      events = events.where((event) => event.date.isBefore(_dateTo!)).toList();
-    }
+      // ステータスフィルター
+      if (_selectedStatus != null && event.status != _selectedStatus) {
+        return false;
+      }
 
-    // ソート
+      // 日付フィルター
+      if (_dateFrom != null && !event.date.isAfter(_dateFrom!)) {
+        return false;
+      }
+      if (_dateTo != null && !event.date.isBefore(_dateTo!)) {
+        return false;
+      }
+
+      return true;
+    }).toList();
+
+    // ソート（mutableなリストに対して実行）
     events.sort((a, b) {
       switch (_sortBy) {
         case 'date_asc':
@@ -515,7 +538,15 @@ class _EventsPageState extends State<EventsPage> {
       }
     });
 
+    // 結果をキャッシュ
+    _cachedFilteredEvents = events;
+    _lastFilterKey = filterKey;
+
     return events;
+  }
+
+  String _generateFilterKey() {
+    return '$_searchQuery|$_selectedRole|$_selectedStatus|$_dateFrom|$_dateTo|$_sortBy';
   }
 
   int _getActiveFiltersCount() {
@@ -528,6 +559,7 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   void _clearAllFilters() {
+    _clearFilterCache();
     setState(() {
       _searchQuery = '';
       _selectedRole = null;
@@ -535,6 +567,11 @@ class _EventsPageState extends State<EventsPage> {
       _dateFrom = null;
       _dateTo = null;
     });
+  }
+
+  void _clearFilterCache() {
+    _cachedFilteredEvents = null;
+    _lastFilterKey = null;
   }
 
   Color _getStatusColor(EventStatus status) {

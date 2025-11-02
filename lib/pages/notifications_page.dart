@@ -61,6 +61,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     return SimplePage(
       title: '通知',
+      leading: AppButton.icon(
+        icon: const Icon(Icons.arrow_back, size: 20),
+        onPressed: () => context.pop(),
+      ),
       actions: [
         if (unreadCount > 0)
           AppButton.outline(
