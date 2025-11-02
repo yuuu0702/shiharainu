@@ -183,10 +183,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     children: [
                       Row(
                         children: [
-                          Text(
-                            'イベント日時',
-                            style: AppTheme.labelLarge,
-                          ),
+                          Text('イベント日時', style: AppTheme.labelLarge),
                           const SizedBox(width: AppTheme.spacing4),
                           Text(
                             '*',
@@ -203,7 +200,9 @@ class _EventCreationPageState extends State<EventCreationPage> {
                             context: context,
                             initialDate: _selectedDate,
                             firstDate: DateTime.now(),
-                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                            lastDate: DateTime.now().add(
+                              const Duration(days: 365),
+                            ),
                           );
                           if (date != null) {
                             setState(() {
@@ -215,9 +214,13 @@ class _EventCreationPageState extends State<EventCreationPage> {
                           padding: const EdgeInsets.all(AppTheme.spacing12),
                           decoration: BoxDecoration(
                             color: AppTheme.inputBackground,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusSmall,
+                            ),
                             border: Border.all(
-                              color: AppTheme.mutedForeground.withValues(alpha: 0.3),
+                              color: AppTheme.mutedForeground.withValues(
+                                alpha: 0.3,
+                              ),
                             ),
                           ),
                           child: Row(
@@ -267,10 +270,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     prefixIcon: const Icon(Icons.currency_yen, size: 20),
                   ),
                   const SizedBox(height: AppTheme.spacing16),
-                  const Text(
-                    '計算方法',
-                    style: AppTheme.labelLarge,
-                  ),
+                  const Text('計算方法', style: AppTheme.labelLarge),
                   const SizedBox(height: AppTheme.spacing8),
                   AppSegmentedControl<String>(
                     options: const [

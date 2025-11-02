@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// ページ遷移アニメーション定義クラス
-/// 
+///
 /// Shiharainuアプリで使用する統一されたページ遷移アニメーションを提供します。
 /// Material Design 3のモーションガイドラインに準拠し、滑らかで心地よい遷移を実現します。
 class AppPageTransitions {
@@ -11,7 +11,7 @@ class AppPageTransitions {
   static const Duration slowDuration = Duration(milliseconds: 400);
 
   /// フェードトランジション
-  /// 
+  ///
   /// 透明度の変化によるシンプルで洗練された遷移効果
   /// 使用場面: モーダル、オーバーレイ、軽い画面遷移
   static Widget fadeTransition(
@@ -21,15 +21,13 @@ class AppPageTransitions {
     Widget child,
   ) {
     return FadeTransition(
-      opacity: animation.drive(
-        CurveTween(curve: Curves.easeOut),
-      ),
+      opacity: animation.drive(CurveTween(curve: Curves.easeOut)),
       child: child,
     );
   }
 
   /// スライドトランジション（右から左）
-  /// 
+  ///
   /// 新しいページが右から滑り込んでくる遷移効果
   /// 使用場面: 階層の深い画面遷移、詳細画面への移動
   static Widget slideTransition(
@@ -50,7 +48,7 @@ class AppPageTransitions {
   }
 
   /// スライドトランジション（下から上）
-  /// 
+  ///
   /// 新しいページが下から押し上げられるような遷移効果
   /// 使用場面: ボトムシート風の画面、設定画面
   static Widget slideUpTransition(
@@ -71,7 +69,7 @@ class AppPageTransitions {
   }
 
   /// スケールトランジション
-  /// 
+  ///
   /// ページが中央から徐々に拡大して表示される遷移効果
   /// 使用場面: 重要な画面への遷移、フォーカスを当てたい場面
   static Widget scaleTransition(
@@ -87,15 +85,12 @@ class AppPageTransitions {
           end: 1.0,
         ).chain(CurveTween(curve: Curves.easeOut)),
       ),
-      child: FadeTransition(
-        opacity: animation,
-        child: child,
-      ),
+      child: FadeTransition(opacity: animation, child: child),
     );
   }
 
   /// 複合スライド＋フェードトランジション
-  /// 
+  ///
   /// スライドとフェードを組み合わせた滑らかな遷移効果
   /// 使用場面: メイン画面間の遷移、ナビゲーション
   static Widget slideWithFadeTransition(
@@ -112,16 +107,14 @@ class AppPageTransitions {
         ).chain(CurveTween(curve: Curves.easeInOut)),
       ),
       child: FadeTransition(
-        opacity: animation.drive(
-          CurveTween(curve: Curves.easeIn),
-        ),
+        opacity: animation.drive(CurveTween(curve: Curves.easeIn)),
         child: child,
       ),
     );
   }
 
   /// 戻る遷移用のスライドトランジション
-  /// 
+  ///
   /// 戻るボタンや左エッジスワイプ時の遷移効果
   /// 使用場面: 戻るナビゲーション
   static Widget backSlideTransition(
@@ -151,7 +144,7 @@ class AppPageTransitions {
   }
 
   /// カスタムページルートビルダー
-  /// 
+  ///
   /// GoRouterで使用するためのカスタムページ遷移ビルダー
   static Page<T> buildPageWithTransition<T extends Object?>({
     required Widget child,
@@ -174,7 +167,9 @@ class AppPageTransitions {
   }
 
   /// 遷移タイプに応じた遷移ビルダーを取得
-  static RouteTransitionsBuilder _getTransitionBuilder(PageTransitionType type) {
+  static RouteTransitionsBuilder _getTransitionBuilder(
+    PageTransitionType type,
+  ) {
     switch (type) {
       case PageTransitionType.fade:
         return fadeTransition;
@@ -196,25 +191,25 @@ class AppPageTransitions {
 enum PageTransitionType {
   /// フェード遷移
   fade,
-  
+
   /// スライド遷移（右から左）
   slide,
-  
+
   /// スライド遷移（下から上）
   slideUp,
-  
+
   /// スケール遷移
   scale,
-  
+
   /// スライド＋フェード複合遷移
   slideWithFade,
-  
+
   /// 戻る遷移用スライド
   backSlide,
 }
 
 /// カスタム遷移ページクラス
-/// 
+///
 /// GoRouterで使用するためのカスタムページ遷移を実装
 class CustomTransitionPage<T> extends Page<T> {
   final Widget child;
@@ -249,13 +244,13 @@ class CustomTransitionPage<T> extends Page<T> {
 enum TransitionDirection {
   /// 右から左（通常の進む遷移）
   rightToLeft,
-  
+
   /// 左から右（戻る遷移）
   leftToRight,
-  
+
   /// 下から上（ボトムアップ）
   bottomToTop,
-  
+
   /// 上から下（トップダウン）
   topToBottom,
 }
@@ -264,16 +259,16 @@ enum TransitionDirection {
 class AppAnimationCurves {
   /// 標準的なeaseOutカーブ
   static const Curve easeOut = Curves.easeOut;
-  
+
   /// 標準的なeaseInOutカーブ
   static const Curve easeInOut = Curves.easeInOut;
-  
+
   /// スプリング効果のあるカーブ
   static const Curve spring = Curves.elasticOut;
-  
+
   /// 強調されたeaseOutカーブ
   static const Curve emphasizedEaseOut = Cubic(0.05, 0.7, 0.1, 1.0);
-  
-  /// 強調されたeaseInカーブ  
+
+  /// 強調されたeaseInカーブ
   static const Curve emphasizedEaseIn = Cubic(0.3, 0.0, 0.8, 0.15);
 }

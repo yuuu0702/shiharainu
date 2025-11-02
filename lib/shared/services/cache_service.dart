@@ -64,11 +64,7 @@ class CacheService {
   }
 
   /// データをキャッシュに保存
-  Future<void> cache<T>(
-    String key,
-    T data, {
-    int? validityMinutes,
-  }) async {
+  Future<void> cache<T>(String key, T data, {int? validityMinutes}) async {
     try {
       final jsonData = json.encode(data);
       final timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -76,16 +72,9 @@ class CacheService {
       await _prefs.setString(key, jsonData);
       await _prefs.setInt('$_cacheTimestampPrefix$key', timestamp);
 
-      AppLogger.debug(
-        'データをキャッシュに保存: $key',
-        name: 'CacheService',
-      );
+      AppLogger.debug('データをキャッシュに保存: $key', name: 'CacheService');
     } catch (e) {
-      AppLogger.error(
-        'キャッシュ保存エラー: $key',
-        name: 'CacheService',
-        error: e,
-      );
+      AppLogger.error('キャッシュ保存エラー: $key', name: 'CacheService', error: e);
     }
   }
 
@@ -97,7 +86,10 @@ class CacheService {
   }) async {
     try {
       // キャッシュの有効性を確認
-      if (!await _isCacheValid(key, validityMinutes ?? _defaultCacheValidityMinutes)) {
+      if (!await _isCacheValid(
+        key,
+        validityMinutes ?? _defaultCacheValidityMinutes,
+      )) {
         AppLogger.debug('キャッシュが無効: $key', name: 'CacheService');
         return null;
       }
@@ -113,11 +105,7 @@ class CacheService {
       AppLogger.debug('キャッシュからデータ取得: $key', name: 'CacheService');
       return result;
     } catch (e) {
-      AppLogger.error(
-        'キャッシュ取得エラー: $key',
-        name: 'CacheService',
-        error: e,
-      );
+      AppLogger.error('キャッシュ取得エラー: $key', name: 'CacheService', error: e);
       return null;
     }
   }
@@ -129,7 +117,10 @@ class CacheService {
     int? validityMinutes,
   }) async {
     try {
-      if (!await _isCacheValid(key, validityMinutes ?? _defaultCacheValidityMinutes)) {
+      if (!await _isCacheValid(
+        key,
+        validityMinutes ?? _defaultCacheValidityMinutes,
+      )) {
         return null;
       }
 
@@ -146,18 +137,18 @@ class CacheService {
       AppLogger.debug('キャッシュからリストデータ取得: $key', name: 'CacheService');
       return result;
     } catch (e) {
-      AppLogger.error(
-        'キャッシュリスト取得エラー: $key',
-        name: 'CacheService',
-        error: e,
-      );
+      AppLogger.error('キャッシュリスト取得エラー: $key', name: 'CacheService', error: e);
       return null;
     }
   }
 
   /// ユーザープロフィール専用キャッシュ
   Future<void> cacheUserProfile(Map<String, dynamic> profile) async {
-    await cache(_userProfileKey, profile, validityMinutes: _userProfileCacheValidityMinutes);
+    await cache(
+      _userProfileKey,
+      profile,
+      validityMinutes: _userProfileCacheValidityMinutes,
+    );
   }
 
   Future<Map<String, dynamic>?> getCachedUserProfile() async {
@@ -170,7 +161,11 @@ class CacheService {
 
   /// イベント一覧専用キャッシュ
   Future<void> cacheEvents(List<Map<String, dynamic>> events) async {
-    await cache(_eventsKey, events, validityMinutes: _eventsCacheValidityMinutes);
+    await cache(
+      _eventsKey,
+      events,
+      validityMinutes: _eventsCacheValidityMinutes,
+    );
   }
 
   Future<List<Map<String, dynamic>>?> getCachedEvents() async {
@@ -182,7 +177,9 @@ class CacheService {
   }
 
   /// 通知一覧専用キャッシュ
-  Future<void> cacheNotifications(List<Map<String, dynamic>> notifications) async {
+  Future<void> cacheNotifications(
+    List<Map<String, dynamic>> notifications,
+  ) async {
     await cache(_notificationsKey, notifications);
   }
 
@@ -200,11 +197,7 @@ class CacheService {
       await _prefs.remove('$_cacheTimestampPrefix$key');
       AppLogger.debug('キャッシュをクリア: $key', name: 'CacheService');
     } catch (e) {
-      AppLogger.error(
-        'キャッシュクリアエラー: $key',
-        name: 'CacheService',
-        error: e,
-      );
+      AppLogger.error('キャッシュクリアエラー: $key', name: 'CacheService', error: e);
     }
   }
 

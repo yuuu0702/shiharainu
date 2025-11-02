@@ -24,16 +24,13 @@ class AppSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final searchController = controller ?? TextEditingController();
-    
+
     return Container(
       height: AppTheme.minimumTouchTarget,
       decoration: BoxDecoration(
         color: AppTheme.inputBackground,
         borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-        border: Border.all(
-          color: AppTheme.mutedColor,
-          width: 1,
-        ),
+        border: Border.all(color: AppTheme.mutedColor, width: 1),
       ),
       child: Row(
         children: [
@@ -110,10 +107,10 @@ class AppFilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = isSelected 
+    final backgroundColor = isSelected
         ? AppTheme.primaryColor
         : AppTheme.mutedColor;
-    final textColor = isSelected 
+    final textColor = isSelected
         ? AppTheme.primaryForeground
         : AppTheme.mutedForegroundAccessible;
 
@@ -127,19 +124,13 @@ class AppFilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(AppTheme.radiusRound),
-          border: isSelected 
-            ? null
-            : Border.all(color: AppTheme.mutedColor),
+          border: isSelected ? null : Border.all(color: AppTheme.mutedColor),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(
-                icon,
-                size: 16,
-                color: textColor,
-              ),
+              Icon(icon, size: 16, color: textColor),
               const SizedBox(width: AppTheme.spacing4),
             ],
             Text(
@@ -272,20 +263,20 @@ class AppSortOptions extends StatelessWidget {
               Icon(
                 option.icon,
                 size: 16,
-                color: selectedOption == option.value 
-                  ? AppTheme.primaryColor 
-                  : AppTheme.mutedForegroundAccessible,
+                color: selectedOption == option.value
+                    ? AppTheme.primaryColor
+                    : AppTheme.mutedForegroundAccessible,
               ),
               const SizedBox(width: AppTheme.spacing8),
               Text(
                 option.label,
                 style: AppTheme.bodyMedium.copyWith(
-                  color: selectedOption == option.value 
-                    ? AppTheme.primaryColor 
-                    : null,
-                  fontWeight: selectedOption == option.value 
-                    ? FontWeight.w600 
-                    : FontWeight.normal,
+                  color: selectedOption == option.value
+                      ? AppTheme.primaryColor
+                      : null,
+                  fontWeight: selectedOption == option.value
+                      ? FontWeight.w600
+                      : FontWeight.normal,
                 ),
               ),
             ],
@@ -349,7 +340,7 @@ class AppSearchFilterBar extends StatelessWidget {
                 onClear: onSearchClear,
               ),
             ),
-            
+
             const SizedBox(width: AppTheme.spacing8),
 
             // フィルターボタン
@@ -365,7 +356,8 @@ class AppSearchFilterBar extends StatelessWidget {
                         : AppTheme.inputBackground,
                     borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                     border: Border.all(
-                      color: activeFiltersCount != null && activeFiltersCount! > 0
+                      color:
+                          activeFiltersCount != null && activeFiltersCount! > 0
                           ? AppTheme.primaryColor
                           : AppTheme.mutedColor,
                     ),
@@ -375,7 +367,9 @@ class AppSearchFilterBar extends StatelessWidget {
                       Center(
                         child: Icon(
                           Icons.filter_list,
-                          color: activeFiltersCount != null && activeFiltersCount! > 0
+                          color:
+                              activeFiltersCount != null &&
+                                  activeFiltersCount! > 0
                               ? AppTheme.primaryColor
                               : AppTheme.mutedForegroundAccessible,
                           size: 20,
@@ -417,12 +411,7 @@ class AppSearchFilterBar extends StatelessWidget {
         // ソートオプション
         if (sortWidget != null) ...[
           const SizedBox(height: AppTheme.spacing12),
-          Row(
-            children: [
-              sortWidget!,
-              const Spacer(),
-            ],
-          ),
+          Row(children: [sortWidget!, const Spacer()]),
         ],
       ],
     );

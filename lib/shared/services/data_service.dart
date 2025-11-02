@@ -22,7 +22,9 @@ class DataService {
        _cacheService = cacheService;
 
   /// イベント一覧を取得（キャッシュファーストで最適化）
-  Future<List<Map<String, dynamic>>> getEvents({bool forceRefresh = false}) async {
+  Future<List<Map<String, dynamic>>> getEvents({
+    bool forceRefresh = false,
+  }) async {
     try {
       final user = _auth.currentUser;
       if (user == null) {
@@ -32,7 +34,7 @@ class DataService {
 
       // キャッシュから取得を試行（強制更新でない場合）
       if (!forceRefresh && _cacheService != null) {
-        final cachedEvents = await _cacheService!.getCachedEvents();
+        final cachedEvents = await _cacheService.getCachedEvents();
         if (cachedEvents != null) {
           AppLogger.debug(
             'キャッシュからイベント取得: ${cachedEvents.length}件',
@@ -60,7 +62,7 @@ class DataService {
 
       // キャッシュに保存
       if (_cacheService != null) {
-        await _cacheService!.cacheEvents(events);
+        await _cacheService.cacheEvents(events);
         AppLogger.debug(
           'イベント一覧をキャッシュに保存: ${events.length}件',
           name: 'DataService',
@@ -69,13 +71,12 @@ class DataService {
 
       AppLogger.database('イベント取得完了: ${events.length}件', operation: 'getEvents');
       return events;
-
     } catch (e) {
       AppLogger.error('イベント取得エラー', name: 'DataService', error: e);
 
       // エラー時はキャッシュから取得を試行
       if (_cacheService != null) {
-        final cachedEvents = await _cacheService!.getCachedEvents();
+        final cachedEvents = await _cacheService.getCachedEvents();
         if (cachedEvents != null) {
           AppLogger.info('エラー時キャッシュからイベント取得', name: 'DataService');
           return cachedEvents;
@@ -87,7 +88,9 @@ class DataService {
   }
 
   /// 通知一覧を取得
-  Future<List<Map<String, dynamic>>> getNotifications({bool forceRefresh = false}) async {
+  Future<List<Map<String, dynamic>>> getNotifications({
+    bool forceRefresh = false,
+  }) async {
     try {
       final user = _auth.currentUser;
       if (user == null) {
@@ -96,7 +99,8 @@ class DataService {
 
       // キャッシュから取得を試行
       if (!forceRefresh && _cacheService != null) {
-        final cachedNotifications = await _cacheService!.getCachedNotifications();
+        final cachedNotifications = await _cacheService
+            .getCachedNotifications();
         if (cachedNotifications != null) {
           AppLogger.debug(
             'キャッシュから通知取得: ${cachedNotifications.length}件',
@@ -124,22 +128,25 @@ class DataService {
 
       // キャッシュに保存
       if (_cacheService != null) {
-        await _cacheService!.cacheNotifications(notifications);
+        await _cacheService.cacheNotifications(notifications);
         AppLogger.debug(
           '通知一覧をキャッシュに保存: ${notifications.length}件',
           name: 'DataService',
         );
       }
 
-      AppLogger.database('通知取得完了: ${notifications.length}件', operation: 'getNotifications');
+      AppLogger.database(
+        '通知取得完了: ${notifications.length}件',
+        operation: 'getNotifications',
+      );
       return notifications;
-
     } catch (e) {
       AppLogger.error('通知取得エラー', name: 'DataService', error: e);
 
       // エラー時はキャッシュから取得を試行
       if (_cacheService != null) {
-        final cachedNotifications = await _cacheService!.getCachedNotifications();
+        final cachedNotifications = await _cacheService
+            .getCachedNotifications();
         if (cachedNotifications != null) {
           AppLogger.info('エラー時キャッシュから通知取得', name: 'DataService');
           return cachedNotifications;
@@ -167,7 +174,6 @@ class DataService {
 
       AppLogger.database('イベント詳細取得完了: $eventId', operation: 'getEventDetail');
       return data;
-
     } catch (e) {
       AppLogger.error('イベント詳細取得エラー: $eventId', name: 'DataService', error: e);
       throw Exception('イベント詳細の取得に失敗しました: $e');
@@ -181,7 +187,7 @@ class DataService {
 
       // キャッシュをクリア
       if (_cacheService != null) {
-        await _cacheService!.clearAllCache();
+        await _cacheService.clearAllCache();
       }
 
       // データを再取得（forceRefresh = true）
@@ -231,7 +237,6 @@ class DataService {
 
       AppLogger.database('ダッシュボード統計取得完了', operation: 'getDashboardStats');
       return stats;
-
     } catch (e) {
       AppLogger.error('ダッシュボード統計取得エラー', name: 'DataService', error: e);
       return {};
@@ -270,13 +275,17 @@ final eventsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
 });
 
 /// 通知一覧プロバイダー（キャッシュ対応）
-final notificationsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+final notificationsProvider = FutureProvider<List<Map<String, dynamic>>>((
+  ref,
+) async {
   final dataService = ref.watch(dataServiceProvider);
   return await dataService.getNotifications();
 });
 
 /// ダッシュボード統計プロバイダー
-final dashboardStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final dashboardStatsProvider = FutureProvider<Map<String, dynamic>>((
+  ref,
+) async {
   final dataService = ref.watch(dataServiceProvider);
   return await dataService.getDashboardStats();
 });

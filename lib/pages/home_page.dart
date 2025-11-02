@@ -5,9 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
-import 'package:shiharainu/shared/services/data_service.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
-import 'package:shiharainu/shared/widgets/app_loading_state.dart' as loading;
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -172,10 +170,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
             ),
             child: Center(
-              child: Text(
-                _selectedDogEmoji,
-                style: AppTheme.displayMedium,
-              ),
+              child: Text(_selectedDogEmoji, style: AppTheme.displayMedium),
             ),
           ),
           const SizedBox(width: AppTheme.spacing16),
@@ -213,9 +208,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       children: [
         Text(
           'よく使う機能',
-          style: AppTheme.headlineSmall.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: AppTheme.headlineSmall.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: AppTheme.spacing12),
         Row(
@@ -262,18 +255,12 @@ class _HomePageState extends ConsumerState<HomePage> {
               color: AppTheme.primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
             ),
-            child: Icon(
-              icon,
-              color: AppTheme.primaryColor,
-              size: 28,
-            ),
+            child: Icon(icon, color: AppTheme.primaryColor, size: 28),
           ),
           const SizedBox(height: AppTheme.spacing12),
           Text(
             title,
-            style: AppTheme.bodyLarge.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTheme.bodyLarge.copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppTheme.spacing4),
@@ -290,7 +277,10 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _buildImportantNotificationsSection(BuildContext context) {
-    final unreadNotifications = _importantNotifications.where((n) => !n.isRead).take(2).toList();
+    final unreadNotifications = _importantNotifications
+        .where((n) => !n.isRead)
+        .take(2)
+        .toList();
 
     if (unreadNotifications.isEmpty) return const SizedBox.shrink();
 
@@ -313,13 +303,17 @@ class _HomePageState extends ConsumerState<HomePage> {
           ],
         ),
         const SizedBox(height: AppTheme.spacing12),
-        ...unreadNotifications.map((notification) =>
-          _buildNotificationCard(context, notification)),
+        ...unreadNotifications.map(
+          (notification) => _buildNotificationCard(context, notification),
+        ),
       ],
     );
   }
 
-  Widget _buildNotificationCard(BuildContext context, NotificationData notification) {
+  Widget _buildNotificationCard(
+    BuildContext context,
+    NotificationData notification,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.spacing8),
       child: AppCard(
@@ -328,7 +322,9 @@ class _HomePageState extends ConsumerState<HomePage> {
             Container(
               padding: const EdgeInsets.all(AppTheme.spacing8),
               decoration: BoxDecoration(
-                color: _getNotificationColor(notification.type).withValues(alpha: 0.1),
+                color: _getNotificationColor(
+                  notification.type,
+                ).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
               ),
               child: Icon(
@@ -492,9 +488,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 const SizedBox(width: AppTheme.spacing16),
                 Icon(
-                  event.role == EventRole.organizer 
-                    ? Icons.admin_panel_settings_outlined
-                    : Icons.person_outline,
+                  event.role == EventRole.organizer
+                      ? Icons.admin_panel_settings_outlined
+                      : Icons.person_outline,
                   size: 16,
                   color: AppTheme.mutedForegroundAccessible,
                 ),
@@ -520,12 +516,10 @@ class _HomePageState extends ConsumerState<HomePage> {
         children: [
           Text(
             '今月の活動',
-            style: AppTheme.headlineSmall.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTheme.headlineSmall.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: AppTheme.spacing16),
-          
+
           Row(
             children: [
               Expanded(
@@ -575,11 +569,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 24,
-          ),
+          child: Icon(icon, color: color, size: 24),
         ),
         const SizedBox(height: AppTheme.spacing8),
         Text(
@@ -650,43 +640,6 @@ class _HomePageState extends ConsumerState<HomePage> {
       return 'あと$difference日';
     }
   }
-
-  // 通知ベルアイコン（未読バッジ付き）を構築
-  Widget _buildNotificationIcon() {
-    final unreadCount = _importantNotifications.where((n) => !n.isRead).length;
-
-    return Stack(
-      children: [
-        IconButton(
-          onPressed: () => context.go('/notifications'),
-          icon: const Icon(Icons.notifications_outlined, size: 24),
-          tooltip: '通知を確認',
-        ),
-        // 未読バッジ
-        if (unreadCount > 0)
-          Positioned(
-            right: 8,
-            top: 8,
-            child: Container(
-              padding: const EdgeInsets.all(AppTheme.spacing4),
-              decoration: const BoxDecoration(
-                color: AppTheme.destructiveColor,
-                shape: BoxShape.circle,
-              ),
-              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-              child: Text(
-                unreadCount > 99 ? '99+' : unreadCount.toString(),
-                style: AppTheme.labelSmall.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
 }
 
 // データモデル（既存のものを使用）
@@ -711,6 +664,7 @@ class EventData {
 }
 
 enum EventRole { organizer, participant }
+
 enum EventStatus { planning, active, completed }
 
 class NotificationData {
@@ -733,8 +687,4 @@ class NotificationData {
   });
 }
 
-enum NotificationType {
-  invitation,
-  paymentReminder,
-  general,
-}
+enum NotificationType { invitation, paymentReminder, general }

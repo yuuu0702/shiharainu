@@ -58,7 +58,9 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
 
             // タイトル
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacing24),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.spacing24,
+              ),
               child: Row(
                 children: [
                   Text('役職を選択', style: AppTheme.headlineMedium),
@@ -77,7 +79,9 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
             Expanded(
               child: ListView.separated(
                 controller: scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacing24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacing24,
+                ),
                 itemCount: UserPositions.positionsWithDescription.length,
                 separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {
@@ -157,7 +161,10 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
     final ageText = _ageController.text.trim();
 
     AppLogger.info('=== プロフィール保存開始 ===', name: 'UserProfileSetup');
-    AppLogger.debug('名前: $name, 年齢: $ageText, 役職: $_selectedPosition', name: 'UserProfileSetup');
+    AppLogger.debug(
+      '名前: $name, 年齢: $ageText, 役職: $_selectedPosition',
+      name: 'UserProfileSetup',
+    );
 
     // バリデーション
     if (name.isEmpty) {

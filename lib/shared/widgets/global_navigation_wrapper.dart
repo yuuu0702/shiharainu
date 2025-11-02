@@ -189,10 +189,7 @@ class SimplePage extends StatelessWidget {
           ),
           child: Row(
             children: [
-              if (leading != null) ...[
-                leading!,
-                const SizedBox(width: 16),
-              ],
+              if (leading != null) ...[leading!, const SizedBox(width: 16)],
               Text(
                 title,
                 style: const TextStyle(

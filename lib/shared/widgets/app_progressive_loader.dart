@@ -4,7 +4,7 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/app_skeleton_loader.dart';
 
 /// プログレッシブローディングシステム
-/// 
+///
 /// コンテンツを段階的に表示することで体感的な読み込み速度を向上させる
 /// 優先度の高い要素から順番にフェードインアニメーションで表示
 class AppProgressiveLoader extends HookWidget {
@@ -26,12 +26,10 @@ class AppProgressiveLoader extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final List<AnimationController> controllers = [];
-    
+
     // 各アイテムのアニメーションコントローラーを作成
     for (int i = 0; i < items.length; i++) {
-      final controller = useAnimationController(
-        duration: animationDuration,
-      );
+      final controller = useAnimationController(duration: animationDuration);
       controllers.add(controller);
     }
 
@@ -74,13 +72,16 @@ class AppProgressiveLoader extends HookWidget {
                 curve: Curves.easeOut,
               ),
               child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.3),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: controller,
-                  curve: Curves.easeOut,
-                )),
+                position:
+                    Tween<Offset>(
+                      begin: const Offset(0, 0.3),
+                      end: Offset.zero,
+                    ).animate(
+                      CurvedAnimation(
+                        parent: controller,
+                        curve: Curves.easeOut,
+                      ),
+                    ),
                 child: item.child,
               ),
             );
@@ -105,7 +106,7 @@ class ProgressiveLoadItem {
 }
 
 /// ページレイアウト用のプログレッシブローダー
-/// 
+///
 /// ナビゲーション → メインコンテンツ → サイドコンテンツの順で表示
 class AppPageProgressiveLoader extends HookWidget {
   final Widget? navigation;
@@ -125,19 +126,10 @@ class AppPageProgressiveLoader extends HookWidget {
   Widget build(BuildContext context) {
     final items = <ProgressiveLoadItem>[
       if (navigation != null)
-        ProgressiveLoadItem(
-          child: navigation!,
-          priority: 1,
-        ),
-      ProgressiveLoadItem(
-        child: mainContent,
-        priority: 2,
-      ),
+        ProgressiveLoadItem(child: navigation!, priority: 1),
+      ProgressiveLoadItem(child: mainContent, priority: 2),
       if (sideContent != null)
-        ProgressiveLoadItem(
-          child: sideContent!,
-          priority: 3,
-        ),
+        ProgressiveLoadItem(child: sideContent!, priority: 3),
     ];
 
     return AppProgressiveLoader(
@@ -196,7 +188,7 @@ class AppPageProgressiveLoader extends HookWidget {
 }
 
 /// リスト用のプログレッシブローダー
-/// 
+///
 /// リストアイテムを段階的に表示
 class AppListProgressiveLoader extends HookWidget {
   final List<Widget> items;
@@ -219,10 +211,7 @@ class AppListProgressiveLoader extends HookWidget {
     }
 
     final progressiveItems = items.asMap().entries.map((entry) {
-      return ProgressiveLoadItem(
-        child: entry.value,
-        priority: entry.key,
-      );
+      return ProgressiveLoadItem(child: entry.value, priority: entry.key);
     }).toList();
 
     return ListView(
@@ -273,7 +262,7 @@ class AppGridProgressiveLoader extends HookWidget {
       children: items.asMap().entries.map((entry) {
         final index = entry.key;
         final item = entry.value;
-        
+
         return AppProgressiveLoadingSingleItem(
           delay: Duration(milliseconds: index * 80),
           child: item,
@@ -302,24 +291,20 @@ class AppProgressiveLoadingSingleItem extends HookWidget {
       duration: animationDuration,
     );
 
-    final opacityAnimation = useMemoized(() =>
-      Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(
-          parent: animationController,
-          curve: Curves.easeOut,
-        ),
-      ), [animationController]);
+    final opacityAnimation = useMemoized(
+      () => Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: animationController, curve: Curves.easeOut),
+      ),
+      [animationController],
+    );
 
-    final slideAnimation = useMemoized(() =>
-      Tween<Offset>(
-        begin: const Offset(0, 0.5),
-        end: Offset.zero,
-      ).animate(
-        CurvedAnimation(
-          parent: animationController,
-          curve: Curves.easeOut,
-        ),
-      ), [animationController]);
+    final slideAnimation = useMemoized(
+      () =>
+          Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
+            CurvedAnimation(parent: animationController, curve: Curves.easeOut),
+          ),
+      [animationController],
+    );
 
     useEffect(() {
       Future.delayed(delay, () {
@@ -332,10 +317,7 @@ class AppProgressiveLoadingSingleItem extends HookWidget {
 
     return FadeTransition(
       opacity: opacityAnimation,
-      child: SlideTransition(
-        position: slideAnimation,
-        child: child,
-      ),
+      child: SlideTransition(position: slideAnimation, child: child),
     );
   }
 }
@@ -414,7 +396,7 @@ class AppRefreshableProgressiveLoader extends HookWidget {
 }
 
 /// セクション別のプログレッシブローダー
-/// 
+///
 /// 異なる種類のコンテンツを段階的に表示
 class AppSectionProgressiveLoader extends HookWidget {
   final List<ProgressiveSection> sections;

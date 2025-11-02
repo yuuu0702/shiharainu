@@ -47,7 +47,10 @@ class UserService {
         updatedAt: DateTime.now(),
       );
 
-      AppLogger.debug('UserProfile作成完了: ${userProfile.toJson()}', name: 'UserService');
+      AppLogger.debug(
+        'UserProfile作成完了: ${userProfile.toJson()}',
+        name: 'UserService',
+      );
       AppLogger.database('Firestoreに保存中...', operation: 'saveUserProfile');
 
       await _firestore
@@ -57,7 +60,7 @@ class UserService {
 
       // キャッシュにも保存
       if (_cacheService != null) {
-        await _cacheService!.cacheUserProfile(userProfile.toJson());
+        await _cacheService.cacheUserProfile(userProfile.toJson());
         AppLogger.debug('ユーザープロフィールをキャッシュに保存', name: 'UserService');
       }
 
@@ -78,7 +81,7 @@ class UserService {
 
       // まずキャッシュから取得を試行
       if (_cacheService != null) {
-        final cachedProfile = await _cacheService!.getCachedUserProfile();
+        final cachedProfile = await _cacheService.getCachedUserProfile();
         if (cachedProfile != null) {
           AppLogger.debug('キャッシュからユーザープロフィール取得', name: 'UserService');
           return UserProfile.fromJson(cachedProfile);
@@ -86,7 +89,10 @@ class UserService {
       }
 
       // キャッシュにない場合はFirestoreから取得
-      AppLogger.database('Firestoreからユーザープロフィール取得', operation: 'getUserProfile');
+      AppLogger.database(
+        'Firestoreからユーザープロフィール取得',
+        operation: 'getUserProfile',
+      );
       final doc = await _firestore.collection('users').doc(user.uid).get();
 
       if (!doc.exists) {
@@ -97,7 +103,7 @@ class UserService {
 
       // 取得したデータをキャッシュに保存
       if (_cacheService != null) {
-        await _cacheService!.cacheUserProfile(profile.toJson());
+        await _cacheService.cacheUserProfile(profile.toJson());
         AppLogger.debug('取得したユーザープロフィールをキャッシュに保存', name: 'UserService');
       }
 
@@ -143,7 +149,7 @@ class UserService {
 
       // キャッシュをクリア（次回取得時に最新データを取得するため）
       if (_cacheService != null) {
-        await _cacheService!.clearCache('cached_user_profile');
+        await _cacheService.clearCache('cached_user_profile');
         AppLogger.debug('ユーザープロフィール更新によりキャッシュをクリア', name: 'UserService');
       }
     } catch (e) {

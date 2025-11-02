@@ -20,10 +20,12 @@ class AppBreakpoints {
   static bool isMobile(double width) => width < mobile;
 
   /// 現在の画面幅がタブレット小サイズかどうか判定（600px～800px）
-  static bool isTabletSmall(double width) => width >= mobile && width < tabletSmall;
+  static bool isTabletSmall(double width) =>
+      width >= mobile && width < tabletSmall;
 
   /// 現在の画面幅がタブレット大サイズかどうか判定（800px～1200px）
-  static bool isTabletLarge(double width) => width >= tabletSmall && width < desktop;
+  static bool isTabletLarge(double width) =>
+      width >= tabletSmall && width < desktop;
 
   /// 現在の画面幅がタブレットサイズ全般かどうか判定（600px～1200px）
   static bool isTablet(double width) => width >= mobile && width < desktop;
@@ -65,7 +67,10 @@ class AppBreakpoints {
   }
 
   /// ナビゲーション種類を取得
-  static NavigationType getNavigationType(double width, {NavigationType? userPreference}) {
+  static NavigationType getNavigationType(
+    double width, {
+    NavigationType? userPreference,
+  }) {
     if (shouldUseBottomNavigation(width)) {
       return NavigationType.bottom;
     } else if (shouldUseNavigationRail(width)) {
@@ -81,5 +86,5 @@ class AppBreakpoints {
 /// ナビゲーションの種類を定義
 enum NavigationType {
   bottom, // BottomNavigationBar
-  rail,   // NavigationRail
+  rail, // NavigationRail
 }

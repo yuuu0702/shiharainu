@@ -4,7 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 
 /// 高度なフィードバックシステム
-/// 
+///
 /// ユーザーのアクションに対する豊富なフィードバックを提供
 /// 視覚的・触覚的・聴覚的フィードバックを統合
 class AppFeedbackSystem {
@@ -123,10 +123,7 @@ class AppFeedbackSystem {
             Icon(icon, color: Colors.white, size: 20),
             const SizedBox(width: AppTheme.spacing12),
             Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(color: Colors.white),
-              ),
+              child: Text(message, style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -170,7 +167,7 @@ class AppFeedbackSystem {
 enum FeedbackType { success, error, warning, info }
 
 /// インタラクティブなフィードバックウィジェット
-/// 
+///
 /// ボタンやカードに統合されたフィードバック機能
 class AppInteractiveFeedback extends HookWidget {
   final Widget child;
@@ -202,10 +199,7 @@ class AppInteractiveFeedback extends HookWidget {
 
     final scaleAnimation = useAnimation(
       Tween<double>(begin: 1.0, end: 0.95).animate(
-        CurvedAnimation(
-          parent: animationController,
-          curve: Curves.easeInOut,
-        ),
+        CurvedAnimation(parent: animationController, curve: Curves.easeInOut),
       ),
     );
 
@@ -244,10 +238,7 @@ class AppInteractiveFeedback extends HookWidget {
             }
           : null,
       child: enableScaleAnimation
-          ? Transform.scale(
-              scale: scaleAnimation,
-              child: _buildChild(context),
-            )
+          ? Transform.scale(scale: scaleAnimation, child: _buildChild(context))
           : _buildChild(context),
     );
   }
@@ -258,10 +249,12 @@ class AppInteractiveFeedback extends HookWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: null, // GestureDetectorで処理
-          splashColor: (feedbackColor ?? AppTheme.primaryColor)
-              .withValues(alpha: 0.1),
-          highlightColor: (feedbackColor ?? AppTheme.primaryColor)
-              .withValues(alpha: 0.05),
+          splashColor: (feedbackColor ?? AppTheme.primaryColor).withValues(
+            alpha: 0.1,
+          ),
+          highlightColor: (feedbackColor ?? AppTheme.primaryColor).withValues(
+            alpha: 0.05,
+          ),
           borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
           child: child,
         ),
@@ -272,7 +265,7 @@ class AppInteractiveFeedback extends HookWidget {
 }
 
 /// プルスアクションフィードバック
-/// 
+///
 /// プルリフレッシュ時の視覚的フィードバック
 class AppPullFeedback extends HookWidget {
   final Widget child;
@@ -340,10 +333,7 @@ class AppLoadingFeedback extends HookWidget {
 
     return Stack(
       children: [
-        Opacity(
-          opacity: 0.5,
-          child: child,
-        ),
+        Opacity(opacity: 0.5, child: child),
         Positioned.fill(
           child: Container(
             color: Colors.black.withValues(alpha: 0.1),
@@ -464,7 +454,7 @@ class AppErrorFeedback extends HookWidget {
       animation: animationController,
       builder: (context, _) {
         return Transform.translate(
-          offset: hasError 
+          offset: hasError
               ? Offset(2.0 * animationController.value - 1.0, 0)
               : Offset.zero,
           child: Container(

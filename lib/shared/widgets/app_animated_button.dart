@@ -4,7 +4,7 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/app_button.dart';
 
 /// アニメーション付きボタンウィジェット
-/// 
+///
 /// ホバー、タップ、フォーカス時に滑らかなアニメーションを提供する
 /// 高品質なマイクロインタラクションによりユーザー体験を向上させます。
 class AppAnimatedButton extends HookWidget {
@@ -72,7 +72,7 @@ class AppAnimatedButton extends HookWidget {
     final hoverAnimationController = useAnimationController(
       duration: const Duration(milliseconds: 200),
     );
-    
+
     final tapAnimationController = useAnimationController(
       duration: const Duration(milliseconds: 100),
     );
@@ -111,7 +111,7 @@ class AppAnimatedButton extends HookWidget {
 
     // フォーカスノードの管理
     final focusNode = useFocusNode();
-    
+
     useEffect(() {
       void handleFocusChange() {
         if (focusNode.hasFocus) {
@@ -126,17 +126,17 @@ class AppAnimatedButton extends HookWidget {
     }, [focusNode]);
 
     return MouseRegion(
-      onEnter: onPressed != null 
+      onEnter: onPressed != null
           ? (_) => hoverAnimationController.forward()
           : null,
-      onExit: onPressed != null 
+      onExit: onPressed != null
           ? (_) => hoverAnimationController.reverse()
           : null,
       child: GestureDetector(
-        onTapDown: onPressed != null 
+        onTapDown: onPressed != null
             ? (_) => tapAnimationController.forward()
             : null,
-        onTapUp: onPressed != null 
+        onTapUp: onPressed != null
             ? (_) {
                 tapAnimationController.reverse();
                 Future.delayed(const Duration(milliseconds: 50), () {
@@ -144,7 +144,7 @@ class AppAnimatedButton extends HookWidget {
                 });
               }
             : null,
-        onTapCancel: onPressed != null 
+        onTapCancel: onPressed != null
             ? () => tapAnimationController.reverse()
             : null,
         child: Transform.scale(
@@ -153,13 +153,17 @@ class AppAnimatedButton extends HookWidget {
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-              boxShadow: onPressed != null ? [
-                BoxShadow(
-                  color: _getShadowColor().withValues(alpha: 0.1 * shadowAnimation),
-                  blurRadius: 4 * shadowAnimation,
-                  offset: Offset(0, 2 * shadowAnimation),
-                ),
-              ] : null,
+              boxShadow: onPressed != null
+                  ? [
+                      BoxShadow(
+                        color: _getShadowColor().withValues(
+                          alpha: 0.1 * shadowAnimation,
+                        ),
+                        blurRadius: 4 * shadowAnimation,
+                        offset: Offset(0, 2 * shadowAnimation),
+                      ),
+                    ]
+                  : null,
             ),
             child: Focus(
               focusNode: focusNode,
@@ -196,7 +200,7 @@ class AppAnimatedButton extends HookWidget {
 }
 
 /// リップルエフェクト付きのタッチ可能エリア
-/// 
+///
 /// Material Design のリップルエフェクトを実装
 /// タッチフィードバックを強化します。
 class AppRippleButton extends HookWidget {
@@ -224,9 +228,14 @@ class AppRippleButton extends HookWidget {
       borderRadius: borderRadius,
       child: InkWell(
         onTap: onTap,
-        borderRadius: borderRadius ?? BorderRadius.circular(AppTheme.radiusSmall),
-        splashColor: (rippleColor ?? AppTheme.primaryColor).withValues(alpha: 0.1),
-        highlightColor: (rippleColor ?? AppTheme.primaryColor).withValues(alpha: 0.05),
+        borderRadius:
+            borderRadius ?? BorderRadius.circular(AppTheme.radiusSmall),
+        splashColor: (rippleColor ?? AppTheme.primaryColor).withValues(
+          alpha: 0.1,
+        ),
+        highlightColor: (rippleColor ?? AppTheme.primaryColor).withValues(
+          alpha: 0.05,
+        ),
         child: Container(
           constraints: BoxConstraints(
             minWidth: minWidth ?? AppTheme.minimumTouchTarget,
@@ -240,7 +249,7 @@ class AppRippleButton extends HookWidget {
 }
 
 /// プレスアニメーション付きコンテナ
-/// 
+///
 /// カードやリストアイテムに使用するプレスエフェクト
 /// 軽いタッチフィードバックを提供します。
 class AppPressableContainer extends HookWidget {
@@ -271,18 +280,13 @@ class AppPressableContainer extends HookWidget {
 
     final scaleAnimation = useAnimation(
       Tween<double>(begin: 1.0, end: 0.98).animate(
-        CurvedAnimation(
-          parent: animationController,
-          curve: Curves.easeInOut,
-        ),
+        CurvedAnimation(parent: animationController, curve: Curves.easeInOut),
       ),
     );
 
     return GestureDetector(
-      onTapDown: onTap != null 
-          ? (_) => animationController.forward()
-          : null,
-      onTapUp: onTap != null 
+      onTapDown: onTap != null ? (_) => animationController.forward() : null,
+      onTapUp: onTap != null
           ? (_) {
               animationController.reverse();
               Future.delayed(const Duration(milliseconds: 50), () {
@@ -290,9 +294,7 @@ class AppPressableContainer extends HookWidget {
               });
             }
           : null,
-      onTapCancel: onTap != null 
-          ? () => animationController.reverse()
-          : null,
+      onTapCancel: onTap != null ? () => animationController.reverse() : null,
       onLongPress: onLongPress,
       child: Transform.scale(
         scale: scaleAnimation,
@@ -300,7 +302,8 @@ class AppPressableContainer extends HookWidget {
           padding: padding,
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: borderRadius ?? BorderRadius.circular(AppTheme.radiusSmall),
+            borderRadius:
+                borderRadius ?? BorderRadius.circular(AppTheme.radiusSmall),
             border: border,
           ),
           child: child,
@@ -311,7 +314,7 @@ class AppPressableContainer extends HookWidget {
 }
 
 /// フローティングアクションボタンのアニメーション版
-/// 
+///
 /// 拡張可能なFABにホバーとタップアニメーションを追加
 class AppAnimatedFab extends HookWidget {
   final VoidCallback? onPressed;
@@ -360,17 +363,17 @@ class AppAnimatedFab extends HookWidget {
     );
 
     return MouseRegion(
-      onEnter: onPressed != null 
+      onEnter: onPressed != null
           ? (_) => hoverAnimationController.forward()
           : null,
-      onExit: onPressed != null 
+      onExit: onPressed != null
           ? (_) => hoverAnimationController.reverse()
           : null,
       child: GestureDetector(
-        onTapDown: onPressed != null 
+        onTapDown: onPressed != null
             ? (_) => tapAnimationController.forward()
             : null,
-        onTapUp: onPressed != null 
+        onTapUp: onPressed != null
             ? (_) {
                 tapAnimationController.reverse();
                 Future.delayed(const Duration(milliseconds: 50), () {
@@ -378,7 +381,7 @@ class AppAnimatedFab extends HookWidget {
                 });
               }
             : null,
-        onTapCancel: onPressed != null 
+        onTapCancel: onPressed != null
             ? () => tapAnimationController.reverse()
             : null,
         child: Transform.scale(
@@ -389,12 +392,14 @@ class AppAnimatedFab extends HookWidget {
                   icon: icon,
                   label: Text(label!),
                   backgroundColor: backgroundColor ?? AppTheme.primaryColor,
-                  foregroundColor: foregroundColor ?? AppTheme.primaryForeground,
+                  foregroundColor:
+                      foregroundColor ?? AppTheme.primaryForeground,
                 )
               : FloatingActionButton(
                   onPressed: onPressed,
                   backgroundColor: backgroundColor ?? AppTheme.primaryColor,
-                  foregroundColor: foregroundColor ?? AppTheme.primaryForeground,
+                  foregroundColor:
+                      foregroundColor ?? AppTheme.primaryForeground,
                   child: icon,
                 ),
         ),

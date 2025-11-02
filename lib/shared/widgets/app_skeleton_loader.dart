@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 
 /// スケルトンローディングシステム
-/// 
+///
 /// コンテンツが読み込まれる前にレイアウトの構造を示すプレースホルダー
 /// 体感的な読み込み速度向上とUX改善を提供します。
 class AppSkeletonLoader extends HookWidget {
@@ -37,9 +37,9 @@ class AppSkeletonLoader extends HookWidget {
     this.animationDuration = const Duration(milliseconds: 1500),
     this.baseColor = const Color(0xFFF3F3F5),
     this.highlightColor = const Color(0xFFFFFFFF),
-  })  : width = size,
-        height = size,
-        borderRadius = BorderRadius.circular(size / 2);
+  }) : width = size,
+       height = size,
+       borderRadius = BorderRadius.circular(size / 2);
 
   /// テキスト行用スケルトンローディング
   AppSkeletonLoader.text({
@@ -73,10 +73,7 @@ class AppSkeletonLoader extends HookWidget {
 
     final shimmerAnimation = useAnimation(
       Tween<double>(begin: -2.0, end: 2.0).animate(
-        CurvedAnimation(
-          parent: animationController,
-          curve: Curves.easeInOut,
-        ),
+        CurvedAnimation(parent: animationController, curve: Curves.easeInOut),
       ),
     );
 
@@ -96,9 +93,7 @@ class AppSkeletonLoader extends HookWidget {
     return Container(
       width: width,
       height: height,
-      decoration: BoxDecoration(
-        borderRadius: borderRadius,
-      ),
+      decoration: BoxDecoration(borderRadius: borderRadius),
       child: ClipRRect(
         borderRadius: borderRadius,
         child: ShaderMask(
@@ -119,11 +114,7 @@ class AppSkeletonLoader extends HookWidget {
               ],
             ).createShader(bounds);
           },
-          child: Container(
-            width: width,
-            height: height,
-            color: baseColor,
-          ),
+          child: Container(width: width, height: height, color: baseColor),
         ),
       ),
     );
@@ -131,7 +122,7 @@ class AppSkeletonLoader extends HookWidget {
 }
 
 /// リスト用のスケルトンローダー
-/// 
+///
 /// リストアイテムのスケルトン表示を提供
 class AppListSkeleton extends StatelessWidget {
   final int itemCount;
@@ -158,7 +149,7 @@ class AppListSkeleton extends StatelessWidget {
         if (itemBuilder != null) {
           return itemBuilder!(index);
         }
-        
+
         return Container(
           padding: itemPadding,
           child: _buildDefaultListItemSkeleton(),
@@ -176,20 +167,11 @@ class AppListSkeleton extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppSkeletonLoader.text(
-                width: double.infinity,
-                height: 16,
-              ),
+              AppSkeletonLoader.text(width: double.infinity, height: 16),
               const SizedBox(height: AppTheme.spacing8),
-              AppSkeletonLoader.text(
-                width: 200,
-                height: 14,
-              ),
+              AppSkeletonLoader.text(width: 200, height: 14),
               const SizedBox(height: AppTheme.spacing4),
-              AppSkeletonLoader.text(
-                width: 120,
-                height: 12,
-              ),
+              AppSkeletonLoader.text(width: 120, height: 12),
             ],
           ),
         ),
@@ -265,15 +247,9 @@ class AppEventCardSkeleton extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppSkeletonLoader.text(
-                      width: double.infinity,
-                      height: 18,
-                    ),
+                    AppSkeletonLoader.text(width: double.infinity, height: 18),
                     const SizedBox(height: AppTheme.spacing4),
-                    AppSkeletonLoader.text(
-                      width: 150,
-                      height: 14,
-                    ),
+                    AppSkeletonLoader.text(width: 150, height: 14),
                   ],
                 ),
               ),
@@ -285,23 +261,14 @@ class AppEventCardSkeleton extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppTheme.spacing16),
-          AppSkeletonLoader.text(
-            width: double.infinity,
-            height: 16,
-          ),
+          AppSkeletonLoader.text(width: double.infinity, height: 16),
           const SizedBox(height: AppTheme.spacing8),
-          AppSkeletonLoader.text(
-            width: 250,
-            height: 14,
-          ),
+          AppSkeletonLoader.text(width: 250, height: 14),
           const SizedBox(height: AppTheme.spacing16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              AppSkeletonLoader.text(
-                width: 80,
-                height: 14,
-              ),
+              AppSkeletonLoader.text(width: 80, height: 14),
               const AppSkeletonLoader(
                 width: 100,
                 height: 32,
@@ -336,20 +303,11 @@ class AppNotificationSkeleton extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AppSkeletonLoader.text(
-                  width: double.infinity,
-                  height: 16,
-                ),
+                AppSkeletonLoader.text(width: double.infinity, height: 16),
                 const SizedBox(height: AppTheme.spacing8),
-                AppSkeletonLoader.text(
-                  width: 180,
-                  height: 14,
-                ),
+                AppSkeletonLoader.text(width: 180, height: 14),
                 const SizedBox(height: AppTheme.spacing4),
-                AppSkeletonLoader.text(
-                  width: 100,
-                  height: 12,
-                ),
+                AppSkeletonLoader.text(width: 100, height: 12),
               ],
             ),
           ),
@@ -369,15 +327,9 @@ class AppProfileSkeleton extends StatelessWidget {
       children: [
         AppSkeletonLoader.circle(size: 80),
         const SizedBox(height: AppTheme.spacing16),
-        AppSkeletonLoader.text(
-          width: 150,
-          height: 20,
-        ),
+        AppSkeletonLoader.text(width: 150, height: 20),
         const SizedBox(height: AppTheme.spacing8),
-        AppSkeletonLoader.text(
-          width: 120,
-          height: 16,
-        ),
+        AppSkeletonLoader.text(width: 120, height: 16),
         const SizedBox(height: AppTheme.spacing24),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -394,15 +346,9 @@ class AppProfileSkeleton extends StatelessWidget {
   Widget _buildStatSkeleton() {
     return Column(
       children: [
-        AppSkeletonLoader.text(
-          width: 40,
-          height: 24,
-        ),
+        AppSkeletonLoader.text(width: 40, height: 24),
         const SizedBox(height: AppTheme.spacing4),
-        AppSkeletonLoader.text(
-          width: 60,
-          height: 14,
-        ),
+        AppSkeletonLoader.text(width: 60, height: 14),
       ],
     );
   }
@@ -411,24 +357,19 @@ class AppProfileSkeleton extends StatelessWidget {
 /// 検索結果用のスケルトンローダー
 class AppSearchResultsSkeleton extends StatelessWidget {
   final int itemCount;
-  
-  const AppSearchResultsSkeleton({
-    super.key,
-    this.itemCount = 3,
-  });
+
+  const AppSearchResultsSkeleton({super.key, this.itemCount = 3});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppSkeletonLoader.text(
-          width: 120,
-          height: 16,
-        ),
+        AppSkeletonLoader.text(width: 120, height: 16),
         const SizedBox(height: AppTheme.spacing16),
-        ...List.generate(itemCount, (index) => 
-          Container(
+        ...List.generate(
+          itemCount,
+          (index) => Container(
             margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
             child: _buildSearchItemSkeleton(),
           ),
@@ -450,15 +391,9 @@ class AppSearchResultsSkeleton extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppSkeletonLoader.text(
-                width: double.infinity,
-                height: 16,
-              ),
+              AppSkeletonLoader.text(width: double.infinity, height: 16),
               const SizedBox(height: AppTheme.spacing8),
-              AppSkeletonLoader.text(
-                width: 200,
-                height: 14,
-              ),
+              AppSkeletonLoader.text(width: 200, height: 14),
             ],
           ),
         ),

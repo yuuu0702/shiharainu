@@ -59,11 +59,7 @@ class PerformanceUtils {
     }
 
     if (decoration != null || margin != null) {
-      result = Container(
-        margin: margin,
-        decoration: decoration,
-        child: result,
-      );
+      result = Container(margin: margin, decoration: decoration, child: result);
     }
 
     return result;

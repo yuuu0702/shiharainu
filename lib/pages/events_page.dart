@@ -24,9 +24,17 @@ class _EventsPageState extends State<EventsPage> {
   // ソートオプション
   static const List<SortOption> _sortOptions = [
     SortOption(value: 'date_asc', label: '開催日（近い順）', icon: Icons.arrow_upward),
-    SortOption(value: 'date_desc', label: '開催日（遠い順）', icon: Icons.arrow_downward),
+    SortOption(
+      value: 'date_desc',
+      label: '開催日（遠い順）',
+      icon: Icons.arrow_downward,
+    ),
     SortOption(value: 'name_asc', label: '名前（A-Z）', icon: Icons.sort_by_alpha),
-    SortOption(value: 'participants_desc', label: '参加者数（多い順）', icon: Icons.people),
+    SortOption(
+      value: 'participants_desc',
+      label: '参加者数（多い順）',
+      icon: Icons.people,
+    ),
   ];
 
   // サンプルデータ（staticで最適化）
@@ -131,10 +139,7 @@ class _EventsPageState extends State<EventsPage> {
             decoration: const BoxDecoration(
               color: Colors.white,
               border: Border(
-                bottom: BorderSide(
-                  color: AppTheme.mutedColor,
-                  width: 1,
-                ),
+                bottom: BorderSide(color: AppTheme.mutedColor, width: 1),
               ),
             ),
             child: Column(
@@ -319,115 +324,119 @@ class _EventsPageState extends State<EventsPage> {
     return AppCard(
       onTap: () => context.go('/events/${event.id}'),
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        event.title,
-                        style: AppTheme.bodyLarge.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: AppTheme.spacing4),
-                      Text(
-                        event.description,
-                        style: AppTheme.bodySmall.copyWith(
-                          color: AppTheme.mutedForegroundAccessible,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppTheme.spacing8,
-                        vertical: AppTheme.spacing4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(event.status).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                        border: Border.all(
-                          color: _getStatusColor(event.status).withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Text(
-                        _getStatusText(event.status),
-                        style: AppTheme.bodySmall.copyWith(
-                          color: _getStatusColor(event.status),
-                          fontWeight: FontWeight.w500,
-                        ),
+                    Text(
+                      event.title,
+                      style: AppTheme.bodyLarge.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: AppTheme.spacing4),
                     Text(
-                      _formatDate(event.date),
+                      event.description,
                       style: AppTheme.bodySmall.copyWith(
                         color: AppTheme.mutedForegroundAccessible,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
-              ],
-            ),
-            
-            const SizedBox(height: AppTheme.spacing12),
-            
-            Row(
-              children: [
-                Icon(
-                  Icons.people_outline,
-                  size: 16,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppTheme.spacing8,
+                      vertical: AppTheme.spacing4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(
+                        event.status,
+                      ).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                      border: Border.all(
+                        color: _getStatusColor(
+                          event.status,
+                        ).withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Text(
+                      _getStatusText(event.status),
+                      style: AppTheme.bodySmall.copyWith(
+                        color: _getStatusColor(event.status),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacing4),
+                  Text(
+                    _formatDate(event.date),
+                    style: AppTheme.bodySmall.copyWith(
+                      color: AppTheme.mutedForegroundAccessible,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const SizedBox(height: AppTheme.spacing12),
+
+          Row(
+            children: [
+              Icon(
+                Icons.people_outline,
+                size: 16,
+                color: AppTheme.mutedForegroundAccessible,
+              ),
+              const SizedBox(width: AppTheme.spacing4),
+              Text(
+                '${event.participantCount}人',
+                style: AppTheme.bodySmall.copyWith(
                   color: AppTheme.mutedForegroundAccessible,
                 ),
-                const SizedBox(width: AppTheme.spacing4),
-                Text(
-                  '${event.participantCount}人',
-                  style: AppTheme.bodySmall.copyWith(
-                    color: AppTheme.mutedForegroundAccessible,
-                  ),
-                ),
-                const SizedBox(width: AppTheme.spacing16),
-                Icon(
-                  event.role == EventRole.organizer 
+              ),
+              const SizedBox(width: AppTheme.spacing16),
+              Icon(
+                event.role == EventRole.organizer
                     ? Icons.admin_panel_settings_outlined
                     : Icons.person_outline,
-                  size: 16,
+                size: 16,
+                color: AppTheme.mutedForegroundAccessible,
+              ),
+              const SizedBox(width: AppTheme.spacing4),
+              Text(
+                event.role == EventRole.organizer ? '幹事' : '参加者',
+                style: AppTheme.bodySmall.copyWith(
                   color: AppTheme.mutedForegroundAccessible,
                 ),
-                const SizedBox(width: AppTheme.spacing4),
-                Text(
-                  event.role == EventRole.organizer ? '幹事' : '参加者',
-                  style: AppTheme.bodySmall.copyWith(
-                    color: AppTheme.mutedForegroundAccessible,
-                  ),
-                ),
-                const Spacer(),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 12,
-                  color: AppTheme.mutedForegroundAccessible,
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
+              ),
+              const Spacer(),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 12,
+                color: AppTheme.mutedForegroundAccessible,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildEmptyState() {
     final hasActiveFilters = _getActiveFiltersCount() > 0;
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppTheme.spacing32),
@@ -441,9 +450,7 @@ class _EventsPageState extends State<EventsPage> {
             ),
             const SizedBox(height: AppTheme.spacing16),
             Text(
-              hasActiveFilters 
-                ? '検索結果が見つかりませんでした'
-                : 'イベントがありません',
+              hasActiveFilters ? '検索結果が見つかりませんでした' : 'イベントがありません',
               style: AppTheme.headlineSmall.copyWith(
                 color: AppTheme.mutedForegroundAccessible,
               ),
@@ -451,9 +458,7 @@ class _EventsPageState extends State<EventsPage> {
             ),
             const SizedBox(height: AppTheme.spacing8),
             Text(
-              hasActiveFilters 
-                ? '検索条件やフィルターを変更してみてください'
-                : '新しいイベントを作成してみましょう',
+              hasActiveFilters ? '検索条件やフィルターを変更してみてください' : '新しいイベントを作成してみましょう',
               style: AppTheme.bodyMedium.copyWith(
                 color: AppTheme.mutedForegroundAccessible,
               ),
@@ -636,4 +641,5 @@ class EventData {
 }
 
 enum EventRole { organizer, participant }
+
 enum EventStatus { planning, active, completed }

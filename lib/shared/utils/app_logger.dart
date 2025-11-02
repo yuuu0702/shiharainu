@@ -31,10 +31,7 @@ class AppLogger {
   ///
   /// [message] ログメッセージ
   /// [name] ログの識別名（デフォルト: 'Shiharainu'）
-  static void info(
-    String message, {
-    String? name,
-  }) {
+  static void info(String message, {String? name}) {
     developer.log(
       message,
       name: name ?? _defaultName,
@@ -47,11 +44,7 @@ class AppLogger {
   /// [message] ログメッセージ
   /// [name] ログの識別名（デフォルト: 'Shiharainu'）
   /// [error] エラーオブジェクト（オプション）
-  static void warning(
-    String message, {
-    String? name,
-    Object? error,
-  }) {
+  static void warning(String message, {String? name, Object? error}) {
     developer.log(
       message,
       name: name ?? _defaultName,
@@ -85,47 +78,26 @@ class AppLogger {
   ///
   /// [message] ログメッセージ
   /// [route] ルート名（オプション）
-  static void navigation(
-    String message, {
-    String? route,
-  }) {
+  static void navigation(String message, {String? route}) {
     final logMessage = route != null ? '[$route] $message' : message;
-    developer.log(
-      logMessage,
-      name: '${_defaultName}Navigation',
-      level: 800,
-    );
+    developer.log(logMessage, name: '${_defaultName}Navigation', level: 800);
   }
 
   /// 認証関連のログ出力
   ///
   /// [message] ログメッセージ
   /// [userId] ユーザーID（オプション）
-  static void auth(
-    String message, {
-    String? userId,
-  }) {
+  static void auth(String message, {String? userId}) {
     final logMessage = userId != null ? '[User:$userId] $message' : message;
-    developer.log(
-      logMessage,
-      name: '${_defaultName}Auth',
-      level: 800,
-    );
+    developer.log(logMessage, name: '${_defaultName}Auth', level: 800);
   }
 
   /// データベース関連のログ出力
   ///
   /// [message] ログメッセージ
   /// [operation] オペレーション名（オプション）
-  static void database(
-    String message, {
-    String? operation,
-  }) {
+  static void database(String message, {String? operation}) {
     final logMessage = operation != null ? '[$operation] $message' : message;
-    developer.log(
-      logMessage,
-      name: '${_defaultName}Database',
-      level: 800,
-    );
+    developer.log(logMessage, name: '${_defaultName}Database', level: 800);
   }
 }

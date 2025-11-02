@@ -4,7 +4,7 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/app_card.dart';
 
 /// アニメーション付きカードウィジェット
-/// 
+///
 /// ホバー、タップ時に滑らかなアニメーションを提供する
 /// リストアイテムやカード要素に適用して高品質なインタラクションを実現
 class AppAnimatedCard extends HookWidget {
@@ -104,10 +104,10 @@ class AppAnimatedCard extends HookWidget {
           scale: enableHoverAnimation && enableTapAnimation
               ? hoverAnimation * tapAnimation
               : enableHoverAnimation
-                  ? hoverAnimation
-                  : enableTapAnimation
-                      ? tapAnimation
-                      : 1.0,
+              ? hoverAnimation
+              : enableTapAnimation
+              ? tapAnimation
+              : 1.0,
           child: AnimatedContainer(
             duration: animationDuration,
             decoration: BoxDecoration(
@@ -115,7 +115,9 @@ class AppAnimatedCard extends HookWidget {
               boxShadow: enableShadowAnimation && onTap != null
                   ? [
                       BoxShadow(
-                        color: AppTheme.mutedForeground.withValues(alpha: shadowOpacityAnimation),
+                        color: AppTheme.mutedForeground.withValues(
+                          alpha: shadowOpacityAnimation,
+                        ),
                         blurRadius: elevationAnimation * 2,
                         offset: Offset(0, elevationAnimation),
                       ),
@@ -135,7 +137,7 @@ class AppAnimatedCard extends HookWidget {
 }
 
 /// リストアイテム用のアニメーションウィジェット
-/// 
+///
 /// リスト内の各アイテムに適用するマイクロインタラクション
 /// より軽量で高速な応答を重視した設計
 class AppAnimatedListItem extends HookWidget {
@@ -179,30 +181,31 @@ class AppAnimatedListItem extends HookWidget {
     );
 
     return MouseRegion(
-      onEnter: onTap != null
-          ? (_) => hoverAnimationController.forward()
-          : null,
-      onExit: onTap != null
-          ? (_) => hoverAnimationController.reverse()
-          : null,
+      onEnter: onTap != null ? (_) => hoverAnimationController.forward() : null,
+      onExit: onTap != null ? (_) => hoverAnimationController.reverse() : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         decoration: BoxDecoration(
           color: backgroundColorAnimation,
-          borderRadius: borderRadius ?? BorderRadius.circular(AppTheme.radiusSmall),
+          borderRadius:
+              borderRadius ?? BorderRadius.circular(AppTheme.radiusSmall),
         ),
         child: showRipple
             ? Material(
                 color: Colors.transparent,
-                borderRadius: borderRadius ?? BorderRadius.circular(AppTheme.radiusSmall),
+                borderRadius:
+                    borderRadius ?? BorderRadius.circular(AppTheme.radiusSmall),
                 child: InkWell(
                   onTap: onTap,
                   onLongPress: onLongPress,
-                  borderRadius: borderRadius ?? BorderRadius.circular(AppTheme.radiusSmall),
+                  borderRadius:
+                      borderRadius ??
+                      BorderRadius.circular(AppTheme.radiusSmall),
                   splashColor: AppTheme.primaryColor.withValues(alpha: 0.1),
                   highlightColor: AppTheme.primaryColor.withValues(alpha: 0.05),
                   child: Container(
-                    padding: padding ?? const EdgeInsets.all(AppTheme.spacing12),
+                    padding:
+                        padding ?? const EdgeInsets.all(AppTheme.spacing12),
                     child: child,
                   ),
                 ),
@@ -221,7 +224,7 @@ class AppAnimatedListItem extends HookWidget {
 }
 
 /// フローティングカードアニメーション
-/// 
+///
 /// ホバー時に浮き上がるような効果を演出
 /// 重要な情報カードや機能カードに適用
 class AppFloatingCard extends HookWidget {
@@ -252,40 +255,32 @@ class AppFloatingCard extends HookWidget {
 
     final elevationAnimation = useAnimation(
       Tween<double>(begin: baseElevation, end: hoverElevation).animate(
-        CurvedAnimation(
-          parent: animationController,
-          curve: Curves.easeOut,
-        ),
+        CurvedAnimation(parent: animationController, curve: Curves.easeOut),
       ),
     );
 
     final scaleAnimation = useAnimation(
       Tween<double>(begin: 1.0, end: 1.02).animate(
-        CurvedAnimation(
-          parent: animationController,
-          curve: Curves.easeOut,
-        ),
+        CurvedAnimation(parent: animationController, curve: Curves.easeOut),
       ),
     );
 
     return MouseRegion(
-      onEnter: onTap != null
-          ? (_) => animationController.forward()
-          : null,
-      onExit: onTap != null
-          ? (_) => animationController.reverse()
-          : null,
+      onEnter: onTap != null ? (_) => animationController.forward() : null,
+      onExit: onTap != null ? (_) => animationController.reverse() : null,
       child: Transform.scale(
         scale: scaleAnimation,
         child: Card(
           elevation: elevationAnimation,
           color: backgroundColor ?? Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: borderRadius ?? BorderRadius.circular(AppTheme.radiusLarge),
+            borderRadius:
+                borderRadius ?? BorderRadius.circular(AppTheme.radiusLarge),
           ),
           child: InkWell(
             onTap: onTap,
-            borderRadius: borderRadius ?? BorderRadius.circular(AppTheme.radiusLarge),
+            borderRadius:
+                borderRadius ?? BorderRadius.circular(AppTheme.radiusLarge),
             child: Container(
               padding: padding ?? const EdgeInsets.all(AppTheme.spacing16),
               child: child,
@@ -298,7 +293,7 @@ class AppFloatingCard extends HookWidget {
 }
 
 /// プログレッシブスケールアニメーション
-/// 
+///
 /// タップ時にスケールダウンし、リリース時にスケールアップする
 /// 軽快なフィードバックを提供
 class AppScaleAnimation extends HookWidget {
@@ -322,9 +317,10 @@ class AppScaleAnimation extends HookWidget {
     final animationController = useAnimationController(duration: duration);
 
     final scaleAnimation = useAnimation(
-      Tween<double>(begin: 1.0, end: scaleValue).animate(
-        CurvedAnimation(parent: animationController, curve: curve),
-      ),
+      Tween<double>(
+        begin: 1.0,
+        end: scaleValue,
+      ).animate(CurvedAnimation(parent: animationController, curve: curve)),
     );
 
     return GestureDetector(
@@ -338,16 +334,13 @@ class AppScaleAnimation extends HookWidget {
             }
           : null,
       onTapCancel: onTap != null ? () => animationController.reverse() : null,
-      child: Transform.scale(
-        scale: scaleAnimation,
-        child: child,
-      ),
+      child: Transform.scale(scale: scaleAnimation, child: child),
     );
   }
 }
 
 /// パルスアニメーション
-/// 
+///
 /// 重要な情報や通知に注意を引くためのアニメーション
 class AppPulseAnimation extends HookWidget {
   final Widget child;
@@ -371,10 +364,7 @@ class AppPulseAnimation extends HookWidget {
 
     final scaleAnimation = useAnimation(
       Tween<double>(begin: minScale, end: maxScale).animate(
-        CurvedAnimation(
-          parent: animationController,
-          curve: Curves.easeInOut,
-        ),
+        CurvedAnimation(parent: animationController, curve: Curves.easeInOut),
       ),
     );
 
@@ -387,15 +377,12 @@ class AppPulseAnimation extends HookWidget {
       return () => animationController.dispose();
     }, []);
 
-    return Transform.scale(
-      scale: scaleAnimation,
-      child: child,
-    );
+    return Transform.scale(scale: scaleAnimation, child: child);
   }
 }
 
 /// シマーローディングアニメーション
-/// 
+///
 /// スケルトンローディング用のシマー効果
 class AppShimmerAnimation extends HookWidget {
   final Widget child;
@@ -417,10 +404,7 @@ class AppShimmerAnimation extends HookWidget {
 
     final shimmerAnimation = useAnimation(
       Tween<double>(begin: -1.0, end: 2.0).animate(
-        CurvedAnimation(
-          parent: animationController,
-          curve: Curves.easeInOut,
-        ),
+        CurvedAnimation(parent: animationController, curve: Curves.easeInOut),
       ),
     );
 
@@ -435,11 +419,7 @@ class AppShimmerAnimation extends HookWidget {
         return LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            baseColor,
-            highlightColor,
-            baseColor,
-          ],
+          colors: [baseColor, highlightColor, baseColor],
           stops: [
             shimmerAnimation - 0.3,
             shimmerAnimation,

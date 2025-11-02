@@ -37,10 +37,10 @@ class EventService {
     FirebaseAuth? auth,
     required FirestoreService firestoreService,
     required UserService userService,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance,
-        _firestoreService = firestoreService,
-        _userService = userService;
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _auth = auth ?? FirebaseAuth.instance,
+       _firestoreService = firestoreService,
+       _userService = userService;
 
   /// イベントを作成
   ///
@@ -106,7 +106,10 @@ class EventService {
           joinedAt: now,
         );
 
-        transaction.set(participantRef, ParticipantModel.toFirestore(participant));
+        transaction.set(
+          participantRef,
+          ParticipantModel.toFirestore(participant),
+        );
       });
 
       AppLogger.info('イベント作成完了: ${eventRef.id}', name: 'EventService');
@@ -181,7 +184,9 @@ class EventService {
       AppLogger.info('招待コード経由でイベント参加: $inviteCode', name: 'EventService');
 
       // イベントを検索
-      final eventDoc = await _firestoreService.findEventByInviteCode(inviteCode);
+      final eventDoc = await _firestoreService.findEventByInviteCode(
+        inviteCode,
+      );
       if (eventDoc == null) {
         throw Exception('招待コードが無効です');
       }
@@ -251,7 +256,10 @@ final eventServiceProvider = Provider<EventService>((ref) {
 });
 
 /// 特定イベントのStreamProviderファミリー（リアルタイム更新）
-final eventStreamProvider = StreamProvider.family<EventModel, String>((ref, eventId) {
+final eventStreamProvider = StreamProvider.family<EventModel, String>((
+  ref,
+  eventId,
+) {
   final eventsCollection = ref.watch(eventsCollectionProvider);
   return eventsCollection.doc(eventId).snapshots().map((snapshot) {
     if (!snapshot.exists) {
@@ -262,7 +270,10 @@ final eventStreamProvider = StreamProvider.family<EventModel, String>((ref, even
 });
 
 /// 特定イベントのFutureProviderファミリー（1回だけ取得）
-final eventProvider = FutureProvider.family<EventModel, String>((ref, eventId) async {
+final eventProvider = FutureProvider.family<EventModel, String>((
+  ref,
+  eventId,
+) async {
   final eventsCollection = ref.watch(eventsCollectionProvider);
   final snapshot = await eventsCollection.doc(eventId).get();
 
@@ -274,22 +285,31 @@ final eventProvider = FutureProvider.family<EventModel, String>((ref, eventId) a
 });
 
 /// イベント参加者一覧のStreamProviderファミリー（リアルタイム更新）
-final eventParticipantsStreamProvider = StreamProvider.family<List<ParticipantModel>, String>((ref, eventId) {
-  final participantsCollection = ref.watch(participantsCollectionProvider(eventId));
-  return participantsCollection.snapshots().map((snapshot) {
-    return snapshot.docs.map((doc) => doc.data()).toList();
-  });
-});
+final eventParticipantsStreamProvider =
+    StreamProvider.family<List<ParticipantModel>, String>((ref, eventId) {
+      final participantsCollection = ref.watch(
+        participantsCollectionProvider(eventId),
+      );
+      return participantsCollection.snapshots().map((snapshot) {
+        return snapshot.docs.map((doc) => doc.data()).toList();
+      });
+    });
 
 /// イベント参加者一覧のFutureProviderファミリー（1回だけ取得）
-final eventParticipantsProvider = FutureProvider.family<List<ParticipantModel>, String>((ref, eventId) async {
-  final participantsCollection = ref.watch(participantsCollectionProvider(eventId));
-  final snapshot = await participantsCollection.get();
-  return snapshot.docs.map((doc) => doc.data()).toList();
-});
+final eventParticipantsProvider =
+    FutureProvider.family<List<ParticipantModel>, String>((ref, eventId) async {
+      final participantsCollection = ref.watch(
+        participantsCollectionProvider(eventId),
+      );
+      final snapshot = await participantsCollection.get();
+      return snapshot.docs.map((doc) => doc.data()).toList();
+    });
 
 /// 現在のユーザーがイベントの主催者かどうかを判定するプロバイダー
-final isEventOrganizerProvider = FutureProvider.family<bool, String>((ref, eventId) async {
+final isEventOrganizerProvider = FutureProvider.family<bool, String>((
+  ref,
+  eventId,
+) async {
   final event = await ref.watch(eventProvider(eventId).future);
   final auth = FirebaseAuth.instance;
   final currentUserId = auth.currentUser?.uid;
@@ -302,23 +322,26 @@ final isEventOrganizerProvider = FutureProvider.family<bool, String>((ref, event
 });
 
 /// 現在のユーザーの参加者情報を取得するプロバイダー
-final currentUserParticipantProvider = FutureProvider.family<ParticipantModel?, String>((ref, eventId) async {
-  final auth = FirebaseAuth.instance;
-  final currentUserId = auth.currentUser?.uid;
+final currentUserParticipantProvider =
+    FutureProvider.family<ParticipantModel?, String>((ref, eventId) async {
+      final auth = FirebaseAuth.instance;
+      final currentUserId = auth.currentUser?.uid;
 
-  if (currentUserId == null) {
-    return null;
-  }
+      if (currentUserId == null) {
+        return null;
+      }
 
-  final participantsCollection = ref.watch(participantsCollectionProvider(eventId));
-  final query = await participantsCollection
-      .where('userId', isEqualTo: currentUserId)
-      .limit(1)
-      .get();
+      final participantsCollection = ref.watch(
+        participantsCollectionProvider(eventId),
+      );
+      final query = await participantsCollection
+          .where('userId', isEqualTo: currentUserId)
+          .limit(1)
+          .get();
 
-  if (query.docs.isEmpty) {
-    return null;
-  }
+      if (query.docs.isEmpty) {
+        return null;
+      }
 
-  return query.docs.first.data();
-});
+      return query.docs.first.data();
+    });

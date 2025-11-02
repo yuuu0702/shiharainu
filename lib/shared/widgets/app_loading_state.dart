@@ -33,7 +33,8 @@ class AppLoadingState<T> extends StatelessWidget {
     return asyncValue.when(
       data: dataBuilder,
       loading: () => _buildLoadingWidget(context),
-      error: (error, stackTrace) => _buildErrorWidget(context, error, stackTrace),
+      error: (error, stackTrace) =>
+          _buildErrorWidget(context, error, stackTrace),
     );
   }
 
@@ -54,15 +55,16 @@ class AppLoadingState<T> extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorWidget(BuildContext context, Object error, StackTrace? stackTrace) {
+  Widget _buildErrorWidget(
+    BuildContext context,
+    Object error,
+    StackTrace? stackTrace,
+  ) {
     if (errorWidget != null) {
       return errorWidget!;
     }
 
-    return AppErrorState(
-      error: error,
-      onRetry: onRetry,
-    );
+    return AppErrorState(error: error, onRetry: onRetry);
   }
 }
 
@@ -83,7 +85,7 @@ class AsyncValue<T> {
   const AsyncValue.data(T data) : this._(data: data);
   const AsyncValue.loading() : this._(isLoading: true);
   const AsyncValue.error(Object error, StackTrace? stackTrace)
-      : this._(error: error, stackTrace: stackTrace);
+    : this._(error: error, stackTrace: stackTrace);
 
   R when<R>({
     required R Function(T data) data,
@@ -126,7 +128,8 @@ class AppErrorState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              customIcon ?? (isNetworkError ? Icons.wifi_off : Icons.error_outline),
+              customIcon ??
+                  (isNetworkError ? Icons.wifi_off : Icons.error_outline),
               size: 64,
               color: AppTheme.mutedForegroundAccessible,
             ),
@@ -167,9 +170,9 @@ class AppErrorState extends StatelessWidget {
   bool _isNetworkError(Object error) {
     final errorString = error.toString().toLowerCase();
     return errorString.contains('network') ||
-           errorString.contains('connection') ||
-           errorString.contains('internet') ||
-           errorString.contains('timeout');
+        errorString.contains('connection') ||
+        errorString.contains('internet') ||
+        errorString.contains('timeout');
   }
 
   String _getErrorMessage(Object error) {
@@ -302,9 +305,8 @@ class AppListSkeletonLoader extends StatelessWidget {
       padding: padding,
       itemCount: itemCount,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => AppSkeletonLoader.card(
-        height: itemHeight,
-      ),
+      itemBuilder: (context, index) =>
+          AppSkeletonLoader.card(height: itemHeight),
     );
   }
 }

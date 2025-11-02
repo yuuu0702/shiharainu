@@ -313,10 +313,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: AppTheme.headlineLarge,
-        ),
+        Text(title, style: AppTheme.headlineLarge),
         const SizedBox(height: AppTheme.spacing16),
         content,
         const SizedBox(height: AppTheme.spacing32),
@@ -341,11 +338,7 @@ class _ComponentShowcasePageState extends State<ComponentShowcasePage> {
           ),
         ),
         const SizedBox(height: AppTheme.spacing8),
-        Text(
-          name,
-          style: AppTheme.bodySmall,
-          textAlign: TextAlign.center,
-        ),
+        Text(name, style: AppTheme.bodySmall, textAlign: TextAlign.center),
         Text(
           '#${color.toARGB32().toRadixString(16).toUpperCase().substring(2)}',
           style: AppTheme.labelSmall.copyWith(color: AppTheme.mutedForeground),

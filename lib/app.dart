@@ -47,7 +47,10 @@ class App extends ConsumerWidget {
         final isLoggedIn = authState.value != null;
         final currentPath = state.matchedLocation;
 
-        AppLogger.navigation('リダイレクト処理: ログイン状態: $isLoggedIn', route: currentPath);
+        AppLogger.navigation(
+          'リダイレクト処理: ログイン状態: $isLoggedIn',
+          route: currentPath,
+        );
 
         // 未ログインの場合
         if (!isLoggedIn) {
@@ -74,7 +77,10 @@ class App extends ConsumerWidget {
                   currentPath == '/signup' ||
                   currentPath == '/profile-setup' ||
                   currentPath == '/') {
-                AppLogger.navigation('プロフィール設定済み、/homeにリダイレクト', route: currentPath);
+                AppLogger.navigation(
+                  'プロフィール設定済み、/homeにリダイレクト',
+                  route: currentPath,
+                );
                 return '/home';
               }
               return null; // その他のページは表示
@@ -83,7 +89,10 @@ class App extends ConsumerWidget {
             else {
               // プロフィール設定ページ以外はプロフィール設定にリダイレクト
               if (currentPath != '/profile-setup') {
-                AppLogger.navigation('プロフィール未設定、/profile-setupにリダイレクト', route: currentPath);
+                AppLogger.navigation(
+                  'プロフィール未設定、/profile-setupにリダイレクト',
+                  route: currentPath,
+                );
                 return '/profile-setup';
               }
               return null; // プロフィール設定ページは表示
@@ -151,29 +160,32 @@ class App extends ConsumerWidget {
             GoRoute(
               path: '/home',
               name: 'home',
-              pageBuilder: (context, state) => AppPageTransitions.buildPageWithTransition(
-                child: const HomePage(),
-                name: 'home',
-                transitionType: PageTransitionType.slideWithFade,
-              ),
+              pageBuilder: (context, state) =>
+                  AppPageTransitions.buildPageWithTransition(
+                    child: const HomePage(),
+                    name: 'home',
+                    transitionType: PageTransitionType.slideWithFade,
+                  ),
             ),
             GoRoute(
               path: '/events',
               name: 'events',
-              pageBuilder: (context, state) => AppPageTransitions.buildPageWithTransition(
-                child: const EventsPage(),
-                name: 'events',
-                transitionType: PageTransitionType.slideWithFade,
-              ),
+              pageBuilder: (context, state) =>
+                  AppPageTransitions.buildPageWithTransition(
+                    child: const EventsPage(),
+                    name: 'events',
+                    transitionType: PageTransitionType.slideWithFade,
+                  ),
               routes: [
                 GoRoute(
                   path: 'create',
                   name: 'event-creation',
-                  pageBuilder: (context, state) => AppPageTransitions.buildPageWithTransition(
-                    child: const EventCreationPage(),
-                    name: 'event-creation',
-                    transitionType: PageTransitionType.slideUp,
-                  ),
+                  pageBuilder: (context, state) =>
+                      AppPageTransitions.buildPageWithTransition(
+                        child: const EventCreationPage(),
+                        name: 'event-creation',
+                        transitionType: PageTransitionType.slideUp,
+                      ),
                 ),
                 GoRoute(
                   path: ':eventId',
@@ -226,31 +238,34 @@ class App extends ConsumerWidget {
             GoRoute(
               path: '/notifications',
               name: 'notifications',
-              pageBuilder: (context, state) => AppPageTransitions.buildPageWithTransition(
-                child: const NotificationsPage(),
-                name: 'notifications',
-                transitionType: PageTransitionType.slide,
-              ),
+              pageBuilder: (context, state) =>
+                  AppPageTransitions.buildPageWithTransition(
+                    child: const NotificationsPage(),
+                    name: 'notifications',
+                    transitionType: PageTransitionType.slide,
+                  ),
             ),
             // アカウント情報ページ
             GoRoute(
               path: '/account',
               name: 'account',
-              pageBuilder: (context, state) => AppPageTransitions.buildPageWithTransition(
-                child: const AccountPage(),
-                name: 'account',
-                transitionType: PageTransitionType.slide,
-              ),
+              pageBuilder: (context, state) =>
+                  AppPageTransitions.buildPageWithTransition(
+                    child: const AccountPage(),
+                    name: 'account',
+                    transitionType: PageTransitionType.slide,
+                  ),
             ),
             // プロフィール編集ページ
             GoRoute(
               path: '/profile-edit',
               name: 'profile-edit',
-              pageBuilder: (context, state) => AppPageTransitions.buildPageWithTransition(
-                child: const UserProfileEditPage(),
-                name: 'profile-edit',
-                transitionType: PageTransitionType.slideUp,
-              ),
+              pageBuilder: (context, state) =>
+                  AppPageTransitions.buildPageWithTransition(
+                    child: const UserProfileEditPage(),
+                    name: 'profile-edit',
+                    transitionType: PageTransitionType.slideUp,
+                  ),
             ),
             // アプリ情報ページ
             GoRoute(
