@@ -26,6 +26,13 @@ _$EventModelImpl _$$EventModelImplFromJson(
   createdAt: const TimestampConverter().fromJson(json['createdAt'] as Object),
   updatedAt: const TimestampConverter().fromJson(json['updatedAt'] as Object),
   inviteCode: json['inviteCode'] as String?,
+  parentEventId: json['parentEventId'] as String?,
+  childEventIds:
+      (json['childEventIds'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  isAfterParty: json['isAfterParty'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$$EventModelImplToJson(_$EventModelImpl instance) =>
@@ -41,6 +48,9 @@ Map<String, dynamic> _$$EventModelImplToJson(_$EventModelImpl instance) =>
       'createdAt': const TimestampConverter().toJson(instance.createdAt),
       'updatedAt': const TimestampConverter().toJson(instance.updatedAt),
       'inviteCode': instance.inviteCode,
+      'parentEventId': instance.parentEventId,
+      'childEventIds': instance.childEventIds,
+      'isAfterParty': instance.isAfterParty,
     };
 
 const _$EventStatusEnumMap = {

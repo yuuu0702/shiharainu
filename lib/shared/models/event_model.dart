@@ -37,6 +37,9 @@ class EventModel with _$EventModel {
     @TimestampConverter() required DateTime createdAt,
     @TimestampConverter() required DateTime updatedAt,
     String? inviteCode, // 招待コード（オプション）
+    String? parentEventId, // 親イベントID（二次会の場合のみ）
+    @Default([]) List<String> childEventIds, // 子イベントID配列（二次会リスト）
+    @Default(false) bool isAfterParty, // 二次会フラグ
   }) = _EventModel;
 
   factory EventModel.fromJson(Map<String, dynamic> json) =>

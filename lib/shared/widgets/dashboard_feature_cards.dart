@@ -40,14 +40,11 @@ class DashboardFeatureCards extends StatelessWidget {
         ),
         _buildFeatureCard(
           context,
-          '二次会管理',
+          'イベント管理',
           Icons.event_outlined,
           const Color(0xFF8B5CF6),
-          '二次会の管理',
-          () {
-            // TODO(Issue #48): 二次会管理機能の実装
-            // 二次会管理画面へのナビゲーションを実装予定
-          },
+          'イベント一覧を確認',
+          () => context.go('/events'),
         ),
       ];
     } else {
