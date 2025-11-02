@@ -1,88 +1,113 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/models/participant_model.dart';
+import 'package:shiharainu/shared/services/event_service.dart';
 
-class EventDetailPage extends StatefulWidget {
+class EventDetailPage extends ConsumerWidget {
   final String eventId;
 
   const EventDetailPage({super.key, required this.eventId});
 
   @override
-  State<EventDetailPage> createState() => _EventDetailPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final eventAsync = ref.watch(eventProvider(eventId));
+    final participantsAsync = ref.watch(eventParticipantsProvider(eventId));
+    final isOrganizerAsync = ref.watch(isEventOrganizerProvider(eventId));
+    final currentParticipantAsync = ref.watch(currentUserParticipantProvider(eventId));
 
-class _EventDetailPageState extends State<EventDetailPage> {
-  // TODO: 実際のデータはRiverpodプロバイダーから取得
-  late EventDetailData _eventData;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadEventData();
-  }
-
-  void _loadEventData() {
-    // TODO: 実際のデータ取得処理
-    _eventData = EventDetailData(
-      id: widget.eventId,
-      title: '新年会2024',
-      description: '会社の新年会です。皆さんでお疲れ様でした。今年も一年間ありがとうございました。',
-      date: DateTime.now().add(const Duration(days: 7)),
-      location: '銀座の居酒屋「○○」',
-      budget: 4000,
-      participantCount: 15,
-      maxParticipants: 20,
-      role: ParticipantRole.organizer,
-      status: EventStatus.active,
-      organizer: ParticipantData(
-        id: 'organizer1',
-        name: '田中太郎',
-        email: 'tanaka@example.com',
-        paymentStatus: PaymentStatus.paid,
-      ),
-      participants: [
-        ParticipantData(
-          id: 'p1',
-          name: '佐藤花子',
-          email: 'sato@example.com',
-          paymentStatus: PaymentStatus.paid,
-        ),
-        ParticipantData(
-          id: 'p2',
-          name: '鈴木一郎',
-          email: 'suzuki@example.com',
-          paymentStatus: PaymentStatus.pending,
-        ),
-        ParticipantData(
-          id: 'p3',
-          name: '高橋美咲',
-          email: 'takahashi@example.com',
-          paymentStatus: PaymentStatus.unpaid,
-        ),
-      ],
+    return eventAsync.when(
+      data: (event) {
+        return participantsAsync.when(
+          data: (participants) {
+            return isOrganizerAsync.when(
+              data: (isOrganizer) {
+                return currentParticipantAsync.when(
+                  data: (currentParticipant) {
+                    return _buildContent(
+                      context,
+                      event,
+                      participants,
+                      isOrganizer,
+                      currentParticipant,
+                    );
+                  },
+                  loading: () => _buildLoading(),
+                  error: (error, stack) => _buildError(error),
+                );
+              },
+              loading: () => _buildLoading(),
+              error: (error, stack) => _buildError(error),
+            );
+          },
+          loading: () => _buildLoading(),
+          error: (error, stack) => _buildError(error),
+        );
+      },
+      loading: () => _buildLoading(),
+      error: (error, stack) => _buildError(error),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildLoading() {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget _buildError(Object error) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('エラー')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: AppTheme.destructive),
+            const SizedBox(height: AppTheme.spacing16),
+            Text(
+              'データの取得に失敗しました',
+              style: AppTheme.headlineMedium,
+            ),
+            const SizedBox(height: AppTheme.spacing8),
+            Text(
+              error.toString(),
+              style: AppTheme.bodyMedium.copyWith(
+                color: AppTheme.mutedForeground,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(
+    BuildContext context,
+    EventModel event,
+    List<ParticipantModel> participants,
+    bool isOrganizer,
+    ParticipantModel? currentParticipant,
+  ) {
+    final role = isOrganizer ? ParticipantRole.organizer : ParticipantRole.participant;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_eventData.title),
+        title: Text(event.title),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 1,
-        actions: _eventData.role == ParticipantRole.organizer
+        actions: isOrganizer
             ? [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: AppButton.outline(
                     text: '設定',
                     icon: const Icon(Icons.settings_outlined, size: 18),
-                    onPressed: () =>
-                        context.go('/events/${widget.eventId}/settings'),
+                    onPressed: () => context.go('/events/$eventId/settings'),
                   ),
                 ),
               ]
@@ -93,20 +118,20 @@ class _EventDetailPageState extends State<EventDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildEventHeader(),
+            _buildEventHeader(event),
             const SizedBox(height: AppTheme.spacing24),
-            _buildActionCards(),
+            _buildActionCards(context, role),
             const SizedBox(height: AppTheme.spacing32),
-            _buildEventInfo(),
+            _buildEventInfo(event, participants),
             const SizedBox(height: AppTheme.spacing32),
-            _buildParticipantsSection(),
+            _buildParticipantsSection(participants),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildEventHeader() {
+  Widget _buildEventHeader(EventModel event) {
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,13 +139,13 @@ class _EventDetailPageState extends State<EventDetailPage> {
           Row(
             children: [
               Expanded(
-                child: Text(_eventData.title, style: AppTheme.headlineLarge),
+                child: Text(event.title, style: AppTheme.headlineLarge),
               ),
-              _buildStatusBadge(_eventData.status),
+              _buildStatusBadge(event.status),
             ],
           ),
           const SizedBox(height: AppTheme.spacing12),
-          Text(_eventData.description, style: AppTheme.bodyLarge),
+          Text(event.description, style: AppTheme.bodyLarge),
           const SizedBox(height: AppTheme.spacing16),
           Row(
             children: [
@@ -131,24 +156,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
               ),
               const SizedBox(width: AppTheme.spacing8),
               Text(
-                _formatFullDate(_eventData.date),
-                style: AppTheme.bodyMedium.copyWith(
-                  color: AppTheme.mutedForeground,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppTheme.spacing8),
-          Row(
-            children: [
-              Icon(
-                Icons.location_on_outlined,
-                size: 20,
-                color: AppTheme.mutedForeground,
-              ),
-              const SizedBox(width: AppTheme.spacing8),
-              Text(
-                _eventData.location,
+                _formatFullDate(event.date),
                 style: AppTheme.bodyMedium.copyWith(
                   color: AppTheme.mutedForeground,
                 ),
@@ -165,7 +173,24 @@ class _EventDetailPageState extends State<EventDetailPage> {
               ),
               const SizedBox(width: AppTheme.spacing8),
               Text(
-                '¥${_eventData.budget.toStringAsFixed(0)}',
+                '総額: ¥${event.totalAmount.toStringAsFixed(0)}',
+                style: AppTheme.bodyMedium.copyWith(
+                  color: AppTheme.mutedForeground,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppTheme.spacing8),
+          Row(
+            children: [
+              Icon(
+                Icons.calculate_outlined,
+                size: 20,
+                color: AppTheme.mutedForeground,
+              ),
+              const SizedBox(width: AppTheme.spacing8),
+              Text(
+                event.paymentType == PaymentType.equal ? '均等割り' : '比例配分',
                 style: AppTheme.bodyMedium.copyWith(
                   color: AppTheme.mutedForeground,
                 ),
@@ -177,26 +202,26 @@ class _EventDetailPageState extends State<EventDetailPage> {
     );
   }
 
-  Widget _buildActionCards() {
+  Widget _buildActionCards(BuildContext context, ParticipantRole role) {
     return ResponsiveGrid(
       mobileColumns: 2,
       tabletColumns: 3,
       desktopColumns: 4,
       spacing: AppTheme.spacing16,
-      children: _eventData.role == ParticipantRole.organizer
-          ? _buildOrganizerActions()
-          : _buildParticipantActions(),
+      children: role == ParticipantRole.organizer
+          ? _buildOrganizerActions(context)
+          : _buildParticipantActions(context),
     );
   }
 
-  List<Widget> _buildOrganizerActions() {
+  List<Widget> _buildOrganizerActions(BuildContext context) {
     return [
       _buildActionCard(
         '支払い管理',
         Icons.payment_outlined,
         AppTheme.successColor,
         '支払い状況を確認',
-        () => context.go('/events/${widget.eventId}/payments'),
+        () => context.go('/events/$eventId/payments'),
       ),
       _buildActionCard(
         '参加者管理',
@@ -221,19 +246,19 @@ class _EventDetailPageState extends State<EventDetailPage> {
         Icons.edit_outlined,
         AppTheme.warningColor,
         'イベント情報編集',
-        () => context.go('/events/${widget.eventId}/settings'),
+        () => context.go('/events/$eventId/settings'),
       ),
     ];
   }
 
-  List<Widget> _buildParticipantActions() {
+  List<Widget> _buildParticipantActions(BuildContext context) {
     return [
       _buildActionCard(
         '支払い確認',
         Icons.payment_outlined,
         AppTheme.successColor,
         '自分の支払い状況',
-        () => context.go('/events/${widget.eventId}/payments'),
+        () => context.go('/events/$eventId/payments'),
       ),
       _buildActionCard(
         'イベント詳細',
@@ -286,7 +311,12 @@ class _EventDetailPageState extends State<EventDetailPage> {
     );
   }
 
-  Widget _buildEventInfo() {
+  Widget _buildEventInfo(EventModel event, List<ParticipantModel> participants) {
+    final organizerNames = participants
+        .where((p) => p.role == ParticipantRole.organizer)
+        .map((p) => p.displayName)
+        .join(', ');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -295,21 +325,15 @@ class _EventDetailPageState extends State<EventDetailPage> {
         AppCard(
           child: Column(
             children: [
-              _buildInfoRow(
-                '参加人数',
-                '${_eventData.participantCount}/${_eventData.maxParticipants}人',
-              ),
+              _buildInfoRow('参加人数', '${participants.length}人'),
               const Divider(),
-              _buildInfoRow('予算', '¥${_eventData.budget.toStringAsFixed(0)}'),
+              _buildInfoRow('総額', '¥${event.totalAmount.toStringAsFixed(0)}'),
               const Divider(),
-              _buildInfoRow('幹事', _eventData.organizer.name),
+              _buildInfoRow('主催者', organizerNames.isNotEmpty ? organizerNames : '未設定'),
               const Divider(),
-              _buildInfoRow(
-                '作成日',
-                _formatFullDate(
-                  _eventData.date.subtract(const Duration(days: 30)),
-                ),
-              ),
+              _buildInfoRow('作成日', _formatFullDate(event.createdAt)),
+              const Divider(),
+              _buildInfoRow('招待コード', event.inviteCode ?? '未生成'),
             ],
           ),
         ),
@@ -338,13 +362,14 @@ class _EventDetailPageState extends State<EventDetailPage> {
     );
   }
 
-  Widget _buildParticipantsSection() {
-    final paidCount =
-        _eventData.participants
-            .where((p) => p.paymentStatus == PaymentStatus.paid)
-            .length +
-        1; // +1 for organizer
-    final unpaidCount = _eventData.participants.length + 1 - paidCount;
+  Widget _buildParticipantsSection(List<ParticipantModel> participants) {
+    final paidCount = participants.where((p) => p.paymentStatus == PaymentStatus.paid).length;
+    final unpaidCount = participants.length - paidCount;
+
+    // 主催者を先頭に、その後は参加者を表示
+    final organizers = participants.where((p) => p.role == ParticipantRole.organizer).toList();
+    final regularParticipants = participants.where((p) => p.role == ParticipantRole.participant).toList();
+    final sortedParticipants = [...organizers, ...regularParticipants];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,40 +389,27 @@ class _EventDetailPageState extends State<EventDetailPage> {
         const SizedBox(height: AppTheme.spacing16),
         AppCard(
           child: Column(
-            children: [
-              // 幹事を最初に表示
-              AppProfileCard.standard(
-                name: _eventData.organizer.name,
-                subtitle: '幹事 - 支払済',
-                initials: _getInitials(_eventData.organizer.name),
-                trailing: AppBadge(
-                  text: '幹事',
-                  variant: AppBadgeVariant.default_,
-                ),
-              ),
-              if (_eventData.participants.isNotEmpty) const Divider(),
-              // 参加者リスト
-              ..._eventData.participants.asMap().entries.map((entry) {
-                final index = entry.key;
-                final participant = entry.value;
-                return Column(
-                  children: [
-                    AppProfileCard.standard(
-                      name: participant.name,
-                      subtitle: _getPaymentStatusText(
-                        participant.paymentStatus,
-                      ),
-                      initials: _getInitials(participant.name),
-                      trailing: _buildPaymentStatusBadge(
-                        participant.paymentStatus,
-                      ),
-                    ),
-                    if (index < _eventData.participants.length - 1)
-                      const Divider(),
-                  ],
-                );
-              }),
-            ],
+            children: sortedParticipants.asMap().entries.map((entry) {
+              final index = entry.key;
+              final participant = entry.value;
+              final isOrganizer = participant.role == ParticipantRole.organizer;
+
+              return Column(
+                children: [
+                  AppProfileCard.standard(
+                    name: participant.displayName,
+                    subtitle: isOrganizer
+                        ? '主催者 - ${_getPaymentStatusText(participant.paymentStatus)}'
+                        : _getPaymentStatusText(participant.paymentStatus),
+                    initials: _getInitials(participant.displayName),
+                    trailing: isOrganizer
+                        ? AppBadge(text: '主催者', variant: AppBadgeVariant.default_)
+                        : _buildPaymentStatusBadge(participant.paymentStatus),
+                  ),
+                  if (index < sortedParticipants.length - 1) const Divider(),
+                ],
+              );
+            }).toList(),
           ),
         ),
       ],
@@ -446,50 +458,3 @@ class _EventDetailPageState extends State<EventDetailPage> {
     return '${date.year}年${date.month}月${date.day}日';
   }
 }
-
-// TODO: 実際のデータモデルはshared/modelsに移動
-class EventDetailData {
-  final String id;
-  final String title;
-  final String description;
-  final DateTime date;
-  final String location;
-  final double budget;
-  final int participantCount;
-  final int maxParticipants;
-  final ParticipantRole role;
-  final EventStatus status;
-  final ParticipantData organizer;
-  final List<ParticipantData> participants;
-
-  const EventDetailData({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.date,
-    required this.location,
-    required this.budget,
-    required this.participantCount,
-    required this.maxParticipants,
-    required this.role,
-    required this.status,
-    required this.organizer,
-    required this.participants,
-  });
-}
-
-class ParticipantData {
-  final String id;
-  final String name;
-  final String email;
-  final PaymentStatus paymentStatus;
-
-  const ParticipantData({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.paymentStatus,
-  });
-}
-
-enum PaymentStatus { paid, pending, unpaid }
