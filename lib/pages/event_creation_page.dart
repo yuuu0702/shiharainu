@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
+import 'package:shiharainu/shared/models/event_model.dart';
+import 'package:shiharainu/shared/services/event_service.dart';
 
 class EventCreationPage extends StatefulWidget {
   const EventCreationPage({super.key});
@@ -17,7 +20,9 @@ class _EventCreationPageState extends State<EventCreationPage> {
 
   String _eventType = 'drinking_party';
   String _calculationMethod = 'equal';
+  DateTime _selectedDate = DateTime.now().add(const Duration(days: 7));
   bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -28,26 +33,79 @@ class _EventCreationPageState extends State<EventCreationPage> {
   }
 
   void _handleCreateEvent() async {
+    // バリデーション
+    final eventName = _eventNameController.text.trim();
+    final description = _descriptionController.text.trim();
+    final totalAmountText = _totalAmountController.text.trim();
+
+    if (eventName.isEmpty) {
+      setState(() {
+        _errorMessage = 'イベント名を入力してください';
+      });
+      return;
+    }
+
+    if (totalAmountText.isEmpty) {
+      setState(() {
+        _errorMessage = '総支払い金額を入力してください';
+      });
+      return;
+    }
+
+    final totalAmount = double.tryParse(totalAmountText);
+    if (totalAmount == null || totalAmount <= 0) {
+      setState(() {
+        _errorMessage = '有効な金額を入力してください';
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
+      _errorMessage = null;
     });
 
-    // Simulate event creation
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      // EventServiceを使ってイベントを作成
+      final container = ProviderScope.containerOf(context);
+      final eventService = container.read(eventServiceProvider);
 
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
+      final paymentType = _calculationMethod == 'equal'
+          ? PaymentType.equal
+          : PaymentType.proportional;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('イベントが作成されました！'),
-          backgroundColor: AppTheme.successColor,
-        ),
+      final params = CreateEventParams(
+        title: eventName,
+        description: description,
+        date: _selectedDate,
+        totalAmount: totalAmount,
+        paymentType: paymentType,
       );
 
-      context.go('/home');
+      final eventId = await eventService.createEvent(params);
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('イベントが作成されました！'),
+            backgroundColor: AppTheme.successColor,
+          ),
+        );
+
+        // 作成したイベントの詳細ページに遷移
+        context.go('/events/$eventId');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+        });
+      }
     }
   }
 
@@ -117,6 +175,73 @@ class _EventCreationPageState extends State<EventCreationPage> {
                         });
                       }
                     },
+                  ),
+                  const SizedBox(height: AppTheme.spacing16),
+                  // 日付選択
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'イベント日時',
+                            style: AppTheme.labelLarge,
+                          ),
+                          const SizedBox(width: AppTheme.spacing4),
+                          Text(
+                            '*',
+                            style: AppTheme.labelLarge.copyWith(
+                              color: AppTheme.destructive,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppTheme.spacing8),
+                      InkWell(
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: _selectedDate,
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                          );
+                          if (date != null) {
+                            setState(() {
+                              _selectedDate = date;
+                            });
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(AppTheme.spacing12),
+                          decoration: BoxDecoration(
+                            color: AppTheme.inputBackground,
+                            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                            border: Border.all(
+                              color: AppTheme.mutedForeground.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today_outlined,
+                                size: 20,
+                                color: AppTheme.mutedForeground,
+                              ),
+                              const SizedBox(width: AppTheme.spacing12),
+                              Text(
+                                '${_selectedDate.year}年${_selectedDate.month}月${_selectedDate.day}日',
+                                style: AppTheme.bodyMedium,
+                              ),
+                              const Spacer(),
+                              Icon(
+                                Icons.arrow_drop_down,
+                                color: AppTheme.mutedForeground,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -202,6 +327,41 @@ class _EventCreationPageState extends State<EventCreationPage> {
               ),
             ),
             const SizedBox(height: AppTheme.spacing32),
+
+            // エラーメッセージ表示
+            if (_errorMessage != null) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(AppTheme.spacing12),
+                decoration: BoxDecoration(
+                  color: AppTheme.destructive.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: AppTheme.destructive.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 20,
+                      color: AppTheme.destructive,
+                    ),
+                    const SizedBox(width: AppTheme.spacing8),
+                    Expanded(
+                      child: Text(
+                        _errorMessage!,
+                        style: AppTheme.bodyMedium.copyWith(
+                          color: AppTheme.destructive,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppTheme.spacing16),
+            ],
 
             // アクションボタン
             Row(

@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:shiharainu/shared/models/participant_model.dart';
 
 part 'user_profile.freezed.dart';
 part 'user_profile.g.dart';
@@ -11,6 +12,7 @@ class UserProfile with _$UserProfile {
     required int age,
     required String position, // 役職
     required String email,
+    ParticipantGender? gender, // 性別（オプション）
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _UserProfile;

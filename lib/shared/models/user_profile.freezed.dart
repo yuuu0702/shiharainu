@@ -26,6 +26,8 @@ mixin _$UserProfile {
   int get age => throw _privateConstructorUsedError;
   String get position => throw _privateConstructorUsedError; // 役職
   String get email => throw _privateConstructorUsedError;
+  ParticipantGender? get gender =>
+      throw _privateConstructorUsedError; // 性別（オプション）
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime get updatedAt => throw _privateConstructorUsedError;
 
@@ -52,6 +54,7 @@ abstract class $UserProfileCopyWith<$Res> {
     int age,
     String position,
     String email,
+    ParticipantGender? gender,
     DateTime createdAt,
     DateTime updatedAt,
   });
@@ -77,6 +80,7 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? age = null,
     Object? position = null,
     Object? email = null,
+    Object? gender = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -102,6 +106,10 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
                 ? _value.email
                 : email // ignore: cast_nullable_to_non_nullable
                       as String,
+            gender: freezed == gender
+                ? _value.gender
+                : gender // ignore: cast_nullable_to_non_nullable
+                      as ParticipantGender?,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -131,6 +139,7 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     int age,
     String position,
     String email,
+    ParticipantGender? gender,
     DateTime createdAt,
     DateTime updatedAt,
   });
@@ -155,6 +164,7 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? age = null,
     Object? position = null,
     Object? email = null,
+    Object? gender = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -180,6 +190,10 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value.email
             : email // ignore: cast_nullable_to_non_nullable
                   as String,
+        gender: freezed == gender
+            ? _value.gender
+            : gender // ignore: cast_nullable_to_non_nullable
+                  as ParticipantGender?,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -202,6 +216,7 @@ class _$UserProfileImpl implements _UserProfile {
     required this.age,
     required this.position,
     required this.email,
+    this.gender,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -222,13 +237,16 @@ class _$UserProfileImpl implements _UserProfile {
   @override
   final String email;
   @override
+  final ParticipantGender? gender;
+  // 性別（オプション）
+  @override
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
 
   @override
   String toString() {
-    return 'UserProfile(id: $id, name: $name, age: $age, position: $position, email: $email, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'UserProfile(id: $id, name: $name, age: $age, position: $position, email: $email, gender: $gender, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -242,6 +260,7 @@ class _$UserProfileImpl implements _UserProfile {
             (identical(other.position, position) ||
                 other.position == position) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -257,6 +276,7 @@ class _$UserProfileImpl implements _UserProfile {
     age,
     position,
     email,
+    gender,
     createdAt,
     updatedAt,
   );
@@ -282,6 +302,7 @@ abstract class _UserProfile implements UserProfile {
     required final int age,
     required final String position,
     required final String email,
+    final ParticipantGender? gender,
     required final DateTime createdAt,
     required final DateTime updatedAt,
   }) = _$UserProfileImpl;
@@ -299,6 +320,8 @@ abstract class _UserProfile implements UserProfile {
   String get position; // 役職
   @override
   String get email;
+  @override
+  ParticipantGender? get gender; // 性別（オプション）
   @override
   DateTime get createdAt;
   @override

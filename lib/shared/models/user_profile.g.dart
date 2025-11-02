@@ -13,6 +13,7 @@ _$UserProfileImpl _$$UserProfileImplFromJson(Map<String, dynamic> json) =>
       age: (json['age'] as num).toInt(),
       position: json['position'] as String,
       email: json['email'] as String,
+      gender: $enumDecodeNullable(_$ParticipantGenderEnumMap, json['gender']),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -24,9 +25,16 @@ Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
       'age': instance.age,
       'position': instance.position,
       'email': instance.email,
+      'gender': _$ParticipantGenderEnumMap[instance.gender],
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
     };
+
+const _$ParticipantGenderEnumMap = {
+  ParticipantGender.male: 'male',
+  ParticipantGender.female: 'female',
+  ParticipantGender.other: 'other',
+};
 
 _$CreateUserProfileRequestImpl _$$CreateUserProfileRequestImplFromJson(
   Map<String, dynamic> json,
