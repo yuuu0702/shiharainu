@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
-import 'package:shiharainu/shared/models/event_models.dart';
+import 'package:shiharainu/shared/models/event_model.dart';
+import 'package:shiharainu/shared/models/participant_model.dart';
 
 class EventDetailPage extends StatefulWidget {
   final String eventId;
@@ -34,7 +35,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
       budget: 4000,
       participantCount: 15,
       maxParticipants: 20,
-      role: EventRole.organizer,
+      role: ParticipantRole.organizer,
       status: EventStatus.active,
       organizer: ParticipantData(
         id: 'organizer1',
@@ -73,7 +74,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 1,
-        actions: _eventData.role == EventRole.organizer
+        actions: _eventData.role == ParticipantRole.organizer
             ? [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -182,7 +183,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
       tabletColumns: 3,
       desktopColumns: 4,
       spacing: AppTheme.spacing16,
-      children: _eventData.role == EventRole.organizer
+      children: _eventData.role == ParticipantRole.organizer
           ? _buildOrganizerActions()
           : _buildParticipantActions(),
     );
@@ -456,7 +457,7 @@ class EventDetailData {
   final double budget;
   final int participantCount;
   final int maxParticipants;
-  final EventRole role;
+  final ParticipantRole role;
   final EventStatus status;
   final ParticipantData organizer;
   final List<ParticipantData> participants;

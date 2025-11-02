@@ -23,7 +23,10 @@
       "Bash(rm:*)",
       "mcp__dart__add_roots",
       "mcp__dart__analyze_files",
-      "mcp__dart__run_tests"
+      "mcp__dart__run_tests",
+      "mcp__github__get_me",
+      "Bash(git remote get-url:*)",
+      "mcp__github__create_issue"
     ],
     "deny": []
   },
