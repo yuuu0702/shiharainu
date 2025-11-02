@@ -45,7 +45,8 @@ class DashboardFeatureCards extends StatelessWidget {
           const Color(0xFF8B5CF6),
           '二次会の管理',
           () {
-            // TODO: 二次会管理画面へ
+            // TODO(Issue #48): 二次会管理機能の実装
+            // 二次会管理画面へのナビゲーションを実装予定
           },
         ),
       ];
@@ -58,7 +59,8 @@ class DashboardFeatureCards extends StatelessWidget {
           AppTheme.successColor,
           '支払い金額を確認',
           () {
-            // TODO: 支払い画面へ
+            // TODO: 参加者用支払い画面の実装
+            // 支払い詳細画面へのナビゲーションを実装予定
           },
         ),
       ];

@@ -17,7 +17,9 @@ class EventDetailPage extends ConsumerWidget {
     final eventAsync = ref.watch(eventProvider(eventId));
     final participantsAsync = ref.watch(eventParticipantsProvider(eventId));
     final isOrganizerAsync = ref.watch(isEventOrganizerProvider(eventId));
-    final currentParticipantAsync = ref.watch(currentUserParticipantProvider(eventId));
+    final currentParticipantAsync = ref.watch(
+      currentUserParticipantProvider(eventId),
+    );
 
     return eventAsync.when(
       data: (event) {
@@ -53,9 +55,7 @@ class EventDetailPage extends ConsumerWidget {
   }
 
   Widget _buildLoading() {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 
   Widget _buildError(Object error) {
@@ -67,10 +67,7 @@ class EventDetailPage extends ConsumerWidget {
           children: [
             Icon(Icons.error_outline, size: 64, color: AppTheme.destructive),
             const SizedBox(height: AppTheme.spacing16),
-            Text(
-              'データの取得に失敗しました',
-              style: AppTheme.headlineMedium,
-            ),
+            Text('データの取得に失敗しました', style: AppTheme.headlineMedium),
             const SizedBox(height: AppTheme.spacing8),
             Text(
               error.toString(),
@@ -92,7 +89,9 @@ class EventDetailPage extends ConsumerWidget {
     bool isOrganizer,
     ParticipantModel? currentParticipant,
   ) {
-    final role = isOrganizer ? ParticipantRole.organizer : ParticipantRole.participant;
+    final role = isOrganizer
+        ? ParticipantRole.organizer
+        : ParticipantRole.participant;
 
     return Scaffold(
       appBar: AppBar(
@@ -138,9 +137,7 @@ class EventDetailPage extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(event.title, style: AppTheme.headlineLarge),
-              ),
+              Expanded(child: Text(event.title, style: AppTheme.headlineLarge)),
               _buildStatusBadge(event.status),
             ],
           ),
@@ -229,7 +226,8 @@ class EventDetailPage extends ConsumerWidget {
         AppTheme.primaryColor,
         '参加者を管理',
         () {
-          // TODO: 参加者管理画面へ
+          // TODO(Issue #43): 参加者管理機能の実装
+          // 参加者一覧・追加・削除機能を持つ画面への遷移を実装予定
         },
       ),
       _buildActionCard(
@@ -238,7 +236,8 @@ class EventDetailPage extends ConsumerWidget {
         const Color(0xFF8B5CF6),
         'リンクをシェア',
         () {
-          // TODO: 招待リンクシェア機能
+          // TODO(Issue #44): 招待リンクシェア機能の実装
+          // InviteServiceを使用した招待リンク生成・共有機能を実装予定
         },
       ),
       _buildActionCard(
@@ -266,7 +265,8 @@ class EventDetailPage extends ConsumerWidget {
         AppTheme.primaryColor,
         '詳細情報を確認',
         () {
-          // TODO: イベント詳細情報
+          // TODO: イベント詳細情報画面の実装
+          // イベントの詳細情報を表示する画面への遷移を実装予定
         },
       ),
     ];
@@ -311,7 +311,10 @@ class EventDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildEventInfo(EventModel event, List<ParticipantModel> participants) {
+  Widget _buildEventInfo(
+    EventModel event,
+    List<ParticipantModel> participants,
+  ) {
     final organizerNames = participants
         .where((p) => p.role == ParticipantRole.organizer)
         .map((p) => p.displayName)
@@ -329,7 +332,10 @@ class EventDetailPage extends ConsumerWidget {
               const Divider(),
               _buildInfoRow('総額', '¥${event.totalAmount.toStringAsFixed(0)}'),
               const Divider(),
-              _buildInfoRow('主催者', organizerNames.isNotEmpty ? organizerNames : '未設定'),
+              _buildInfoRow(
+                '主催者',
+                organizerNames.isNotEmpty ? organizerNames : '未設定',
+              ),
               const Divider(),
               _buildInfoRow('作成日', _formatFullDate(event.createdAt)),
               const Divider(),
@@ -363,12 +369,18 @@ class EventDetailPage extends ConsumerWidget {
   }
 
   Widget _buildParticipantsSection(List<ParticipantModel> participants) {
-    final paidCount = participants.where((p) => p.paymentStatus == PaymentStatus.paid).length;
+    final paidCount = participants
+        .where((p) => p.paymentStatus == PaymentStatus.paid)
+        .length;
     final unpaidCount = participants.length - paidCount;
 
     // 主催者を先頭に、その後は参加者を表示
-    final organizers = participants.where((p) => p.role == ParticipantRole.organizer).toList();
-    final regularParticipants = participants.where((p) => p.role == ParticipantRole.participant).toList();
+    final organizers = participants
+        .where((p) => p.role == ParticipantRole.organizer)
+        .toList();
+    final regularParticipants = participants
+        .where((p) => p.role == ParticipantRole.participant)
+        .toList();
     final sortedParticipants = [...organizers, ...regularParticipants];
 
     return Column(
@@ -403,7 +415,10 @@ class EventDetailPage extends ConsumerWidget {
                         : _getPaymentStatusText(participant.paymentStatus),
                     initials: _getInitials(participant.displayName),
                     trailing: isOrganizer
-                        ? AppBadge(text: '主催者', variant: AppBadgeVariant.default_)
+                        ? AppBadge(
+                            text: '主催者',
+                            variant: AppBadgeVariant.default_,
+                          )
                         : _buildPaymentStatusBadge(participant.paymentStatus),
                   ),
                   if (index < sortedParticipants.length - 1) const Divider(),

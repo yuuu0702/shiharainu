@@ -106,8 +106,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
           child: Container(
             padding: const EdgeInsets.all(AppTheme.spacing16),
             decoration: BoxDecoration(
-              color: notification.isRead 
-                  ? AppTheme.inputBackground 
+              color: notification.isRead
+                  ? AppTheme.inputBackground
                   : AppTheme.primaryColor.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
               border: Border.all(
@@ -127,8 +127,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     Container(
                       padding: const EdgeInsets.all(AppTheme.spacing8),
                       decoration: BoxDecoration(
-                        color: _getTypeColor(notification.type).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                        color: _getTypeColor(
+                          notification.type,
+                        ).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusSmall,
+                        ),
                       ),
                       child: Icon(
                         _getTypeIcon(notification.type),
@@ -136,9 +140,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         color: _getTypeColor(notification.type),
                       ),
                     ),
-                    
+
                     const SizedBox(width: AppTheme.spacing12),
-                    
+
                     // 通知内容
                     Expanded(
                       child: Column(
@@ -150,8 +154,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                 child: Text(
                                   notification.title,
                                   style: AppTheme.headlineSmall.copyWith(
-                                    fontWeight: notification.isRead 
-                                        ? FontWeight.w500 
+                                    fontWeight: notification.isRead
+                                        ? FontWeight.w500
                                         : FontWeight.w600,
                                   ),
                                 ),
@@ -171,8 +175,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           Text(
                             notification.message,
                             style: AppTheme.bodyMedium.copyWith(
-                              color: notification.isRead 
-                                  ? AppTheme.mutedForeground 
+                              color: notification.isRead
+                                  ? AppTheme.mutedForeground
                                   : AppTheme.foregroundColor,
                             ),
                           ),
@@ -188,9 +192,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     ),
                   ],
                 ),
-                
+
                 // アクションボタン（未読の場合）
-                if (!notification.isRead) ...[ 
+                if (!notification.isRead) ...[
                   const SizedBox(height: AppTheme.spacing16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -288,7 +292,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     if (!notification.isRead) {
       _markAsRead(notification);
     }
-    
+
     // 通知タイプに応じて適切なページに遷移
     switch (notification.type) {
       case NotificationType.warning:
@@ -327,10 +331,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Future<void> _onRefresh() async {
     // 実際のアプリでは通知データを再取得
     await Future.delayed(const Duration(seconds: 1));
-    
-    // TODO: 通知データの再取得ロジック
+
+    // TODO(Issue #45): 通知システムの完成
+    // NotificationServiceを使用して通知データを再取得する実装が必要
+    // - Firestoreからリアルタイム通知取得
+    // - 未読通知数の更新
     // final newNotifications = await NotificationService.fetchNotifications();
-    
+
     setState(() {
       // 新しい通知があれば追加
     });
@@ -374,9 +381,4 @@ class NotificationData {
   }
 }
 
-enum NotificationType {
-  info,
-  success,
-  warning,
-  error,
-}
+enum NotificationType { info, success, warning, error }
