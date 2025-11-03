@@ -24,11 +24,19 @@ mixin _$PaymentModel {
   String get id => throw _privateConstructorUsedError;
   String get eventId => throw _privateConstructorUsedError;
   String get participantId => throw _privateConstructorUsedError;
+  String get userId => throw _privateConstructorUsedError; // ユーザーUID
   double get amount => throw _privateConstructorUsedError;
+  PaymentRecordStatus get status =>
+      throw _privateConstructorUsedError; // 支払いステータス
   @TimestampConverter()
-  DateTime get paidAt => throw _privateConstructorUsedError;
+  DateTime? get paidAt => throw _privateConstructorUsedError; // 支払い完了日時（オプション）
   PaymentMethod get paymentMethod => throw _privateConstructorUsedError;
-  String? get note => throw _privateConstructorUsedError;
+  String? get confirmedBy => throw _privateConstructorUsedError; // 確認者UID（主催者）
+  String? get note => throw _privateConstructorUsedError; // メモ（オプション）
+  @TimestampConverter()
+  DateTime get createdAt => throw _privateConstructorUsedError;
+  @TimestampConverter()
+  DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this PaymentModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -51,10 +59,15 @@ abstract class $PaymentModelCopyWith<$Res> {
     String id,
     String eventId,
     String participantId,
+    String userId,
     double amount,
-    @TimestampConverter() DateTime paidAt,
+    PaymentRecordStatus status,
+    @TimestampConverter() DateTime? paidAt,
     PaymentMethod paymentMethod,
+    String? confirmedBy,
     String? note,
+    @TimestampConverter() DateTime createdAt,
+    @TimestampConverter() DateTime updatedAt,
   });
 }
 
@@ -76,10 +89,15 @@ class _$PaymentModelCopyWithImpl<$Res, $Val extends PaymentModel>
     Object? id = null,
     Object? eventId = null,
     Object? participantId = null,
+    Object? userId = null,
     Object? amount = null,
-    Object? paidAt = null,
+    Object? status = null,
+    Object? paidAt = freezed,
     Object? paymentMethod = null,
+    Object? confirmedBy = freezed,
     Object? note = freezed,
+    Object? createdAt = null,
+    Object? updatedAt = null,
   }) {
     return _then(
       _value.copyWith(
@@ -95,22 +113,42 @@ class _$PaymentModelCopyWithImpl<$Res, $Val extends PaymentModel>
                 ? _value.participantId
                 : participantId // ignore: cast_nullable_to_non_nullable
                       as String,
+            userId: null == userId
+                ? _value.userId
+                : userId // ignore: cast_nullable_to_non_nullable
+                      as String,
             amount: null == amount
                 ? _value.amount
                 : amount // ignore: cast_nullable_to_non_nullable
                       as double,
-            paidAt: null == paidAt
+            status: null == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as PaymentRecordStatus,
+            paidAt: freezed == paidAt
                 ? _value.paidAt
                 : paidAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
+                      as DateTime?,
             paymentMethod: null == paymentMethod
                 ? _value.paymentMethod
                 : paymentMethod // ignore: cast_nullable_to_non_nullable
                       as PaymentMethod,
+            confirmedBy: freezed == confirmedBy
+                ? _value.confirmedBy
+                : confirmedBy // ignore: cast_nullable_to_non_nullable
+                      as String?,
             note: freezed == note
                 ? _value.note
                 : note // ignore: cast_nullable_to_non_nullable
                       as String?,
+            createdAt: null == createdAt
+                ? _value.createdAt
+                : createdAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            updatedAt: null == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
           )
           as $Val,
     );
@@ -130,10 +168,15 @@ abstract class _$$PaymentModelImplCopyWith<$Res>
     String id,
     String eventId,
     String participantId,
+    String userId,
     double amount,
-    @TimestampConverter() DateTime paidAt,
+    PaymentRecordStatus status,
+    @TimestampConverter() DateTime? paidAt,
     PaymentMethod paymentMethod,
+    String? confirmedBy,
     String? note,
+    @TimestampConverter() DateTime createdAt,
+    @TimestampConverter() DateTime updatedAt,
   });
 }
 
@@ -154,10 +197,15 @@ class __$$PaymentModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? eventId = null,
     Object? participantId = null,
+    Object? userId = null,
     Object? amount = null,
-    Object? paidAt = null,
+    Object? status = null,
+    Object? paidAt = freezed,
     Object? paymentMethod = null,
+    Object? confirmedBy = freezed,
     Object? note = freezed,
+    Object? createdAt = null,
+    Object? updatedAt = null,
   }) {
     return _then(
       _$PaymentModelImpl(
@@ -173,22 +221,42 @@ class __$$PaymentModelImplCopyWithImpl<$Res>
             ? _value.participantId
             : participantId // ignore: cast_nullable_to_non_nullable
                   as String,
+        userId: null == userId
+            ? _value.userId
+            : userId // ignore: cast_nullable_to_non_nullable
+                  as String,
         amount: null == amount
             ? _value.amount
             : amount // ignore: cast_nullable_to_non_nullable
                   as double,
-        paidAt: null == paidAt
+        status: null == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as PaymentRecordStatus,
+        paidAt: freezed == paidAt
             ? _value.paidAt
             : paidAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
+                  as DateTime?,
         paymentMethod: null == paymentMethod
             ? _value.paymentMethod
             : paymentMethod // ignore: cast_nullable_to_non_nullable
                   as PaymentMethod,
+        confirmedBy: freezed == confirmedBy
+            ? _value.confirmedBy
+            : confirmedBy // ignore: cast_nullable_to_non_nullable
+                  as String?,
         note: freezed == note
             ? _value.note
             : note // ignore: cast_nullable_to_non_nullable
                   as String?,
+        createdAt: null == createdAt
+            ? _value.createdAt
+            : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
+        updatedAt: null == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
       ),
     );
   }
@@ -201,10 +269,15 @@ class _$PaymentModelImpl implements _PaymentModel {
     required this.id,
     required this.eventId,
     required this.participantId,
+    required this.userId,
     required this.amount,
-    @TimestampConverter() required this.paidAt,
+    this.status = PaymentRecordStatus.pending,
+    @TimestampConverter() this.paidAt,
     this.paymentMethod = PaymentMethod.cash,
+    this.confirmedBy,
     this.note,
+    @TimestampConverter() required this.createdAt,
+    @TimestampConverter() required this.updatedAt,
   });
 
   factory _$PaymentModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -217,19 +290,37 @@ class _$PaymentModelImpl implements _PaymentModel {
   @override
   final String participantId;
   @override
+  final String userId;
+  // ユーザーUID
+  @override
   final double amount;
   @override
+  @JsonKey()
+  final PaymentRecordStatus status;
+  // 支払いステータス
+  @override
   @TimestampConverter()
-  final DateTime paidAt;
+  final DateTime? paidAt;
+  // 支払い完了日時（オプション）
   @override
   @JsonKey()
   final PaymentMethod paymentMethod;
   @override
+  final String? confirmedBy;
+  // 確認者UID（主催者）
+  @override
   final String? note;
+  // メモ（オプション）
+  @override
+  @TimestampConverter()
+  final DateTime createdAt;
+  @override
+  @TimestampConverter()
+  final DateTime updatedAt;
 
   @override
   String toString() {
-    return 'PaymentModel(id: $id, eventId: $eventId, participantId: $participantId, amount: $amount, paidAt: $paidAt, paymentMethod: $paymentMethod, note: $note)';
+    return 'PaymentModel(id: $id, eventId: $eventId, participantId: $participantId, userId: $userId, amount: $amount, status: $status, paidAt: $paidAt, paymentMethod: $paymentMethod, confirmedBy: $confirmedBy, note: $note, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -241,11 +332,19 @@ class _$PaymentModelImpl implements _PaymentModel {
             (identical(other.eventId, eventId) || other.eventId == eventId) &&
             (identical(other.participantId, participantId) ||
                 other.participantId == participantId) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.amount, amount) || other.amount == amount) &&
+            (identical(other.status, status) || other.status == status) &&
             (identical(other.paidAt, paidAt) || other.paidAt == paidAt) &&
             (identical(other.paymentMethod, paymentMethod) ||
                 other.paymentMethod == paymentMethod) &&
-            (identical(other.note, note) || other.note == note));
+            (identical(other.confirmedBy, confirmedBy) ||
+                other.confirmedBy == confirmedBy) &&
+            (identical(other.note, note) || other.note == note) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -255,10 +354,15 @@ class _$PaymentModelImpl implements _PaymentModel {
     id,
     eventId,
     participantId,
+    userId,
     amount,
+    status,
     paidAt,
     paymentMethod,
+    confirmedBy,
     note,
+    createdAt,
+    updatedAt,
   );
 
   /// Create a copy of PaymentModel
@@ -280,10 +384,15 @@ abstract class _PaymentModel implements PaymentModel {
     required final String id,
     required final String eventId,
     required final String participantId,
+    required final String userId,
     required final double amount,
-    @TimestampConverter() required final DateTime paidAt,
+    final PaymentRecordStatus status,
+    @TimestampConverter() final DateTime? paidAt,
     final PaymentMethod paymentMethod,
+    final String? confirmedBy,
     final String? note,
+    @TimestampConverter() required final DateTime createdAt,
+    @TimestampConverter() required final DateTime updatedAt,
   }) = _$PaymentModelImpl;
 
   factory _PaymentModel.fromJson(Map<String, dynamic> json) =
@@ -296,14 +405,26 @@ abstract class _PaymentModel implements PaymentModel {
   @override
   String get participantId;
   @override
+  String get userId; // ユーザーUID
+  @override
   double get amount;
   @override
+  PaymentRecordStatus get status; // 支払いステータス
+  @override
   @TimestampConverter()
-  DateTime get paidAt;
+  DateTime? get paidAt; // 支払い完了日時（オプション）
   @override
   PaymentMethod get paymentMethod;
   @override
-  String? get note;
+  String? get confirmedBy; // 確認者UID（主催者）
+  @override
+  String? get note; // メモ（オプション）
+  @override
+  @TimestampConverter()
+  DateTime get createdAt;
+  @override
+  @TimestampConverter()
+  DateTime get updatedAt;
 
   /// Create a copy of PaymentModel
   /// with the given fields replaced by the non-null parameter values.

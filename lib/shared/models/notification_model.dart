@@ -28,7 +28,9 @@ class NotificationModel with _$NotificationModel {
     @Default(NotificationType.system) NotificationType type,
     @Default(false) bool isRead,
     String? relatedEventId, // 関連イベントID（オプション）
+    String? eventTitle, // イベント名（オプション）
     @TimestampConverter() required DateTime createdAt,
+    @TimestampConverter() DateTime? readAt, // 既読日時（オプション）
   }) = _NotificationModel;
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) =>
