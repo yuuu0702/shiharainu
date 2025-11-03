@@ -144,6 +144,61 @@ class EventService {
     }
   }
 
+  /// イベントの特定フィールドを更新
+  Future<void> updateEventFields({
+    required String eventId,
+    String? title,
+    String? description,
+    EventType? eventType,
+    DateTime? date,
+    double? totalAmount,
+    PaymentType? paymentType,
+    EventStatus? status,
+  }) async {
+    try {
+      AppLogger.info('イベントフィールド更新: $eventId', name: 'EventService');
+
+      final updates = <String, dynamic>{
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      if (title != null) updates['title'] = title;
+      if (description != null) updates['description'] = description;
+      if (eventType != null) updates['eventType'] = eventType.name;
+      if (date != null) updates['date'] = Timestamp.fromDate(date);
+      if (totalAmount != null) updates['totalAmount'] = totalAmount;
+      if (paymentType != null) updates['paymentType'] = paymentType.name;
+      if (status != null) updates['status'] = status.name;
+
+      await _firestore.collection('events').doc(eventId).update(updates);
+
+      AppLogger.info('イベントフィールド更新完了: $eventId', name: 'EventService');
+    } catch (e) {
+      AppLogger.error('イベントフィールド更新エラー: $eventId', name: 'EventService', error: e);
+      throw Exception('イベント情報の更新に失敗しました: $e');
+    }
+  }
+
+  /// イベントステータスを変更
+  Future<void> updateEventStatus({
+    required String eventId,
+    required EventStatus status,
+  }) async {
+    try {
+      AppLogger.info('イベントステータス変更: $eventId -> $status', name: 'EventService');
+
+      await _firestore.collection('events').doc(eventId).update({
+        'status': status.name,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      AppLogger.info('イベントステータス変更完了: $eventId', name: 'EventService');
+    } catch (e) {
+      AppLogger.error('イベントステータス変更エラー: $eventId', name: 'EventService', error: e);
+      throw Exception('イベントステータスの変更に失敗しました: $e');
+    }
+  }
+
   /// イベントを削除
   Future<void> deleteEvent(String eventId) async {
     try {
