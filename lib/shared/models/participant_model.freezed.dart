@@ -25,9 +25,12 @@ mixin _$ParticipantModel {
   String get eventId => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
   String get displayName => throw _privateConstructorUsedError;
+  String get email => throw _privateConstructorUsedError; // メールアドレス
   ParticipantRole get role => throw _privateConstructorUsedError;
   int? get age => throw _privateConstructorUsedError; // 年齢（オプション）
+  String? get position => throw _privateConstructorUsedError; // 役職（オプション）
   ParticipantGender get gender => throw _privateConstructorUsedError;
+  bool get isDrinker => throw _privateConstructorUsedError; // 飲酒有無（デフォルトtrue）
   double get multiplier =>
       throw _privateConstructorUsedError; // 支払い比率の重み付け（デフォルト1.0）
   double get amountToPay => throw _privateConstructorUsedError; // 支払い額
@@ -35,6 +38,8 @@ mixin _$ParticipantModel {
       throw _privateConstructorUsedError; // 支払いステータス
   @TimestampConverter()
   DateTime get joinedAt => throw _privateConstructorUsedError;
+  @TimestampConverter()
+  DateTime get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this ParticipantModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -58,13 +63,17 @@ abstract class $ParticipantModelCopyWith<$Res> {
     String eventId,
     String userId,
     String displayName,
+    String email,
     ParticipantRole role,
     int? age,
+    String? position,
     ParticipantGender gender,
+    bool isDrinker,
     double multiplier,
     double amountToPay,
     PaymentStatus paymentStatus,
     @TimestampConverter() DateTime joinedAt,
+    @TimestampConverter() DateTime updatedAt,
   });
 }
 
@@ -87,13 +96,17 @@ class _$ParticipantModelCopyWithImpl<$Res, $Val extends ParticipantModel>
     Object? eventId = null,
     Object? userId = null,
     Object? displayName = null,
+    Object? email = null,
     Object? role = null,
     Object? age = freezed,
+    Object? position = freezed,
     Object? gender = null,
+    Object? isDrinker = null,
     Object? multiplier = null,
     Object? amountToPay = null,
     Object? paymentStatus = null,
     Object? joinedAt = null,
+    Object? updatedAt = null,
   }) {
     return _then(
       _value.copyWith(
@@ -113,6 +126,10 @@ class _$ParticipantModelCopyWithImpl<$Res, $Val extends ParticipantModel>
                 ? _value.displayName
                 : displayName // ignore: cast_nullable_to_non_nullable
                       as String,
+            email: null == email
+                ? _value.email
+                : email // ignore: cast_nullable_to_non_nullable
+                      as String,
             role: null == role
                 ? _value.role
                 : role // ignore: cast_nullable_to_non_nullable
@@ -121,10 +138,18 @@ class _$ParticipantModelCopyWithImpl<$Res, $Val extends ParticipantModel>
                 ? _value.age
                 : age // ignore: cast_nullable_to_non_nullable
                       as int?,
+            position: freezed == position
+                ? _value.position
+                : position // ignore: cast_nullable_to_non_nullable
+                      as String?,
             gender: null == gender
                 ? _value.gender
                 : gender // ignore: cast_nullable_to_non_nullable
                       as ParticipantGender,
+            isDrinker: null == isDrinker
+                ? _value.isDrinker
+                : isDrinker // ignore: cast_nullable_to_non_nullable
+                      as bool,
             multiplier: null == multiplier
                 ? _value.multiplier
                 : multiplier // ignore: cast_nullable_to_non_nullable
@@ -140,6 +165,10 @@ class _$ParticipantModelCopyWithImpl<$Res, $Val extends ParticipantModel>
             joinedAt: null == joinedAt
                 ? _value.joinedAt
                 : joinedAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime,
+            updatedAt: null == updatedAt
+                ? _value.updatedAt
+                : updatedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
           )
           as $Val,
@@ -161,13 +190,17 @@ abstract class _$$ParticipantModelImplCopyWith<$Res>
     String eventId,
     String userId,
     String displayName,
+    String email,
     ParticipantRole role,
     int? age,
+    String? position,
     ParticipantGender gender,
+    bool isDrinker,
     double multiplier,
     double amountToPay,
     PaymentStatus paymentStatus,
     @TimestampConverter() DateTime joinedAt,
+    @TimestampConverter() DateTime updatedAt,
   });
 }
 
@@ -189,13 +222,17 @@ class __$$ParticipantModelImplCopyWithImpl<$Res>
     Object? eventId = null,
     Object? userId = null,
     Object? displayName = null,
+    Object? email = null,
     Object? role = null,
     Object? age = freezed,
+    Object? position = freezed,
     Object? gender = null,
+    Object? isDrinker = null,
     Object? multiplier = null,
     Object? amountToPay = null,
     Object? paymentStatus = null,
     Object? joinedAt = null,
+    Object? updatedAt = null,
   }) {
     return _then(
       _$ParticipantModelImpl(
@@ -215,6 +252,10 @@ class __$$ParticipantModelImplCopyWithImpl<$Res>
             ? _value.displayName
             : displayName // ignore: cast_nullable_to_non_nullable
                   as String,
+        email: null == email
+            ? _value.email
+            : email // ignore: cast_nullable_to_non_nullable
+                  as String,
         role: null == role
             ? _value.role
             : role // ignore: cast_nullable_to_non_nullable
@@ -223,10 +264,18 @@ class __$$ParticipantModelImplCopyWithImpl<$Res>
             ? _value.age
             : age // ignore: cast_nullable_to_non_nullable
                   as int?,
+        position: freezed == position
+            ? _value.position
+            : position // ignore: cast_nullable_to_non_nullable
+                  as String?,
         gender: null == gender
             ? _value.gender
             : gender // ignore: cast_nullable_to_non_nullable
                   as ParticipantGender,
+        isDrinker: null == isDrinker
+            ? _value.isDrinker
+            : isDrinker // ignore: cast_nullable_to_non_nullable
+                  as bool,
         multiplier: null == multiplier
             ? _value.multiplier
             : multiplier // ignore: cast_nullable_to_non_nullable
@@ -243,6 +292,10 @@ class __$$ParticipantModelImplCopyWithImpl<$Res>
             ? _value.joinedAt
             : joinedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        updatedAt: null == updatedAt
+            ? _value.updatedAt
+            : updatedAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
       ),
     );
   }
@@ -256,13 +309,17 @@ class _$ParticipantModelImpl implements _ParticipantModel {
     required this.eventId,
     required this.userId,
     required this.displayName,
+    required this.email,
     this.role = ParticipantRole.participant,
     this.age,
+    this.position,
     this.gender = ParticipantGender.other,
+    this.isDrinker = true,
     this.multiplier = 1.0,
     this.amountToPay = 0.0,
     this.paymentStatus = PaymentStatus.unpaid,
     @TimestampConverter() required this.joinedAt,
+    @TimestampConverter() required this.updatedAt,
   });
 
   factory _$ParticipantModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -277,14 +334,24 @@ class _$ParticipantModelImpl implements _ParticipantModel {
   @override
   final String displayName;
   @override
+  final String email;
+  // メールアドレス
+  @override
   @JsonKey()
   final ParticipantRole role;
   @override
   final int? age;
   // 年齢（オプション）
   @override
+  final String? position;
+  // 役職（オプション）
+  @override
   @JsonKey()
   final ParticipantGender gender;
+  @override
+  @JsonKey()
+  final bool isDrinker;
+  // 飲酒有無（デフォルトtrue）
   @override
   @JsonKey()
   final double multiplier;
@@ -300,10 +367,13 @@ class _$ParticipantModelImpl implements _ParticipantModel {
   @override
   @TimestampConverter()
   final DateTime joinedAt;
+  @override
+  @TimestampConverter()
+  final DateTime updatedAt;
 
   @override
   String toString() {
-    return 'ParticipantModel(id: $id, eventId: $eventId, userId: $userId, displayName: $displayName, role: $role, age: $age, gender: $gender, multiplier: $multiplier, amountToPay: $amountToPay, paymentStatus: $paymentStatus, joinedAt: $joinedAt)';
+    return 'ParticipantModel(id: $id, eventId: $eventId, userId: $userId, displayName: $displayName, email: $email, role: $role, age: $age, position: $position, gender: $gender, isDrinker: $isDrinker, multiplier: $multiplier, amountToPay: $amountToPay, paymentStatus: $paymentStatus, joinedAt: $joinedAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -316,9 +386,14 @@ class _$ParticipantModelImpl implements _ParticipantModel {
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.displayName, displayName) ||
                 other.displayName == displayName) &&
+            (identical(other.email, email) || other.email == email) &&
             (identical(other.role, role) || other.role == role) &&
             (identical(other.age, age) || other.age == age) &&
+            (identical(other.position, position) ||
+                other.position == position) &&
             (identical(other.gender, gender) || other.gender == gender) &&
+            (identical(other.isDrinker, isDrinker) ||
+                other.isDrinker == isDrinker) &&
             (identical(other.multiplier, multiplier) ||
                 other.multiplier == multiplier) &&
             (identical(other.amountToPay, amountToPay) ||
@@ -326,7 +401,9 @@ class _$ParticipantModelImpl implements _ParticipantModel {
             (identical(other.paymentStatus, paymentStatus) ||
                 other.paymentStatus == paymentStatus) &&
             (identical(other.joinedAt, joinedAt) ||
-                other.joinedAt == joinedAt));
+                other.joinedAt == joinedAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -337,13 +414,17 @@ class _$ParticipantModelImpl implements _ParticipantModel {
     eventId,
     userId,
     displayName,
+    email,
     role,
     age,
+    position,
     gender,
+    isDrinker,
     multiplier,
     amountToPay,
     paymentStatus,
     joinedAt,
+    updatedAt,
   );
 
   /// Create a copy of ParticipantModel
@@ -369,13 +450,17 @@ abstract class _ParticipantModel implements ParticipantModel {
     required final String eventId,
     required final String userId,
     required final String displayName,
+    required final String email,
     final ParticipantRole role,
     final int? age,
+    final String? position,
     final ParticipantGender gender,
+    final bool isDrinker,
     final double multiplier,
     final double amountToPay,
     final PaymentStatus paymentStatus,
     @TimestampConverter() required final DateTime joinedAt,
+    @TimestampConverter() required final DateTime updatedAt,
   }) = _$ParticipantModelImpl;
 
   factory _ParticipantModel.fromJson(Map<String, dynamic> json) =
@@ -390,11 +475,17 @@ abstract class _ParticipantModel implements ParticipantModel {
   @override
   String get displayName;
   @override
+  String get email; // メールアドレス
+  @override
   ParticipantRole get role;
   @override
   int? get age; // 年齢（オプション）
   @override
+  String? get position; // 役職（オプション）
+  @override
   ParticipantGender get gender;
+  @override
+  bool get isDrinker; // 飲酒有無（デフォルトtrue）
   @override
   double get multiplier; // 支払い比率の重み付け（デフォルト1.0）
   @override
@@ -404,6 +495,9 @@ abstract class _ParticipantModel implements ParticipantModel {
   @override
   @TimestampConverter()
   DateTime get joinedAt;
+  @override
+  @TimestampConverter()
+  DateTime get updatedAt;
 
   /// Create a copy of ParticipantModel
   /// with the given fields replaced by the non-null parameter values.

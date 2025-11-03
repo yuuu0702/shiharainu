@@ -41,13 +41,17 @@ class ParticipantModel with _$ParticipantModel {
     required String eventId,
     required String userId,
     required String displayName,
+    required String email, // メールアドレス
     @Default(ParticipantRole.participant) ParticipantRole role,
     int? age, // 年齢（オプション）
+    String? position, // 役職（オプション）
     @Default(ParticipantGender.other) ParticipantGender gender,
+    @Default(true) bool isDrinker, // 飲酒有無（デフォルトtrue）
     @Default(1.0) double multiplier, // 支払い比率の重み付け（デフォルト1.0）
     @Default(0.0) double amountToPay, // 支払い額
     @Default(PaymentStatus.unpaid) PaymentStatus paymentStatus, // 支払いステータス
     @TimestampConverter() required DateTime joinedAt,
+    @TimestampConverter() required DateTime updatedAt,
   }) = _ParticipantModel;
 
   factory ParticipantModel.fromJson(Map<String, dynamic> json) =>

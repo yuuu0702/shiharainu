@@ -97,6 +97,7 @@ class EventService {
           eventId: eventRef.id,
           userId: user.uid,
           displayName: userProfile.name,
+          email: user.email ?? '',
           role: ParticipantRole.organizer,
           age: userProfile.age,
           gender: userProfile.gender ?? ParticipantGender.other,
@@ -104,6 +105,7 @@ class EventService {
           amountToPay: 0.0,
           paymentStatus: PaymentStatus.unpaid,
           joinedAt: now,
+          updatedAt: now,
         );
 
         transaction.set(
@@ -219,18 +221,21 @@ class EventService {
           .collection('participants')
           .doc();
 
+      final now = DateTime.now();
       final participant = ParticipantModel(
         id: participantRef.id,
         eventId: eventId,
         userId: user.uid,
         displayName: userProfile.name,
+        email: user.email ?? '',
         role: ParticipantRole.participant,
         age: userProfile.age,
         gender: userProfile.gender ?? ParticipantGender.other,
         multiplier: 1.0,
         amountToPay: 0.0,
         paymentStatus: PaymentStatus.unpaid,
-        joinedAt: DateTime.now(),
+        joinedAt: now,
+        updatedAt: now,
       );
 
       await participantRef.set(ParticipantModel.toFirestore(participant));

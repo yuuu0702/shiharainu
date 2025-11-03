@@ -18,7 +18,12 @@ _$NotificationModelImpl _$$NotificationModelImplFromJson(
       NotificationType.system,
   isRead: json['isRead'] as bool? ?? false,
   relatedEventId: json['relatedEventId'] as String?,
+  eventTitle: json['eventTitle'] as String?,
   createdAt: const TimestampConverter().fromJson(json['createdAt'] as Object),
+  readAt: _$JsonConverterFromJson<Object, DateTime>(
+    json['readAt'],
+    const TimestampConverter().fromJson,
+  ),
 );
 
 Map<String, dynamic> _$$NotificationModelImplToJson(
@@ -31,7 +36,12 @@ Map<String, dynamic> _$$NotificationModelImplToJson(
   'type': _$NotificationTypeEnumMap[instance.type]!,
   'isRead': instance.isRead,
   'relatedEventId': instance.relatedEventId,
+  'eventTitle': instance.eventTitle,
   'createdAt': const TimestampConverter().toJson(instance.createdAt),
+  'readAt': _$JsonConverterToJson<Object, DateTime>(
+    instance.readAt,
+    const TimestampConverter().toJson,
+  ),
 };
 
 const _$NotificationTypeEnumMap = {
@@ -40,3 +50,13 @@ const _$NotificationTypeEnumMap = {
   NotificationType.eventUpdate: 'event_update',
   NotificationType.system: 'system',
 };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) => json == null ? null : fromJson(json as Json);
+
+Json? _$JsonConverterToJson<Json, Value>(
+  Value? value,
+  Json? Function(Value value) toJson,
+) => value == null ? null : toJson(value);

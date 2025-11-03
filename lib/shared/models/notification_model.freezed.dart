@@ -29,8 +29,11 @@ mixin _$NotificationModel {
   bool get isRead => throw _privateConstructorUsedError;
   String? get relatedEventId =>
       throw _privateConstructorUsedError; // 関連イベントID（オプション）
+  String? get eventTitle => throw _privateConstructorUsedError; // イベント名（オプション）
   @TimestampConverter()
   DateTime get createdAt => throw _privateConstructorUsedError;
+  @TimestampConverter()
+  DateTime? get readAt => throw _privateConstructorUsedError;
 
   /// Serializes this NotificationModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -57,7 +60,9 @@ abstract class $NotificationModelCopyWith<$Res> {
     NotificationType type,
     bool isRead,
     String? relatedEventId,
+    String? eventTitle,
     @TimestampConverter() DateTime createdAt,
+    @TimestampConverter() DateTime? readAt,
   });
 }
 
@@ -83,7 +88,9 @@ class _$NotificationModelCopyWithImpl<$Res, $Val extends NotificationModel>
     Object? type = null,
     Object? isRead = null,
     Object? relatedEventId = freezed,
+    Object? eventTitle = freezed,
     Object? createdAt = null,
+    Object? readAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -115,10 +122,18 @@ class _$NotificationModelCopyWithImpl<$Res, $Val extends NotificationModel>
                 ? _value.relatedEventId
                 : relatedEventId // ignore: cast_nullable_to_non_nullable
                       as String?,
+            eventTitle: freezed == eventTitle
+                ? _value.eventTitle
+                : eventTitle // ignore: cast_nullable_to_non_nullable
+                      as String?,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            readAt: freezed == readAt
+                ? _value.readAt
+                : readAt // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
           )
           as $Val,
     );
@@ -142,7 +157,9 @@ abstract class _$$NotificationModelImplCopyWith<$Res>
     NotificationType type,
     bool isRead,
     String? relatedEventId,
+    String? eventTitle,
     @TimestampConverter() DateTime createdAt,
+    @TimestampConverter() DateTime? readAt,
   });
 }
 
@@ -167,7 +184,9 @@ class __$$NotificationModelImplCopyWithImpl<$Res>
     Object? type = null,
     Object? isRead = null,
     Object? relatedEventId = freezed,
+    Object? eventTitle = freezed,
     Object? createdAt = null,
+    Object? readAt = freezed,
   }) {
     return _then(
       _$NotificationModelImpl(
@@ -199,10 +218,18 @@ class __$$NotificationModelImplCopyWithImpl<$Res>
             ? _value.relatedEventId
             : relatedEventId // ignore: cast_nullable_to_non_nullable
                   as String?,
+        eventTitle: freezed == eventTitle
+            ? _value.eventTitle
+            : eventTitle // ignore: cast_nullable_to_non_nullable
+                  as String?,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        readAt: freezed == readAt
+            ? _value.readAt
+            : readAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
       ),
     );
   }
@@ -219,7 +246,9 @@ class _$NotificationModelImpl implements _NotificationModel {
     this.type = NotificationType.system,
     this.isRead = false,
     this.relatedEventId,
+    this.eventTitle,
     @TimestampConverter() required this.createdAt,
+    @TimestampConverter() this.readAt,
   });
 
   factory _$NotificationModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -243,12 +272,18 @@ class _$NotificationModelImpl implements _NotificationModel {
   final String? relatedEventId;
   // 関連イベントID（オプション）
   @override
+  final String? eventTitle;
+  // イベント名（オプション）
+  @override
   @TimestampConverter()
   final DateTime createdAt;
+  @override
+  @TimestampConverter()
+  final DateTime? readAt;
 
   @override
   String toString() {
-    return 'NotificationModel(id: $id, userId: $userId, title: $title, message: $message, type: $type, isRead: $isRead, relatedEventId: $relatedEventId, createdAt: $createdAt)';
+    return 'NotificationModel(id: $id, userId: $userId, title: $title, message: $message, type: $type, isRead: $isRead, relatedEventId: $relatedEventId, eventTitle: $eventTitle, createdAt: $createdAt, readAt: $readAt)';
   }
 
   @override
@@ -264,8 +299,11 @@ class _$NotificationModelImpl implements _NotificationModel {
             (identical(other.isRead, isRead) || other.isRead == isRead) &&
             (identical(other.relatedEventId, relatedEventId) ||
                 other.relatedEventId == relatedEventId) &&
+            (identical(other.eventTitle, eventTitle) ||
+                other.eventTitle == eventTitle) &&
             (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
+                other.createdAt == createdAt) &&
+            (identical(other.readAt, readAt) || other.readAt == readAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -279,7 +317,9 @@ class _$NotificationModelImpl implements _NotificationModel {
     type,
     isRead,
     relatedEventId,
+    eventTitle,
     createdAt,
+    readAt,
   );
 
   /// Create a copy of NotificationModel
@@ -308,7 +348,9 @@ abstract class _NotificationModel implements NotificationModel {
     final NotificationType type,
     final bool isRead,
     final String? relatedEventId,
+    final String? eventTitle,
     @TimestampConverter() required final DateTime createdAt,
+    @TimestampConverter() final DateTime? readAt,
   }) = _$NotificationModelImpl;
 
   factory _NotificationModel.fromJson(Map<String, dynamic> json) =
@@ -329,8 +371,13 @@ abstract class _NotificationModel implements NotificationModel {
   @override
   String? get relatedEventId; // 関連イベントID（オプション）
   @override
+  String? get eventTitle; // イベント名（オプション）
+  @override
   @TimestampConverter()
   DateTime get createdAt;
+  @override
+  @TimestampConverter()
+  DateTime? get readAt;
 
   /// Create a copy of NotificationModel
   /// with the given fields replaced by the non-null parameter values.

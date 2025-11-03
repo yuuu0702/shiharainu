@@ -13,19 +13,23 @@ _$ParticipantModelImpl _$$ParticipantModelImplFromJson(
   eventId: json['eventId'] as String,
   userId: json['userId'] as String,
   displayName: json['displayName'] as String,
+  email: json['email'] as String,
   role:
       $enumDecodeNullable(_$ParticipantRoleEnumMap, json['role']) ??
       ParticipantRole.participant,
   age: (json['age'] as num?)?.toInt(),
+  position: json['position'] as String?,
   gender:
       $enumDecodeNullable(_$ParticipantGenderEnumMap, json['gender']) ??
       ParticipantGender.other,
+  isDrinker: json['isDrinker'] as bool? ?? true,
   multiplier: (json['multiplier'] as num?)?.toDouble() ?? 1.0,
   amountToPay: (json['amountToPay'] as num?)?.toDouble() ?? 0.0,
   paymentStatus:
       $enumDecodeNullable(_$PaymentStatusEnumMap, json['paymentStatus']) ??
       PaymentStatus.unpaid,
   joinedAt: const TimestampConverter().fromJson(json['joinedAt'] as Object),
+  updatedAt: const TimestampConverter().fromJson(json['updatedAt'] as Object),
 );
 
 Map<String, dynamic> _$$ParticipantModelImplToJson(
@@ -35,13 +39,17 @@ Map<String, dynamic> _$$ParticipantModelImplToJson(
   'eventId': instance.eventId,
   'userId': instance.userId,
   'displayName': instance.displayName,
+  'email': instance.email,
   'role': _$ParticipantRoleEnumMap[instance.role]!,
   'age': instance.age,
+  'position': instance.position,
   'gender': _$ParticipantGenderEnumMap[instance.gender]!,
+  'isDrinker': instance.isDrinker,
   'multiplier': instance.multiplier,
   'amountToPay': instance.amountToPay,
   'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
   'joinedAt': const TimestampConverter().toJson(instance.joinedAt),
+  'updatedAt': const TimestampConverter().toJson(instance.updatedAt),
 };
 
 const _$ParticipantRoleEnumMap = {

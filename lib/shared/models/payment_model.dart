@@ -17,6 +17,16 @@ enum PaymentMethod {
   other, // その他
 }
 
+/// 支払いステータス（Payment用）
+enum PaymentRecordStatus {
+  @JsonValue('pending')
+  pending, // 保留中
+  @JsonValue('completed')
+  completed, // 完了
+  @JsonValue('cancelled')
+  cancelled, // キャンセル
+}
+
 /// 支払いレコードモデル
 @freezed
 class PaymentModel with _$PaymentModel {
@@ -24,10 +34,15 @@ class PaymentModel with _$PaymentModel {
     required String id,
     required String eventId,
     required String participantId,
+    required String userId, // ユーザーUID
     required double amount,
-    @TimestampConverter() required DateTime paidAt,
+    @Default(PaymentRecordStatus.pending) PaymentRecordStatus status, // 支払いステータス
+    @TimestampConverter() DateTime? paidAt, // 支払い完了日時（オプション）
     @Default(PaymentMethod.cash) PaymentMethod paymentMethod,
+    String? confirmedBy, // 確認者UID（主催者）
     String? note, // メモ（オプション）
+    @TimestampConverter() required DateTime createdAt,
+    @TimestampConverter() required DateTime updatedAt,
   }) = _PaymentModel;
 
   factory PaymentModel.fromJson(Map<String, dynamic> json) =>
