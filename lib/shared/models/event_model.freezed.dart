@@ -35,7 +35,12 @@ mixin _$EventModel {
   DateTime get createdAt => throw _privateConstructorUsedError;
   @TimestampConverter()
   DateTime get updatedAt => throw _privateConstructorUsedError;
-  String? get inviteCode => throw _privateConstructorUsedError;
+  String? get inviteCode => throw _privateConstructorUsedError; // 招待コード（オプション）
+  String? get parentEventId =>
+      throw _privateConstructorUsedError; // 親イベントID（二次会の場合のみ）
+  List<String> get childEventIds =>
+      throw _privateConstructorUsedError; // 子イベントID配列（二次会リスト）
+  bool get isAfterParty => throw _privateConstructorUsedError;
 
   /// Serializes this EventModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -66,6 +71,9 @@ abstract class $EventModelCopyWith<$Res> {
     @TimestampConverter() DateTime createdAt,
     @TimestampConverter() DateTime updatedAt,
     String? inviteCode,
+    String? parentEventId,
+    List<String> childEventIds,
+    bool isAfterParty,
   });
 }
 
@@ -95,6 +103,9 @@ class _$EventModelCopyWithImpl<$Res, $Val extends EventModel>
     Object? createdAt = null,
     Object? updatedAt = null,
     Object? inviteCode = freezed,
+    Object? parentEventId = freezed,
+    Object? childEventIds = null,
+    Object? isAfterParty = null,
   }) {
     return _then(
       _value.copyWith(
@@ -142,6 +153,18 @@ class _$EventModelCopyWithImpl<$Res, $Val extends EventModel>
                 ? _value.inviteCode
                 : inviteCode // ignore: cast_nullable_to_non_nullable
                       as String?,
+            parentEventId: freezed == parentEventId
+                ? _value.parentEventId
+                : parentEventId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            childEventIds: null == childEventIds
+                ? _value.childEventIds
+                : childEventIds // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            isAfterParty: null == isAfterParty
+                ? _value.isAfterParty
+                : isAfterParty // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -169,6 +192,9 @@ abstract class _$$EventModelImplCopyWith<$Res>
     @TimestampConverter() DateTime createdAt,
     @TimestampConverter() DateTime updatedAt,
     String? inviteCode,
+    String? parentEventId,
+    List<String> childEventIds,
+    bool isAfterParty,
   });
 }
 
@@ -197,6 +223,9 @@ class __$$EventModelImplCopyWithImpl<$Res>
     Object? createdAt = null,
     Object? updatedAt = null,
     Object? inviteCode = freezed,
+    Object? parentEventId = freezed,
+    Object? childEventIds = null,
+    Object? isAfterParty = null,
   }) {
     return _then(
       _$EventModelImpl(
@@ -244,6 +273,18 @@ class __$$EventModelImplCopyWithImpl<$Res>
             ? _value.inviteCode
             : inviteCode // ignore: cast_nullable_to_non_nullable
                   as String?,
+        parentEventId: freezed == parentEventId
+            ? _value.parentEventId
+            : parentEventId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        childEventIds: null == childEventIds
+            ? _value._childEventIds
+            : childEventIds // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        isAfterParty: null == isAfterParty
+            ? _value.isAfterParty
+            : isAfterParty // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -264,7 +305,11 @@ class _$EventModelImpl implements _EventModel {
     @TimestampConverter() required this.createdAt,
     @TimestampConverter() required this.updatedAt,
     this.inviteCode,
-  }) : _organizerIds = organizerIds;
+    this.parentEventId,
+    final List<String> childEventIds = const [],
+    this.isAfterParty = false,
+  }) : _organizerIds = organizerIds,
+       _childEventIds = childEventIds;
 
   factory _$EventModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$EventModelImplFromJson(json);
@@ -304,10 +349,28 @@ class _$EventModelImpl implements _EventModel {
   final DateTime updatedAt;
   @override
   final String? inviteCode;
+  // 招待コード（オプション）
+  @override
+  final String? parentEventId;
+  // 親イベントID（二次会の場合のみ）
+  final List<String> _childEventIds;
+  // 親イベントID（二次会の場合のみ）
+  @override
+  @JsonKey()
+  List<String> get childEventIds {
+    if (_childEventIds is EqualUnmodifiableListView) return _childEventIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_childEventIds);
+  }
+
+  // 子イベントID配列（二次会リスト）
+  @override
+  @JsonKey()
+  final bool isAfterParty;
 
   @override
   String toString() {
-    return 'EventModel(id: $id, title: $title, description: $description, date: $date, organizerIds: $organizerIds, totalAmount: $totalAmount, status: $status, paymentType: $paymentType, createdAt: $createdAt, updatedAt: $updatedAt, inviteCode: $inviteCode)';
+    return 'EventModel(id: $id, title: $title, description: $description, date: $date, organizerIds: $organizerIds, totalAmount: $totalAmount, status: $status, paymentType: $paymentType, createdAt: $createdAt, updatedAt: $updatedAt, inviteCode: $inviteCode, parentEventId: $parentEventId, childEventIds: $childEventIds, isAfterParty: $isAfterParty)';
   }
 
   @override
@@ -334,7 +397,15 @@ class _$EventModelImpl implements _EventModel {
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
             (identical(other.inviteCode, inviteCode) ||
-                other.inviteCode == inviteCode));
+                other.inviteCode == inviteCode) &&
+            (identical(other.parentEventId, parentEventId) ||
+                other.parentEventId == parentEventId) &&
+            const DeepCollectionEquality().equals(
+              other._childEventIds,
+              _childEventIds,
+            ) &&
+            (identical(other.isAfterParty, isAfterParty) ||
+                other.isAfterParty == isAfterParty));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -352,6 +423,9 @@ class _$EventModelImpl implements _EventModel {
     createdAt,
     updatedAt,
     inviteCode,
+    parentEventId,
+    const DeepCollectionEquality().hash(_childEventIds),
+    isAfterParty,
   );
 
   /// Create a copy of EventModel
@@ -381,6 +455,9 @@ abstract class _EventModel implements EventModel {
     @TimestampConverter() required final DateTime createdAt,
     @TimestampConverter() required final DateTime updatedAt,
     final String? inviteCode,
+    final String? parentEventId,
+    final List<String> childEventIds,
+    final bool isAfterParty,
   }) = _$EventModelImpl;
 
   factory _EventModel.fromJson(Map<String, dynamic> json) =
@@ -410,7 +487,13 @@ abstract class _EventModel implements EventModel {
   @TimestampConverter()
   DateTime get updatedAt;
   @override
-  String? get inviteCode;
+  String? get inviteCode; // 招待コード（オプション）
+  @override
+  String? get parentEventId; // 親イベントID（二次会の場合のみ）
+  @override
+  List<String> get childEventIds; // 子イベントID配列（二次会リスト）
+  @override
+  bool get isAfterParty;
 
   /// Create a copy of EventModel
   /// with the given fields replaced by the non-null parameter values.
