@@ -32,7 +32,12 @@
       "Bash(git stash:*)",
       "mcp__dart__dart_fix",
       "mcp__dart__dart_format",
-      "mcp__github__search_issues"
+      "mcp__github__search_issues",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(git pull:*)",
+      "mcp__github__list_issues",
+      "mcp__github__get_issue"
     ],
     "deny": []
   },

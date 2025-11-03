@@ -24,6 +24,7 @@ mixin _$EventModel {
   String get id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
+  EventType get eventType => throw _privateConstructorUsedError; // イベント種別
   @TimestampConverter()
   DateTime get date => throw _privateConstructorUsedError;
   List<String> get organizerIds =>
@@ -63,6 +64,7 @@ abstract class $EventModelCopyWith<$Res> {
     String id,
     String title,
     String description,
+    EventType eventType,
     @TimestampConverter() DateTime date,
     List<String> organizerIds,
     double totalAmount,
@@ -95,6 +97,7 @@ class _$EventModelCopyWithImpl<$Res, $Val extends EventModel>
     Object? id = null,
     Object? title = null,
     Object? description = null,
+    Object? eventType = null,
     Object? date = null,
     Object? organizerIds = null,
     Object? totalAmount = null,
@@ -121,6 +124,10 @@ class _$EventModelCopyWithImpl<$Res, $Val extends EventModel>
                 ? _value.description
                 : description // ignore: cast_nullable_to_non_nullable
                       as String,
+            eventType: null == eventType
+                ? _value.eventType
+                : eventType // ignore: cast_nullable_to_non_nullable
+                      as EventType,
             date: null == date
                 ? _value.date
                 : date // ignore: cast_nullable_to_non_nullable
@@ -184,6 +191,7 @@ abstract class _$$EventModelImplCopyWith<$Res>
     String id,
     String title,
     String description,
+    EventType eventType,
     @TimestampConverter() DateTime date,
     List<String> organizerIds,
     double totalAmount,
@@ -215,6 +223,7 @@ class __$$EventModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? title = null,
     Object? description = null,
+    Object? eventType = null,
     Object? date = null,
     Object? organizerIds = null,
     Object? totalAmount = null,
@@ -241,6 +250,10 @@ class __$$EventModelImplCopyWithImpl<$Res>
             ? _value.description
             : description // ignore: cast_nullable_to_non_nullable
                   as String,
+        eventType: null == eventType
+            ? _value.eventType
+            : eventType // ignore: cast_nullable_to_non_nullable
+                  as EventType,
         date: null == date
             ? _value.date
             : date // ignore: cast_nullable_to_non_nullable
@@ -297,6 +310,7 @@ class _$EventModelImpl implements _EventModel {
     required this.id,
     required this.title,
     required this.description,
+    this.eventType = EventType.other,
     @TimestampConverter() required this.date,
     required final List<String> organizerIds,
     this.totalAmount = 0.0,
@@ -320,6 +334,10 @@ class _$EventModelImpl implements _EventModel {
   final String title;
   @override
   final String description;
+  @override
+  @JsonKey()
+  final EventType eventType;
+  // イベント種別
   @override
   @TimestampConverter()
   final DateTime date;
@@ -370,7 +388,7 @@ class _$EventModelImpl implements _EventModel {
 
   @override
   String toString() {
-    return 'EventModel(id: $id, title: $title, description: $description, date: $date, organizerIds: $organizerIds, totalAmount: $totalAmount, status: $status, paymentType: $paymentType, createdAt: $createdAt, updatedAt: $updatedAt, inviteCode: $inviteCode, parentEventId: $parentEventId, childEventIds: $childEventIds, isAfterParty: $isAfterParty)';
+    return 'EventModel(id: $id, title: $title, description: $description, eventType: $eventType, date: $date, organizerIds: $organizerIds, totalAmount: $totalAmount, status: $status, paymentType: $paymentType, createdAt: $createdAt, updatedAt: $updatedAt, inviteCode: $inviteCode, parentEventId: $parentEventId, childEventIds: $childEventIds, isAfterParty: $isAfterParty)';
   }
 
   @override
@@ -382,6 +400,8 @@ class _$EventModelImpl implements _EventModel {
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
+            (identical(other.eventType, eventType) ||
+                other.eventType == eventType) &&
             (identical(other.date, date) || other.date == date) &&
             const DeepCollectionEquality().equals(
               other._organizerIds,
@@ -415,6 +435,7 @@ class _$EventModelImpl implements _EventModel {
     id,
     title,
     description,
+    eventType,
     date,
     const DeepCollectionEquality().hash(_organizerIds),
     totalAmount,
@@ -447,6 +468,7 @@ abstract class _EventModel implements EventModel {
     required final String id,
     required final String title,
     required final String description,
+    final EventType eventType,
     @TimestampConverter() required final DateTime date,
     required final List<String> organizerIds,
     final double totalAmount,
@@ -469,6 +491,8 @@ abstract class _EventModel implements EventModel {
   String get title;
   @override
   String get description;
+  @override
+  EventType get eventType; // イベント種別
   @override
   @TimestampConverter()
   DateTime get date;

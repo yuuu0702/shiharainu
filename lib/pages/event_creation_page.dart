@@ -18,9 +18,10 @@ class _EventCreationPageState extends State<EventCreationPage> {
   final _descriptionController = TextEditingController();
   final _totalAmountController = TextEditingController();
 
-  String _eventType = 'drinking_party';
+  EventType _eventType = EventType.drinkingParty;
   String _calculationMethod = 'equal';
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 7));
+  TimeOfDay _selectedTime = const TimeOfDay(hour: 19, minute: 0); // デフォルト19:00
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -74,10 +75,20 @@ class _EventCreationPageState extends State<EventCreationPage> {
           ? PaymentType.equal
           : PaymentType.proportional;
 
+      // 日付と時刻を組み合わせる
+      final eventDateTime = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        _selectedTime.hour,
+        _selectedTime.minute,
+      );
+
       final params = CreateEventParams(
         title: eventName,
         description: description,
-        date: _selectedDate,
+        eventType: _eventType,
+        date: eventDateTime,
         totalAmount: totalAmount,
         paymentType: paymentType,
       );
@@ -149,24 +160,24 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     maxLines: 5,
                   ),
                   const SizedBox(height: AppTheme.spacing16),
-                  AppSelect<String>(
+                  AppSelect<EventType>(
                     label: 'イベント種別',
                     value: _eventType,
                     isRequired: true,
                     items: const [
                       DropdownMenuItem(
-                        value: 'drinking_party',
+                        value: EventType.drinkingParty,
                         child: Text('飲み会'),
                       ),
                       DropdownMenuItem(
-                        value: 'welcome_party',
+                        value: EventType.welcomeParty,
                         child: Text('歓送迎会'),
                       ),
                       DropdownMenuItem(
-                        value: 'year_end_party',
+                        value: EventType.yearEndParty,
                         child: Text('忘年会・新年会'),
                       ),
-                      DropdownMenuItem(value: 'other', child: Text('その他')),
+                      DropdownMenuItem(value: EventType.other, child: Text('その他')),
                     ],
                     onChanged: (value) {
                       if (value != null) {
@@ -177,7 +188,7 @@ class _EventCreationPageState extends State<EventCreationPage> {
                     },
                   ),
                   const SizedBox(height: AppTheme.spacing16),
-                  // 日付選択
+                  // 日付・時刻選択
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -194,55 +205,117 @@ class _EventCreationPageState extends State<EventCreationPage> {
                         ],
                       ),
                       const SizedBox(height: AppTheme.spacing8),
-                      InkWell(
-                        onTap: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: _selectedDate,
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime.now().add(
-                              const Duration(days: 365),
-                            ),
-                          );
-                          if (date != null) {
-                            setState(() {
-                              _selectedDate = date;
-                            });
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(AppTheme.spacing12),
-                          decoration: BoxDecoration(
-                            color: AppTheme.inputBackground,
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusSmall,
-                            ),
-                            border: Border.all(
-                              color: AppTheme.mutedForeground.withValues(
-                                alpha: 0.3,
+                      Row(
+                        children: [
+                          // 日付選択
+                          Expanded(
+                            flex: 2,
+                            child: InkWell(
+                              onTap: () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: _selectedDate,
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime.now().add(
+                                    const Duration(days: 365),
+                                  ),
+                                );
+                                if (date != null) {
+                                  setState(() {
+                                    _selectedDate = date;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(AppTheme.spacing12),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.inputBackground,
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusSmall,
+                                  ),
+                                  border: Border.all(
+                                    color: AppTheme.mutedForeground.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today_outlined,
+                                      size: 20,
+                                      color: AppTheme.mutedForeground,
+                                    ),
+                                    const SizedBox(width: AppTheme.spacing8),
+                                    Expanded(
+                                      child: Text(
+                                        '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day}',
+                                        style: AppTheme.bodyMedium,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_drop_down,
+                                      size: 20,
+                                      color: AppTheme.mutedForeground,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today_outlined,
-                                size: 20,
-                                color: AppTheme.mutedForeground,
+                          const SizedBox(width: AppTheme.spacing8),
+                          // 時刻選択
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                final time = await showTimePicker(
+                                  context: context,
+                                  initialTime: _selectedTime,
+                                );
+                                if (time != null) {
+                                  setState(() {
+                                    _selectedTime = time;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(AppTheme.spacing12),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.inputBackground,
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusSmall,
+                                  ),
+                                  border: Border.all(
+                                    color: AppTheme.mutedForeground.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.access_time,
+                                      size: 20,
+                                      color: AppTheme.mutedForeground,
+                                    ),
+                                    const SizedBox(width: AppTheme.spacing8),
+                                    Expanded(
+                                      child: Text(
+                                        '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}',
+                                        style: AppTheme.bodyMedium,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_drop_down,
+                                      size: 20,
+                                      color: AppTheme.mutedForeground,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(width: AppTheme.spacing12),
-                              Text(
-                                '${_selectedDate.year}年${_selectedDate.month}月${_selectedDate.day}日',
-                                style: AppTheme.bodyMedium,
-                              ),
-                              const Spacer(),
-                              Icon(
-                                Icons.arrow_drop_down,
-                                color: AppTheme.mutedForeground,
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ],
                   ),
