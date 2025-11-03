@@ -11,6 +11,7 @@ import 'package:shiharainu/shared/utils/app_logger.dart';
 class CreateEventParams {
   final String title;
   final String description;
+  final EventType eventType;
   final DateTime date;
   final double totalAmount;
   final PaymentType paymentType;
@@ -18,6 +19,7 @@ class CreateEventParams {
   const CreateEventParams({
     required this.title,
     required this.description,
+    required this.eventType,
     required this.date,
     required this.totalAmount,
     required this.paymentType,
@@ -75,6 +77,7 @@ class EventService {
         id: eventRef.id,
         title: params.title,
         description: params.description,
+        eventType: params.eventType,
         date: params.date,
         organizerIds: [user.uid], // 作成者を主催者として設定
         totalAmount: params.totalAmount,

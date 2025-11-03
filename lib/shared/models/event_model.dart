@@ -14,6 +14,18 @@ enum EventStatus {
   completed, // 完了
 }
 
+/// イベント種別
+enum EventType {
+  @JsonValue('drinking_party')
+  drinkingParty, // 飲み会
+  @JsonValue('welcome_party')
+  welcomeParty, // 歓送迎会
+  @JsonValue('year_end_party')
+  yearEndParty, // 忘年会・新年会
+  @JsonValue('other')
+  other, // その他
+}
+
 /// 支払い方法
 enum PaymentType {
   @JsonValue('equal')
@@ -29,6 +41,7 @@ class EventModel with _$EventModel {
     required String id,
     required String title,
     required String description,
+    @Default(EventType.other) EventType eventType, // イベント種別
     @TimestampConverter() required DateTime date,
     required List<String> organizerIds, // 複数の主催者をサポート
     @Default(0.0) double totalAmount,
