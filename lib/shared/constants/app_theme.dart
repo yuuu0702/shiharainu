@@ -12,11 +12,13 @@ class AppTheme {
   ); // Destructive: #d4183d
   static const Color mutedColor = Color(0xFFECECF0); // Muted: #ececf0
   static const Color mutedForeground = Color(
-    0xFF717182,
-  ); // Muted Foreground: #717182
-  static const Color mutedForegroundAccessible = Color(
     0xFF525252,
-  ); // アクセシブルなテキスト色: 9.94:1 contrast
+  ); // Muted Foreground: #525252（WCAG AA準拠 4.5:1以上）
+  // 互換性のためのエイリアス
+  static const Color mutedForegroundAccessible = mutedForeground;
+  static const Color mutedForegroundLegacy = Color(
+    0xFF717182,
+  ); // 旧Muted Foreground（装飾用のみ使用）
   static const Color inputBackground = Color(
     0xFFF3F3F5,
   ); // Input background: #f3f3f5

@@ -132,6 +132,7 @@ class AppButton extends StatelessWidget {
           foregroundColor: isDestructive
               ? AppTheme.destructiveColor
               : theme.colorScheme.onSurface,
+          disabledForegroundColor: AppTheme.mutedForeground,
           side: BorderSide(
             color: isDestructive
                 ? AppTheme.destructiveColor
@@ -173,6 +174,7 @@ class AppButton extends StatelessWidget {
         foregroundColor: isDestructive
             ? AppTheme.destructiveColor
             : theme.colorScheme.onSurface,
+        disabledForegroundColor: AppTheme.mutedForeground,
         padding: _getPadding(),
         minimumSize: _getMinimumSize(),
         shape: RoundedRectangleBorder(
@@ -254,13 +256,13 @@ class AppButton extends StatelessWidget {
   Size _getMinimumSize() {
     switch (size) {
       case AppButtonSize.small:
-        return const Size(0, 32);
+        return const Size(0, 44); // WCAG準拠: 最小44px
       case AppButtonSize.medium:
-        return const Size(0, 36);
+        return const Size(0, 44); // WCAG準拠: 最小44px
       case AppButtonSize.large:
-        return const Size(0, 40);
+        return const Size(0, 48);
       case AppButtonSize.icon:
-        return const Size(36, 36);
+        return const Size(44, 44); // WCAG準拠: 最小44px×44px
     }
   }
 

@@ -142,6 +142,10 @@ class InviteLinkDialog extends HookConsumerWidget {
                   icon: const Icon(Icons.close, size: 20),
                   onPressed: () => Navigator.of(context).pop(),
                   color: AppTheme.mutedForeground,
+                  constraints: const BoxConstraints(
+                    minWidth: 44,
+                    minHeight: 44,
+                  ),
                 ),
               ],
             ),
@@ -199,6 +203,10 @@ class InviteLinkDialog extends HookConsumerWidget {
                       ),
                       onPressed: copyToClipboard,
                       tooltip: 'コピー',
+                      constraints: const BoxConstraints(
+                        minWidth: 44,
+                        minHeight: 44,
+                      ),
                     ),
                   ],
                 ),
