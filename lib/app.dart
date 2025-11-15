@@ -20,6 +20,7 @@ import 'package:shiharainu/pages/account_page.dart';
 import 'package:shiharainu/pages/user_profile_edit_page.dart';
 import 'package:shiharainu/pages/app_info_page.dart';
 import 'package:shiharainu/pages/notifications_page.dart';
+import 'package:shiharainu/pages/invite_accept_page.dart';
 import 'package:shiharainu/shared/widgets/global_navigation_wrapper.dart';
 import 'package:shiharainu/shared/animations/page_transitions.dart';
 
@@ -143,6 +144,15 @@ class App extends ConsumerWidget {
           path: '/profile-setup',
           name: 'profile-setup',
           builder: (context, state) => const UserProfileSetupPage(),
+        ),
+        // 招待リンク受け入れページ（ナビゲーション非表示）
+        GoRoute(
+          path: '/invite/:inviteCode',
+          name: 'invite',
+          builder: (context, state) {
+            final inviteCode = state.pathParameters['inviteCode']!;
+            return InviteAcceptPage(inviteCode: inviteCode);
+          },
         ),
         // メイン機能（グローバルナビゲーション表示）
         ShellRoute(

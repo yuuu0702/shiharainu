@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
+import 'package:shiharainu/shared/widgets/invite_link_dialog.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/models/participant_model.dart';
 import 'package:shiharainu/shared/services/event_service.dart';
@@ -120,7 +121,7 @@ class EventDetailPage extends ConsumerWidget {
           children: [
             _buildEventHeader(event),
             const SizedBox(height: AppTheme.spacing24),
-            _buildActionCards(context, role),
+            _buildActionCards(context, role, event),
             const SizedBox(height: AppTheme.spacing32),
             _buildEventInfo(event, participants),
             const SizedBox(height: AppTheme.spacing32),
@@ -207,19 +208,26 @@ class EventDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildActionCards(BuildContext context, ParticipantRole role) {
+  Widget _buildActionCards(
+    BuildContext context,
+    ParticipantRole role,
+    EventModel event,
+  ) {
     return ResponsiveGrid(
       mobileColumns: 2,
       tabletColumns: 3,
       desktopColumns: 4,
       spacing: AppTheme.spacing16,
       children: role == ParticipantRole.organizer
-          ? _buildOrganizerActions(context)
+          ? _buildOrganizerActions(context, event)
           : _buildParticipantActions(context),
     );
   }
 
-  List<Widget> _buildOrganizerActions(BuildContext context) {
+  List<Widget> _buildOrganizerActions(
+    BuildContext context,
+    EventModel event,
+  ) {
     return [
       _buildActionCard(
         '支払い管理',
@@ -244,8 +252,13 @@ class EventDetailPage extends ConsumerWidget {
         const Color(0xFF8B5CF6),
         'リンクをシェア',
         () {
-          // TODO(Issue #44): 招待リンクシェア機能の実装
-          // InviteServiceを使用した招待リンク生成・共有機能を実装予定
+          showDialog(
+            context: context,
+            builder: (context) => InviteLinkDialog(
+              eventId: eventId,
+              eventTitle: event.title,
+            ),
+          );
         },
       ),
       _buildActionCard(
