@@ -46,3 +46,8 @@ app.*.map.json
 
 # MCP configuration (contains sensitive tokens)
 .mcp.json
+
+# Development/Debug files
+*.rej
+pglite-debug.log
+github_issues.md

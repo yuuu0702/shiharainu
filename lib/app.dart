@@ -11,7 +11,6 @@ import 'package:shiharainu/pages/login_page.dart';
 import 'package:shiharainu/pages/signup_page.dart';
 import 'package:shiharainu/pages/user_profile_setup_page.dart';
 import 'package:shiharainu/pages/event_creation_page.dart';
-import 'package:shiharainu/pages/component_showcase_page.dart';
 import 'package:shiharainu/pages/home_page.dart';
 import 'package:shiharainu/pages/events_page.dart';
 import 'package:shiharainu/pages/event_detail_page.dart';
@@ -144,12 +143,6 @@ class App extends ConsumerWidget {
           path: '/profile-setup',
           name: 'profile-setup',
           builder: (context, state) => const UserProfileSetupPage(),
-        ),
-        // デバッグ用ページ（ナビゲーション非表示）
-        GoRoute(
-          path: '/components',
-          name: 'components',
-          builder: (context, state) => const ComponentShowcasePage(),
         ),
         // メイン機能（グローバルナビゲーション表示）
         ShellRoute(
