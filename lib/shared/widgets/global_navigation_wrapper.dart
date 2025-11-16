@@ -24,12 +24,12 @@ class GlobalNavigationWrapper extends StatelessWidget {
       route: '/events',
     ),
     AppBottomNavigationItem(
-      label: '支払い管理',
-      icon: Icons.payment_outlined,
-      route: '/payment-management',
+      label: '通知',
+      icon: Icons.notifications_outlined,
+      route: '/notifications',
     ),
     AppBottomNavigationItem(
-      label: 'アカウント情報',
+      label: 'アカウント',
       icon: Icons.account_circle_outlined,
       route: '/account',
     ),
@@ -80,7 +80,7 @@ class GlobalNavigationWrapper extends StatelessWidget {
 
   Widget _buildNavigationRail(String currentLocation) {
     final currentIndex = _navigationItems.indexWhere(
-      (item) => item.route == currentLocation,
+      (item) => _isRouteActive(item.route, currentLocation),
     );
 
     return Builder(
@@ -123,6 +123,27 @@ class GlobalNavigationWrapper extends StatelessWidget {
             .toList(),
       ),
     );
+  }
+
+  /// 指定したルートが現在アクティブかどうかを判定（部分一致）
+  bool _isRouteActive(String navRoute, String currentLocation) {
+    // 完全一致の場合
+    if (navRoute == currentLocation) {
+      return true;
+    }
+
+    // サブルートの場合（例: /events/abc/payments は /events としてハイライト）
+    // ただし、他のルートの一部として含まれる場合は除外
+    // 例: /account は /account-settings と一致しない
+    if (currentLocation.startsWith(navRoute)) {
+      // ルートの後に / が続く場合のみマッチ（例: /events/... は OK, /eventsother は NG）
+      if (currentLocation.length > navRoute.length) {
+        return currentLocation[navRoute.length] == '/';
+      }
+      return true;
+    }
+
+    return false;
   }
 
   /// ナビゲーションが表示されるべきかどうかを判定

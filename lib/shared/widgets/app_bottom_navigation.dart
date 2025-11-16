@@ -56,7 +56,7 @@ class AppBottomNavigation extends StatelessWidget {
     BuildContext context,
     AppBottomNavigationItem item,
   ) {
-    final isActive = currentRoute.startsWith(item.route);
+    final isActive = _isRouteActive(item.route, currentRoute);
 
     return Expanded(
       child: Material(
@@ -143,6 +143,27 @@ class AppBottomNavigation extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// 指定したルートが現在アクティブかどうかを判定（部分一致）
+  bool _isRouteActive(String navRoute, String currentLocation) {
+    // 完全一致の場合
+    if (navRoute == currentLocation) {
+      return true;
+    }
+
+    // サブルートの場合（例: /events/abc/payments は /events としてハイライト）
+    // ただし、他のルートの一部として含まれる場合は除外
+    // 例: /account は /account-settings と一致しない
+    if (currentLocation.startsWith(navRoute)) {
+      // ルートの後に / が続く場合のみマッチ（例: /events/... は OK, /eventsother は NG）
+      if (currentLocation.length > navRoute.length) {
+        return currentLocation[navRoute.length] == '/';
+      }
+      return true;
+    }
+
+    return false;
   }
 }
 
