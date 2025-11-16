@@ -230,12 +230,36 @@ class App extends ConsumerWidget {
                 ),
               ],
             ),
-            // 支払い管理ページ（今後実装）
+            // グローバル支払い管理ページ（今後実装予定）
+            // 現在は各イベントごとの支払い管理（/events/:eventId/payments）を使用
             GoRoute(
               path: '/payment-management',
               name: 'payment-management',
-              builder: (context, state) =>
-                  const Scaffold(body: Center(child: Text('支払い管理ページ（準備中）'))),
+              builder: (context, state) => const Scaffold(
+                body: Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.construction, size: 64, color: AppTheme.mutedForeground),
+                        SizedBox(height: 16),
+                        Text(
+                          'グローバル支払い管理ページ（準備中）',
+                          style: AppTheme.headlineMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          '各イベントの支払い管理は、イベント詳細ページからアクセスできます。',
+                          style: AppTheme.bodyMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
             // 通知ページ
             GoRoute(
