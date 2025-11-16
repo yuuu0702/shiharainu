@@ -8,6 +8,7 @@ import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/models/participant_model.dart';
 import 'package:shiharainu/shared/services/event_service.dart';
 import 'package:shiharainu/shared/providers/after_party_providers.dart';
+import 'package:shiharainu/shared/utils/app_logger.dart';
 
 class EventDetailPage extends ConsumerWidget {
   final String eventId;
@@ -40,19 +41,27 @@ class EventDetailPage extends ConsumerWidget {
                     );
                   },
                   loading: () => _buildLoading(),
-                  error: (error, stack) => _buildError(error),
+                  error: (error, stack) => Builder(
+                    builder: (context) => _buildError(context, error),
+                  ),
                 );
               },
               loading: () => _buildLoading(),
-              error: (error, stack) => _buildError(error),
+              error: (error, stack) => Builder(
+                builder: (context) => _buildError(context, error),
+              ),
             );
           },
           loading: () => _buildLoading(),
-          error: (error, stack) => _buildError(error),
+          error: (error, stack) => Builder(
+            builder: (context) => _buildError(context, error),
+          ),
         );
       },
       loading: () => _buildLoading(),
-      error: (error, stack) => _buildError(error),
+      error: (error, stack) => Builder(
+        builder: (context) => _buildError(context, error),
+      ),
     );
   }
 
@@ -60,25 +69,56 @@ class EventDetailPage extends ConsumerWidget {
     return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 
-  Widget _buildError(Object error) {
+  Widget _buildError(BuildContext context, Object error) {
+    // エラーの詳細をログに出力
+    AppLogger.error('EventDetailPage: データ取得エラー',
+      name: 'EventDetailPage',
+      error: error,
+    );
+
     return Scaffold(
       appBar: AppBar(title: const Text('エラー')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 64, color: AppTheme.destructive),
-            const SizedBox(height: AppTheme.spacing16),
-            Text('データの取得に失敗しました', style: AppTheme.headlineMedium),
-            const SizedBox(height: AppTheme.spacing8),
-            Text(
-              error.toString(),
-              style: AppTheme.bodyMedium.copyWith(
-                color: AppTheme.mutedForeground,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppTheme.spacing24),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: AppTheme.destructive),
+              const SizedBox(height: AppTheme.spacing16),
+              Text('データの取得に失敗しました', style: AppTheme.headlineMedium),
+              const SizedBox(height: AppTheme.spacing16),
+              AppCard(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppTheme.spacing16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'エラー詳細:',
+                        style: AppTheme.bodyMedium.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: AppTheme.spacing8),
+                      SelectableText(
+                        error.toString(),
+                        style: AppTheme.bodySmall.copyWith(
+                          color: AppTheme.mutedForeground,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: AppTheme.spacing24),
+              AppButton.primary(
+                text: 'ホームに戻る',
+                onPressed: () => context.go('/home'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -753,12 +793,12 @@ class _AfterPartySection extends HookConsumerWidget {
                     paymentType: selectedPaymentType,
                   );
 
+                  // Providerを更新（ダイアログを閉じる前に実行）
+                  ref.invalidate(afterPartiesProvider(eventId));
+
                   if (dialogContext.mounted) {
                     Navigator.of(dialogContext).pop();
                   }
-
-                  // Providerを更新
-                  ref.invalidate(afterPartiesProvider(eventId));
 
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(

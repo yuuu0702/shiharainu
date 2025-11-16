@@ -408,3 +408,55 @@ final currentUserParticipantProvider =
 
       return query.docs.first.data();
     });
+
+/// 現在のユーザーが参加している全イベントのStreamProvider（リアルタイム更新）
+final userEventsStreamProvider = StreamProvider<List<EventModel>>((ref) {
+  final auth = FirebaseAuth.instance;
+  final currentUserId = auth.currentUser?.uid;
+
+  if (currentUserId == null) {
+    AppLogger.warning('ユーザーが未ログイン', name: 'userEventsStreamProvider');
+    return Stream.value([]);
+  }
+
+  final firestore = FirebaseFirestore.instance;
+
+  // コレクショングループクエリで現在のユーザーの参加記録を取得
+  return firestore
+      .collectionGroup('participants')
+      .where('userId', isEqualTo: currentUserId)
+      .snapshots()
+      .asyncMap((participantsSnapshot) async {
+    if (participantsSnapshot.docs.isEmpty) {
+      return <EventModel>[];
+    }
+
+    // 参加しているイベントIDを取得（重複を除外）
+    final eventIds = participantsSnapshot.docs
+        .map((doc) => doc.data()['eventId'] as String)
+        .toSet()
+        .toList();
+
+    AppLogger.debug('参加イベント数: ${eventIds.length}', name: 'userEventsStreamProvider');
+
+    // 各イベントの情報を取得
+    final eventsCollection = ref.read(eventsCollectionProvider);
+    final events = <EventModel>[];
+
+    for (final eventId in eventIds) {
+      try {
+        final eventDoc = await eventsCollection.doc(eventId).get();
+        if (eventDoc.exists) {
+          events.add(eventDoc.data()!);
+        }
+      } catch (e) {
+        AppLogger.error('イベント取得エラー: $eventId', name: 'userEventsStreamProvider', error: e);
+      }
+    }
+
+    // 日付順でソート（新しい順）
+    events.sort((a, b) => b.date.compareTo(a.date));
+
+    return events;
+  });
+});
