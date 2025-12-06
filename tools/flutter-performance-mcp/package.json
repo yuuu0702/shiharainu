@@ -1,0 +1,35 @@
+{
+  "name": "flutter-performance-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for analyzing Flutter app performance using VM Service",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "flutter-performance-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "watch": "tsc --watch"
+  },
+  "keywords": [
+    "flutter",
+    "performance",
+    "mcp",
+    "vm-service",
+    "analysis"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@types/ws": "^8.5.13",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

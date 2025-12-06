@@ -24,6 +24,14 @@
         "mcp-server",
         "--force-roots-fallback"
       ]
+    },
+    "flutter-performance": {
+      "command": "node",
+      "args": [
+        "tools/flutter-performance-mcp/dist/index.js",
+        "--vm-service-uri",
+        "http://localhost:8181"
+      ]
     }
   }
 }
