@@ -33,37 +33,12 @@ class EventSettingsPage extends HookConsumerWidget {
               }
               return _EventSettingsForm(event: event);
             },
-            loading: () => _buildLoading(),
-            error: (error, stack) => _buildError(error),
+            loading: () => const AppInlineLoading(message: 'データを読み込み中...'),
+            error: (error, stack) => AppErrorState(error: error),
           );
         },
-        loading: () => _buildLoading(),
-        error: (error, stack) => _buildError(error),
-      ),
-    );
-  }
-
-  Widget _buildLoading() {
-    return const Center(child: CircularProgressIndicator());
-  }
-
-  Widget _buildError(Object error) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.error_outline, size: 64, color: AppTheme.destructive),
-          const SizedBox(height: AppTheme.spacing16),
-          Text('データの取得に失敗しました', style: AppTheme.headlineMedium),
-          const SizedBox(height: AppTheme.spacing8),
-          Text(
-            error.toString(),
-            style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+        loading: () => const AppInlineLoading(message: 'データを読み込み中...'),
+        error: (error, stack) => AppErrorState(error: error),
       ),
     );
   }
