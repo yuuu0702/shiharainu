@@ -14,6 +14,7 @@ import 'package:shiharainu/pages/event_creation_page.dart';
 import 'package:shiharainu/pages/home_page.dart';
 import 'package:shiharainu/pages/events_page.dart';
 import 'package:shiharainu/pages/event_detail_page.dart';
+import 'package:shiharainu/pages/event_participant_management_page.dart';
 import 'package:shiharainu/pages/event_payment_management_page.dart';
 import 'package:shiharainu/pages/event_settings_page.dart';
 import 'package:shiharainu/pages/account_page.dart';
@@ -202,6 +203,18 @@ class App extends ConsumerWidget {
                     );
                   },
                   routes: [
+                    GoRoute(
+                      path: 'participants',
+                      name: 'event-participants',
+                      pageBuilder: (context, state) {
+                        final eventId = state.pathParameters['eventId']!;
+                        return AppPageTransitions.buildPageWithTransition(
+                          child: EventParticipantManagementPage(eventId: eventId),
+                          name: 'event-participants',
+                          transitionType: PageTransitionType.slide,
+                        );
+                      },
+                    ),
                     GoRoute(
                       path: 'payments',
                       name: 'event-payments',

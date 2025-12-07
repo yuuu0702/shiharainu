@@ -48,10 +48,7 @@ class EventDetailActionCards extends StatelessWidget {
         Icons.people_outlined,
         AppTheme.primaryColor,
         '参加者を管理',
-        () {
-          // TODO(Issue #43): 参加者管理機能の実装
-          // 参加者一覧・追加・削除機能を持つ画面への遷移を実装予定
-        },
+        () => context.go('/events/$eventId/participants'),
       ),
       _buildActionCard(
         context,
@@ -92,14 +89,11 @@ class EventDetailActionCards extends StatelessWidget {
       ),
       _buildActionCard(
         context,
-        'イベント詳細',
-        Icons.info_outlined,
+        '参加者一覧',
+        Icons.people_outlined,
         AppTheme.primaryColor,
-        '詳細情報を確認',
-        () {
-          // TODO: イベント詳細情報画面の実装
-          // イベントの詳細情報を表示する画面への遷移を実装予定
-        },
+        '参加者を確認',
+        () => context.go('/events/$eventId/participants'),
       ),
     ];
   }

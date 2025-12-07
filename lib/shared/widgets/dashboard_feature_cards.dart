@@ -51,14 +51,19 @@ class DashboardFeatureCards extends StatelessWidget {
       return [
         _buildFeatureCard(
           context,
-          '支払い',
+          '参加イベント',
+          Icons.event_outlined,
+          AppTheme.primaryColor,
+          'イベント一覧を確認',
+          () => context.go('/events'),
+        ),
+        _buildFeatureCard(
+          context,
+          '支払い管理',
           Icons.payment_outlined,
           AppTheme.successColor,
-          '支払い金額を確認',
-          () {
-            // TODO: 参加者用支払い画面の実装
-            // 支払い詳細画面へのナビゲーションを実装予定
-          },
+          '支払い状況を確認',
+          () => context.go('/payment-management'),
         ),
       ];
     }
