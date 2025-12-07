@@ -40,6 +40,63 @@ class HomeQuickActions extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: AppTheme.spacing12),
+        // 参加コード入力ボタン
+        AppCard(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => const JoinEventDialog(),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: AppTheme.spacing12,
+              horizontal: AppTheme.spacing16,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppTheme.spacing8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.successColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                  ),
+                  child: Icon(
+                    Icons.vpn_key_outlined,
+                    color: AppTheme.successColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: AppTheme.spacing12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '参加コードで参加',
+                        style: AppTheme.bodyLarge.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        '招待コードを入力してイベントに参加',
+                        style: AppTheme.bodySmall.copyWith(
+                          color: AppTheme.mutedForegroundAccessible,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: AppTheme.mutedForegroundAccessible,
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }

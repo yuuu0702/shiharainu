@@ -4,7 +4,6 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/models/participant_model.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
-import 'package:shiharainu/shared/widgets/invite_link_dialog.dart';
 
 /// イベント詳細ページのアクションカードセクション
 class EventDetailActionCards extends StatelessWidget {
