@@ -52,24 +52,52 @@ Shiharainu（しはらいぬ）は、以下の技術で構築されたFlutterイ
 ### ディレクトリ構造
 ```
 lib/
-├── main.dart                 # ProviderScopeを含むアプリエントリーポイント
-├── app.dart                  # ルーティング設定を持つメインアプリウィジェット
-├── pages/                    # ページレベルのウィジェット
+├── main.dart                      # ProviderScopeを含むアプリエントリーポイント
+├── app.dart                       # ルーティング設定を持つメインアプリウィジェット
+├── pages/                         # ページレベルのウィジェット
+│   ├── home_page.dart             # ホームページ（メイン: 169行）
+│   ├── home/                      # ホームページのセクション分割
+│   │   ├── home_data_models.dart
+│   │   ├── home_welcome_section.dart
+│   │   ├── home_quick_actions.dart
+│   │   ├── home_notifications_section.dart
+│   │   ├── home_events_section.dart
+│   │   └── home_activity_summary.dart
+│   ├── event_detail_page.dart     # イベント詳細ページ（メイン: 135行）
+│   ├── event_detail/              # イベント詳細のセクション分割
+│   │   ├── event_detail_badges.dart
+│   │   ├── event_detail_header.dart
+│   │   ├── event_detail_action_cards.dart
+│   │   ├── event_detail_info_section.dart
+│   │   ├── event_detail_participants_section.dart
+│   │   └── after_party_section.dart
 │   ├── login_page.dart
-│   ├── dashboard_page.dart
-│   └── event_creation_page.dart
+│   ├── event_creation_page.dart
+│   └── ...
 └── shared/
     ├── constants/
-    │   └── app_theme.dart    # Figmaベースのデザインシステムテーマ
-    └── widgets/              # 再利用可能なUIコンポーネント
-        ├── widgets.dart      # バレルエクスポートファイル
-        ├── app_badge.dart
-        ├── app_bottom_navigation.dart
-        ├── app_button.dart
-        ├── app_card.dart
-        ├── app_input.dart
-        ├── app_segmented_control.dart
-        └── app_tabs.dart
+    │   ├── app_theme.dart         # Figmaベースのデザインシステムテーマ
+    │   └── app_breakpoints.dart   # レスポンシブブレークポイント
+    ├── widgets/                   # 再利用可能なUIコンポーネント（23個）
+    │   ├── widgets.dart           # バレルエクスポートファイル
+    │   ├── app_loading_state.dart # 統一ローディング/エラー表示
+    │   ├── app_badge.dart
+    │   ├── app_button.dart
+    │   ├── app_card.dart
+    │   ├── app_input.dart
+    │   └── ...
+    ├── models/                    # Freezedデータモデル
+    │   ├── event_model.dart
+    │   ├── participant_model.dart
+    │   └── ...
+    ├── services/                  # ビジネスロジック
+    │   ├── event_service.dart
+    │   ├── auth_service.dart
+    │   └── ...
+    ├── providers/                 # Riverpodプロバイダー
+    │   └── after_party_providers.dart
+    └── utils/                     # ユーティリティ関数
+        └── app_logger.dart
 ```
 
 ### デザインシステム
@@ -664,3 +692,281 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 - **問題発生時の復旧**：特定のコミットに戻ることで安全に修正
 - **レビューの容易さ**：小さな変更単位で差分確認が可能
 - **チーム協力**：他の開発者が変更内容を理解しやすい
+
+## ページ分割パターン（400行超過時の対応）
+
+### 分割が必要なタイミング
+- **ファイルが400行を超えた場合**は必ず分割を検討
+- 複数の責務（セクション、機能）が1つのファイルに混在している場合
+- メンテナンス性・可読性が低下していると感じた場合
+
+### 分割パターン
+
+#### 1. ページファイル + セクションサブディレクトリ構造
+```
+lib/pages/
+├── example_page.dart              # メインページ（150～200行程度）
+└── example/                       # セクション用サブディレクトリ
+    ├── example_data_models.dart   # データモデル
+    ├── example_header.dart        # ヘッダーセクション
+    ├── example_content.dart       # コンテンツセクション
+    └── example_footer.dart        # フッターセクション
+```
+
+#### 2. メインページの役割
+- **ページ全体の構造定義**：Scaffoldやレイアウト構成
+- **状態管理**：Riverpodプロバイダーの監視、ローカル状態管理
+- **ナビゲーション処理**：画面遷移ロジック
+- **セクションの組み立て**：各セクションウィジェットの配置
+- **目標行数**：150～200行程度（最大でも300行以内）
+
+```dart
+// 良い例: home_page.dart（169行）
+class HomePage extends HookConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 状態管理とデータ取得
+    final profile = ref.watch(userProfileProvider);
+
+    return ResponsivePageScaffold(
+      title: 'ホーム',
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // セクションウィジェットの組み立て
+            HomeWelcomeSection(userName: profile?.name ?? 'ゲスト'),
+            const HomeQuickActions(),
+            HomeNotificationsSection(notifications: _notifications),
+            HomeEventsSection(events: _events),
+            const HomeActivitySummary(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+#### 3. セクションファイルの役割
+- **単一責務の原則**：1つのセクションは1つの機能のみ
+- **再利用可能な設計**：他のページでも使える可能性を考慮
+- **適切なカプセル化**：必要なデータのみをプロパティで受け取る
+- **目標行数**：50～150行程度（複雑な場合は200行まで許容）
+
+```dart
+// 良い例: home_welcome_section.dart（65行）
+class HomeWelcomeSection extends StatelessWidget {
+  final String userName;
+  final String dogEmoji;
+
+  const HomeWelcomeSection({
+    super.key,
+    required this.userName,
+    required this.dogEmoji,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Row(
+        children: [
+          // セクション固有のUI実装
+          Text(dogEmoji, style: TextStyle(fontSize: 48)),
+          SizedBox(width: 16),
+          Text('こんにちは、$userName さん！'),
+        ],
+      ),
+    );
+  }
+}
+```
+
+#### 4. データモデルファイルの役割
+- **ページ固有のデータ構造定義**
+- **Enumやヘルパークラスの定義**
+- **共有モデル（shared/models/）との区別**：ページ固有のみここに配置
+
+```dart
+// 良い例: home_data_models.dart（49行）
+class EventData {
+  final String id;
+  final String title;
+  final EventRole role;
+  final EventStatus status;
+
+  const EventData({...});
+}
+
+enum EventRole { organizer, participant }
+enum EventStatus { planning, active, completed }
+```
+
+### 分割手順（ステップバイステップ）
+
+#### ステップ1: 現状分析
+1. `flutter analyze`で警告がないことを確認
+2. ファイルの行数確認（400行超過しているか）
+3. 責務の洗い出し（セクション、データモデル、ヘルパー関数等）
+
+#### ステップ2: サブディレクトリ作成
+```bash
+mkdir lib/pages/example
+```
+
+#### ステップ3: データモデルの抽出（存在する場合）
+- ページ内で定義されているクラスやEnumを抽出
+- `example_data_models.dart`として作成
+
+#### ステップ4: セクションウィジェットの抽出
+- `_buildHeader()`, `_buildContent()`等のメソッドを独立ウィジェット化
+- セクションごとに`example_section_name.dart`ファイル作成
+- 各セクションは`StatelessWidget`または`StatefulWidget`として定義
+
+#### ステップ5: メインページの書き換え
+- 抽出したセクションをインポート
+- `_build*`メソッドをセクションウィジェットに置き換え
+- 必要なデータをプロパティとして渡す
+
+#### ステップ6: 動作確認
+```bash
+flutter analyze     # 静的解析
+flutter run         # 動作確認
+```
+
+#### ステップ7: コミット
+```bash
+git add .
+git commit -m "refactor: example_page.dartを複数ファイルに分割（XXX行→YYY行）"
+```
+
+### 分割時の注意点
+
+#### Do（推奨）
+- ✅ **セクション単位で分割**：ヘッダー、コンテンツ、フッター等の意味のある単位
+- ✅ **適切なファイル命名**：`{page_name}_{section_name}.dart`パターン
+- ✅ **プロパティで依存を明示**：必要なデータを明確にプロパティで受け取る
+- ✅ **constコンストラクタ活用**：パフォーマンス向上のため
+- ✅ **既存パターンの踏襲**：home_page、event_detail_pageの分割パターンを参考に
+
+#### Don't（非推奨）
+- ❌ **過度な細分化**：50行未満のセクションを無理に分割しない
+- ❌ **不自然な責務分割**：関連性の高いコードを無理に分離しない
+- ❌ **グローバル状態の乱用**：セクション間でグローバル変数を共有しない
+- ❌ **循環参照の作成**：セクション間で相互依存を作らない
+- ❌ **命名の不統一**：既存の命名規則から逸脱しない
+
+### 実例：event_detail_page.dartの分割
+
+#### 分割前（762行）
+```dart
+class EventDetailPage extends HookConsumerWidget {
+  // 全てのロジックとUIが1ファイルに集約
+  Widget _buildHeader() {...}       // 70行
+  Widget _buildActionCards() {...}  // 146行
+  Widget _buildInfo() {...}         // 76行
+  Widget _buildParticipants() {...} // 79行
+  Widget _buildAfterParty() {...}   // 302行
+}
+```
+
+#### 分割後（135行 + 6ファイル）
+```
+event_detail_page.dart (135行)     # メイン構造のみ
+event_detail/
+├── event_detail_badges.dart (57行)         # バッジとユーティリティ
+├── event_detail_header.dart (70行)         # ヘッダーセクション
+├── event_detail_action_cards.dart (146行)  # アクションカード
+├── event_detail_info_section.dart (76行)   # 情報セクション
+├── event_detail_participants_section.dart (79行) # 参加者一覧
+└── after_party_section.dart (302行)        # アフターパーティ
+```
+
+#### メインページ（event_detail_page.dart: 135行）
+```dart
+import 'package:shiharainu/pages/event_detail/event_detail_header.dart';
+import 'package:shiharainu/pages/event_detail/event_detail_action_cards.dart';
+// ... 他のインポート
+
+class EventDetailPage extends HookConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 状態管理のみ
+    final event = ref.watch(eventProvider(eventId));
+
+    return event.when(
+      data: (event) => SingleChildScrollView(
+        child: Column(
+          children: [
+            EventDetailHeader(event: event),
+            EventDetailActionCards(eventId: eventId, event: event, role: role),
+            EventDetailInfoSection(event: event, participants: participants),
+            AfterPartySection(eventId: eventId, eventTitle: event.title),
+            EventDetailParticipantsSection(participants: participants),
+          ],
+        ),
+      ),
+      loading: () => const AppLoadingState(),
+      error: (error, _) => AppErrorState(error: error),
+    );
+  }
+}
+```
+
+### 統一ローディング・エラー状態パターン
+
+#### AppLoadingStateとAppErrorStateの使用
+すべてのページで統一されたローディング・エラー表示を使用：
+
+```dart
+// ✅ 推奨: 統一ウィジェット使用
+return asyncValue.when(
+  data: (data) => _buildContent(data),
+  loading: () => const AppLoadingState(message: '読み込み中...'),
+  error: (error, stack) => AppErrorState(
+    error: error,
+    onRetry: () => ref.refresh(dataProvider),
+  ),
+);
+
+// ❌ 非推奨: 個別実装
+Widget _buildLoading() {
+  return Center(
+    child: CircularProgressIndicator(),  // 重複コード
+  );
+}
+```
+
+#### AppLoadingState の3つのウィジェット
+```dart
+// 1. AppLoadingState - フルスクリーンローディング
+const AppLoadingState(
+  message: '読み込み中...',
+  showAppBar: true,
+  title: 'イベント詳細',
+)
+
+// 2. AppErrorState - エラー表示（リトライボタン付き）
+AppErrorState(
+  error: error,
+  onRetry: () => ref.refresh(provider),
+)
+
+// 3. AppInlineLoading - インラインローディング（セクション内）
+const AppInlineLoading(
+  message: '保存中...',
+  size: 24,
+)
+```
+
+### 分割による効果測定
+
+#### 定量的効果
+- **コード削減**: home_page 690行→169行（76%削減）、event_detail_page 762行→135行（82%削減）
+- **重複排除**: ローディング/エラー処理の重複コード296行削除
+- **可読性向上**: 1ファイルあたり平均150行以下で管理可能
+
+#### 定性的効果
+- **保守性向上**: セクション単位での修正が容易
+- **再利用性向上**: セクションウィジェットの他ページ流用が可能
+- **テスト容易性**: セクション単位でのユニットテスト作成が簡単
+- **チーム開発**: 複数人での並行開発時のコンフリクト削減
