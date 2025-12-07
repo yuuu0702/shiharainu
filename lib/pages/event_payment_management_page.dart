@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
+import 'package:shiharainu/shared/constants/app_breakpoints.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/models/participant_model.dart';
 import 'package:shiharainu/shared/services/event_service.dart';
@@ -137,18 +138,32 @@ class _EventPaymentManagementPageState
                     ),
                   ),
                 )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(AppTheme.spacing16),
-                  itemCount: filteredParticipants.length,
-                  itemBuilder: (context, index) {
-                    final participant = filteredParticipants[index];
-                    return Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: AppTheme.spacing12),
-                      child: _buildParticipantPaymentCard(
-                        participant,
-                        isOrganizer: isOrganizer,
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    // レスポンシブグリッド列数の計算
+                    // mobileColumns: 1 → tablet: 2, tabletLarge: 3, desktop: 4
+                    final width = constraints.maxWidth;
+                    final crossAxisCount = AppBreakpoints.getGridCrossAxisCount(
+                      width,
+                      mobileColumns: 1,
+                    );
+
+                    return GridView.builder(
+                      padding: const EdgeInsets.all(AppTheme.spacing16),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        mainAxisSpacing: AppTheme.spacing12,
+                        crossAxisSpacing: AppTheme.spacing12,
+                        childAspectRatio: 1.4,
                       ),
+                      itemCount: filteredParticipants.length,
+                      itemBuilder: (context, index) {
+                        final participant = filteredParticipants[index];
+                        return _buildParticipantPaymentCard(
+                          participant,
+                          isOrganizer: isOrganizer,
+                        );
+                      },
                     );
                   },
                 ),

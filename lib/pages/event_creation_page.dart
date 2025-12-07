@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
+import 'package:shiharainu/shared/widgets/invite_link_dialog.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/services/event_service.dart';
@@ -100,15 +101,59 @@ class _EventCreationPageState extends State<EventCreationPage> {
           _isLoading = false;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('イベントが作成されました！'),
-            backgroundColor: AppTheme.successColor,
+        // イベント作成成功ダイアログを表示
+        final shouldShowInvite = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: Row(
+              children: [
+                Icon(Icons.celebration, color: AppTheme.successColor, size: 24),
+                const SizedBox(width: AppTheme.spacing8),
+                const Text('イベントが作成されました！'),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('次に参加者を招待しましょう。'),
+                const SizedBox(height: AppTheme.spacing16),
+                AppButton.primary(
+                  text: '招待リンクを共有',
+                  icon: const Icon(Icons.share, size: 18),
+                  onPressed: () => Navigator.of(context).pop(true),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                child: const Text('後で招待する'),
+                onPressed: () => Navigator.of(context).pop(false),
+              ),
+            ],
           ),
         );
 
-        // 作成したイベントの詳細ページに遷移
-        context.go('/events/$eventId');
+        if (mounted) {
+          // イベント詳細ページに遷移
+          context.go('/events/$eventId');
+
+          // 招待リンクダイアログを表示する場合
+          if (shouldShowInvite == true) {
+            // 少し遅延を入れてダイアログを表示
+            await Future.delayed(const Duration(milliseconds: 300));
+            if (mounted) {
+              showDialog(
+                context: context,
+                builder: (context) => InviteLinkDialog(
+                  eventId: eventId,
+                  eventTitle: eventName,
+                ),
+              );
+            }
+          }
+        }
       }
     } catch (e) {
       if (mounted) {

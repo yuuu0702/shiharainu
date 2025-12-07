@@ -32,9 +32,9 @@ class AppTheme {
   static const Color ringColorLight = Color(0x806B7280); // フォーカス時のリング色: 50%透明度
 
   // セマンティックカラー
-  static const Color successColor = primaryColor; // 成功状態はプライマリカラーで代用
-  static const Color warningColor = Color(0xFFF59E0B);
-  static const Color infoColor = Color(0xFF3B82F6);
+  static const Color successColor = Color(0xFF10B981); // 成功状態: 緑系
+  static const Color warningColor = Color(0xFFF59E0B); // 警告: オレンジ系
+  static const Color infoColor = Color(0xFF3B82F6); // 情報: 青系
 
   static ThemeData get lightTheme => ThemeData(
     useMaterial3: true,
