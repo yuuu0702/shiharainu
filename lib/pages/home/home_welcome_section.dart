@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
-import 'package:shiharainu/shared/widgets/widgets.dart';
 
 /// ホームページのウェルカムセクション
 class HomeWelcomeSection extends StatelessWidget {
@@ -15,47 +14,62 @@ class HomeWelcomeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        vertical: AppTheme.spacing16,
+        horizontal: AppTheme.spacing4,
+      ),
       child: Row(
         children: [
-          // シンプルなアバター
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppTheme.primaryColor.withValues(alpha: 0.1),
-              border: Border.all(
-                color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                width: 2,
-              ),
-            ),
-            child: Center(
-              child: Text(dogEmoji, style: AppTheme.displayMedium),
-            ),
-          ),
-          const SizedBox(width: AppTheme.spacing16),
-
-          // ウェルカムメッセージ（シンプルに）
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'おかえりなさい',
-                  style: AppTheme.bodyMedium.copyWith(
+                  'おかえりなさい、',
+                  style: AppTheme.bodyLarge.copyWith(
                     color: AppTheme.mutedForegroundAccessible,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: AppTheme.spacing4),
                 Text(
-                  userName,
-                  style: AppTheme.headlineLarge.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.primaryColor,
+                  '$userNameさん',
+                  style: AppTheme.displaySmall.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.foregroundColor,
+                    height: 1.2,
                   ),
                 ),
               ],
+            ),
+          ),
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppTheme.primaryColor.withValues(alpha: 0.2),
+                  AppTheme.primaryColor.withValues(alpha: 0.1),
+                ],
+              ),
+              border: Border.all(
+                color: AppTheme.primaryColor.withValues(alpha: 0.5),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(dogEmoji, style: const TextStyle(fontSize: 32)),
             ),
           ),
         ],

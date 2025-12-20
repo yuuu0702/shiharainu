@@ -8,10 +8,7 @@ import 'package:shiharainu/pages/home/home_data_models.dart';
 class HomeEventsSection extends StatelessWidget {
   final List<EventData> events;
 
-  const HomeEventsSection({
-    super.key,
-    required this.events,
-  });
+  const HomeEventsSection({super.key, required this.events});
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +28,10 @@ class HomeEventsSection extends StatelessWidget {
             const Spacer(),
             TextButton(
               onPressed: () => context.go('/events'),
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                textStyle: AppTheme.labelMedium,
+              ),
               child: const Text('すべて見る'),
             ),
           ],
@@ -38,28 +39,37 @@ class HomeEventsSection extends StatelessWidget {
         const SizedBox(height: AppTheme.spacing12),
 
         if (upcomingEvents.isEmpty)
-          AppCard(
-            child: Column(
-              children: [
-                const Icon(
-                  Icons.event_outlined,
-                  size: 48,
-                  color: AppTheme.mutedForegroundAccessible,
-                ),
-                const SizedBox(height: AppTheme.spacing12),
-                Text(
-                  '近日中のイベントはありません',
-                  style: AppTheme.bodyMedium.copyWith(
-                    color: AppTheme.mutedForegroundAccessible,
+          Container(
+            padding: const EdgeInsets.all(AppTheme.spacing24),
+            decoration: BoxDecoration(
+              color: AppTheme.mutedColor.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+              border: Border.all(color: AppTheme.mutedColor),
+            ),
+            child: Center(
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.event_busy,
+                    size: 48,
+                    color: AppTheme.mutedForegroundLegacy,
                   ),
-                ),
-                const SizedBox(height: AppTheme.spacing8),
-                AppButton.outline(
-                  text: 'イベントを作成',
-                  size: AppButtonSize.small,
-                  onPressed: () => context.go('/events/create'),
-                ),
-              ],
+                  const SizedBox(height: AppTheme.spacing12),
+                  Text(
+                    '近日中のイベントはありません',
+                    style: AppTheme.bodyMedium.copyWith(
+                      color: AppTheme.mutedForegroundAccessible,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacing16),
+                  AppButton.outline(
+                    text: 'イベントを作成',
+                    size: AppButtonSize.small,
+                    onPressed: () => context.go('/events/create'),
+                  ),
+                ],
+              ),
             ),
           )
         else
@@ -71,121 +81,157 @@ class HomeEventsSection extends StatelessWidget {
   Widget _buildEventCard(BuildContext context, EventData event) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppTheme.spacing12),
-      child: AppCard(
-        onTap: () => context.go('/events/${event.id}'),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        border: Border.all(color: AppTheme.mutedColor),
+        boxShadow: AppTheme.elevationLow,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.go('/events/${event.id}'),
+          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          child: Padding(
+            padding: const EdgeInsets.all(AppTheme.spacing16),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        event.title,
-                        style: AppTheme.bodyLarge.copyWith(
-                          fontWeight: FontWeight.w600,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppTheme.spacing12,
+                        vertical: AppTheme.spacing8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusMedium,
                         ),
                       ),
-                      const SizedBox(height: AppTheme.spacing4),
-                      Text(
-                        event.description,
-                        style: AppTheme.bodySmall.copyWith(
-                          color: AppTheme.mutedForegroundAccessible,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      child: Column(
+                        children: [
+                          Text(
+                            'あと',
+                            style: AppTheme.labelSmall.copyWith(
+                              color: AppTheme.primaryColor,
+                              fontSize: 10,
+                            ),
+                          ),
+                          Text(
+                            _getEventDaysUntilNumber(event),
+                            style: AppTheme.headlineMedium.copyWith(
+                              color: AppTheme.primaryColor,
+                              fontWeight: FontWeight.w800,
+                              height: 1,
+                            ),
+                          ),
+                          Text(
+                            '日',
+                            style: AppTheme.labelSmall.copyWith(
+                              color: AppTheme.primaryColor,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.spacing8,
-                    vertical: AppTheme.spacing4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _getEventStatusColor(event).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                    border: Border.all(
-                      color: _getEventStatusColor(event).withValues(alpha: 0.3),
                     ),
-                  ),
-                  child: Text(
-                    _getEventDaysUntil(event),
-                    style: AppTheme.bodySmall.copyWith(
-                      color: _getEventStatusColor(event),
-                      fontWeight: FontWeight.w500,
+                    const SizedBox(width: AppTheme.spacing16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              if (event.role == EventRole.organizer)
+                                Container(
+                                  margin: const EdgeInsets.only(
+                                    right: AppTheme.spacing8,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppTheme.spacing8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.primaryColor,
+                                    borderRadius: BorderRadius.circular(
+                                      AppTheme.radiusRound,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    '幹事',
+                                    style: AppTheme.labelSmall.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ),
+                              Expanded(
+                                child: Text(
+                                  event.title,
+                                  style: AppTheme.bodyLarge.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AppTheme.spacing4),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_today,
+                                size: 14,
+                                color: AppTheme.mutedForegroundAccessible,
+                              ),
+                              const SizedBox(width: AppTheme.spacing4),
+                              Text(
+                                _formatDate(event.date),
+                                style: AppTheme.bodySmall.copyWith(
+                                  color: AppTheme.mutedForegroundAccessible,
+                                ),
+                              ),
+                              const SizedBox(width: AppTheme.spacing12),
+                              const Icon(
+                                Icons.people,
+                                size: 14,
+                                color: AppTheme.mutedForegroundAccessible,
+                              ),
+                              const SizedBox(width: AppTheme.spacing4),
+                              Text(
+                                '${event.participantCount}人',
+                                style: AppTheme.bodySmall.copyWith(
+                                  color: AppTheme.mutedForegroundAccessible,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: AppTheme.spacing12),
-            Row(
-              children: [
-                const Icon(
-                  Icons.people_outline,
-                  size: 16,
-                  color: AppTheme.mutedForegroundAccessible,
-                ),
-                const SizedBox(width: AppTheme.spacing4),
-                Text(
-                  '${event.participantCount}人',
-                  style: AppTheme.bodySmall.copyWith(
-                    color: AppTheme.mutedForegroundAccessible,
-                  ),
-                ),
-                const SizedBox(width: AppTheme.spacing16),
-                Icon(
-                  event.role == EventRole.organizer
-                      ? Icons.admin_panel_settings_outlined
-                      : Icons.person_outline,
-                  size: 16,
-                  color: AppTheme.mutedForegroundAccessible,
-                ),
-                const SizedBox(width: AppTheme.spacing4),
-                Text(
-                  event.role == EventRole.organizer ? '幹事' : '参加者',
-                  style: AppTheme.bodySmall.copyWith(
-                    color: AppTheme.mutedForegroundAccessible,
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Color _getEventStatusColor(EventData event) {
-    final now = DateTime.now();
-    final difference = event.date.difference(now).inDays;
-
-    if (difference <= 1) {
-      return AppTheme.destructiveColor; // 緊急
-    } else if (difference <= 3) {
-      return AppTheme.warningColor; // 注意
-    } else {
-      return AppTheme.primaryColor; // 通常
-    }
+  String _formatDate(DateTime date) {
+    // 簡易的な日付フォーマット
+    return '${date.month}/${date.day}';
   }
 
-  String _getEventDaysUntil(EventData event) {
+  String _getEventDaysUntilNumber(EventData event) {
     final now = DateTime.now();
     final difference = event.date.difference(now).inDays;
-
-    if (difference < 0) {
-      return '終了';
-    } else if (difference == 0) {
-      return '今日';
-    } else if (difference == 1) {
-      return '明日';
-    } else {
-      return 'あと$difference日';
-    }
+    return difference < 0 ? '0' : difference.toString();
   }
 }

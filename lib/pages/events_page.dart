@@ -19,11 +19,49 @@ class EventsPage extends HookConsumerWidget {
     return SimplePage(
       title: 'イベント一覧',
       actions: [
-        AppButton.primary(
-          text: 'イベント作成',
-          icon: const Icon(Icons.add, size: 18),
-          size: AppButtonSize.small,
-          onPressed: () => context.go('/events/create'),
+        Padding(
+          padding: const EdgeInsets.only(right: AppTheme.spacing16),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => context.go('/events/create'),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacing12,
+                  vertical: 6, // 少しコンパクトに
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppTheme.primaryColor.withValues(alpha: 0.1),
+                      AppTheme.primaryColor.withValues(alpha: 0.05),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  border: Border.all(
+                    color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add, size: 18, color: AppTheme.primaryColor),
+                    const SizedBox(width: 4),
+                    Text(
+                      'イベント作成',
+                      style: AppTheme.labelMedium.copyWith(
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ],
       body: eventsAsync.when(
@@ -74,19 +112,20 @@ class EventsPage extends HookConsumerWidget {
             ],
           );
         },
-        loading: () => const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
+        loading: () =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
         error: (error, stack) => Scaffold(
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline,
-                    size: 64, color: AppTheme.destructive),
+                Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: AppTheme.destructive,
+                ),
                 const SizedBox(height: AppTheme.spacing16),
-                Text('イベント一覧の取得に失敗しました',
-                    style: AppTheme.headlineMedium),
+                Text('イベント一覧の取得に失敗しました', style: AppTheme.headlineMedium),
                 const SizedBox(height: AppTheme.spacing8),
                 Text(error.toString(), style: AppTheme.bodySmall),
                 const SizedBox(height: AppTheme.spacing24),
@@ -103,96 +142,190 @@ class EventsPage extends HookConsumerWidget {
   }
 
   Widget _buildEventCard(BuildContext context, EventModel event) {
-    return AppCard(
-      onTap: () => context.go('/events/${event.id}'),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        border: Border.all(color: AppTheme.mutedColor),
+        boxShadow: AppTheme.elevationLow,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.go('/events/${event.id}'),
+          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          child: Padding(
+            padding: const EdgeInsets.all(AppTheme.spacing16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      event.title,
-                      style: AppTheme.bodyLarge.copyWith(
-                        fontWeight: FontWeight.w600,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppTheme.spacing12,
+                        vertical: AppTheme.spacing8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusMedium,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'あと',
+                            style: AppTheme.labelSmall.copyWith(
+                              color: AppTheme.primaryColor,
+                              fontSize: 10,
+                            ),
+                          ),
+                          Text(
+                            _getEventDaysUntilNumber(event.date),
+                            style: AppTheme.headlineMedium.copyWith(
+                              color: AppTheme.primaryColor,
+                              fontWeight: FontWeight.w800,
+                              height: 1,
+                            ),
+                          ),
+                          Text(
+                            '日',
+                            style: AppTheme.labelSmall.copyWith(
+                              color: AppTheme.primaryColor,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: AppTheme.spacing4),
-                    Text(
-                      event.description,
-                      style: AppTheme.bodySmall.copyWith(
-                        color: AppTheme.mutedForegroundAccessible,
+                    const SizedBox(width: AppTheme.spacing16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(
+                                  right: AppTheme.spacing8,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppTheme.spacing8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getStatusColor(event.status),
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusRound,
+                                  ),
+                                ),
+                                child: Text(
+                                  _getStatusText(event.status),
+                                  style: AppTheme.labelSmall.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  event.title,
+                                  style: AppTheme.bodyLarge.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AppTheme.spacing4),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_today,
+                                size: 14,
+                                color: AppTheme.mutedForegroundAccessible,
+                              ),
+                              const SizedBox(width: AppTheme.spacing4),
+                              Text(
+                                _formatDate(event.date),
+                                style: AppTheme.bodySmall.copyWith(
+                                  color: AppTheme.mutedForegroundAccessible,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AppTheme.spacing4),
+                          Text(
+                            event.description,
+                            style: AppTheme.bodySmall.copyWith(
+                              color: AppTheme.mutedForegroundAccessible,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppTheme.spacing8,
-                      vertical: AppTheme.spacing4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(event.status)
-                          .withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                      border: Border.all(
-                        color: _getStatusColor(event.status)
-                            .withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Text(
-                      _getStatusText(event.status),
-                      style: AppTheme.bodySmall.copyWith(
-                        color: _getStatusColor(event.status),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: AppTheme.spacing4),
-                  Text(
-                    _formatDate(event.date),
-                    style: AppTheme.bodySmall.copyWith(
+                const SizedBox(height: AppTheme.spacing12),
+                Divider(color: AppTheme.mutedColor.withValues(alpha: 0.5)),
+                const SizedBox(height: AppTheme.spacing8),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.payments_outlined,
+                      size: 16,
                       color: AppTheme.mutedForegroundAccessible,
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: AppTheme.spacing12),
-          Row(
-            children: [
-              Icon(
-                Icons.payments_outlined,
-                size: 16,
-                color: AppTheme.mutedForegroundAccessible,
-              ),
-              const SizedBox(width: AppTheme.spacing4),
-              Text(
-                '¥${event.totalAmount.toStringAsFixed(0)}',
-                style: AppTheme.bodySmall.copyWith(
-                  color: AppTheme.mutedForegroundAccessible,
+                    const SizedBox(width: AppTheme.spacing4),
+                    Text(
+                      '合計: ¥${event.totalAmount.toStringAsFixed(0)}',
+                      style: AppTheme.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.foregroundColor,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppTheme.spacing8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.mutedColor,
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusRound,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.arrow_forward,
+                            size: 12,
+                            color: AppTheme.mutedForegroundAccessible,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '詳細',
+                            style: AppTheme.labelSmall.copyWith(
+                              color: AppTheme.mutedForegroundAccessible,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const Spacer(),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 12,
-                color: AppTheme.mutedForegroundAccessible,
-              ),
-            ],
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -204,32 +337,38 @@ class EventsPage extends HookConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              hasSearchQuery ? Icons.search_off : Icons.event_outlined,
-              size: 64,
-              color: AppTheme.mutedForegroundAccessible,
+            Container(
+              padding: const EdgeInsets.all(AppTheme.spacing24),
+              decoration: BoxDecoration(
+                color: AppTheme.mutedColor.withValues(alpha: 0.3),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                hasSearchQuery ? Icons.search_off : Icons.event_outlined,
+                size: 48,
+                color: AppTheme.mutedForegroundLegacy,
+              ),
             ),
-            const SizedBox(height: AppTheme.spacing16),
+            const SizedBox(height: AppTheme.spacing24),
             Text(
               hasSearchQuery ? '検索結果が見つかりませんでした' : 'イベントがありません',
               style: AppTheme.headlineSmall.copyWith(
                 color: AppTheme.mutedForegroundAccessible,
+                fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppTheme.spacing8),
             Text(
-              hasSearchQuery
-                  ? '検索条件を変更してみてください'
-                  : '新しいイベントを作成してみましょう',
+              hasSearchQuery ? '検索条件を変更してみてください' : '新しいイベントを作成して\n割り勘を始めましょう',
               style: AppTheme.bodyMedium.copyWith(
                 color: AppTheme.mutedForegroundAccessible,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppTheme.spacing24),
+            const SizedBox(height: AppTheme.spacing32),
             if (!hasSearchQuery)
-              AppButton.primary(
+              AppButton.outline(
                 text: 'イベントを作成',
                 icon: const Icon(Icons.add, size: 18),
                 onPressed: () => context.go('/events/create'),
@@ -247,7 +386,7 @@ class EventsPage extends HookConsumerWidget {
       case EventStatus.active:
         return AppTheme.primaryColor;
       case EventStatus.completed:
-        return Colors.green;
+        return AppTheme.mutedForegroundLegacy;
     }
   }
 
@@ -263,19 +402,12 @@ class EventsPage extends HookConsumerWidget {
   }
 
   String _formatDate(DateTime date) {
+    return '${date.year}/${date.month}/${date.day}';
+  }
+
+  String _getEventDaysUntilNumber(DateTime date) {
     final now = DateTime.now();
     final difference = date.difference(now).inDays;
-
-    if (difference < 0) {
-      return '${date.month}/${date.day} (終了)';
-    } else if (difference == 0) {
-      return '今日';
-    } else if (difference == 1) {
-      return '明日';
-    } else if (difference < 7) {
-      return '$difference日後';
-    } else {
-      return '${date.month}/${date.day}';
-    }
+    return difference < 0 ? '0' : difference.toString();
   }
 }

@@ -22,9 +22,10 @@ class HomeQuickActions extends StatelessWidget {
             Expanded(
               child: _buildActionCard(
                 context,
-                icon: Icons.add_circle_outline,
+                icon: Icons.add,
                 title: 'イベント作成',
-                subtitle: '新しいイベントを企画',
+                subtitle: '新しい企画',
+                color: AppTheme.primaryColor,
                 onTap: () => context.go('/events/create'),
               ),
             ),
@@ -32,9 +33,10 @@ class HomeQuickActions extends StatelessWidget {
             Expanded(
               child: _buildActionCard(
                 context,
-                icon: Icons.event_outlined,
+                icon: Icons.list_alt,
                 title: 'イベント一覧',
-                subtitle: '参加中のイベント',
+                subtitle: '参加中の企画',
+                color: const Color(0xFF6366F1), // Indigo
                 onTap: () => context.go('/events'),
               ),
             ),
@@ -42,61 +44,7 @@ class HomeQuickActions extends StatelessWidget {
         ),
         const SizedBox(height: AppTheme.spacing12),
         // 参加コード入力ボタン
-        AppCard(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) => const JoinEventDialog(),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: AppTheme.spacing12,
-              horizontal: AppTheme.spacing16,
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(AppTheme.spacing8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.successColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                  ),
-                  child: Icon(
-                    Icons.vpn_key_outlined,
-                    color: AppTheme.successColor,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: AppTheme.spacing12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '参加コードで参加',
-                        style: AppTheme.bodyLarge.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        '招待コードを入力してイベントに参加',
-                        style: AppTheme.bodySmall.copyWith(
-                          color: AppTheme.mutedForegroundAccessible,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: AppTheme.mutedForegroundAccessible,
-                ),
-              ],
-            ),
-          ),
-        ),
+        _buildJoinButton(context),
       ],
     );
   }
@@ -106,35 +54,127 @@ class HomeQuickActions extends StatelessWidget {
     required IconData icon,
     required String title,
     required String subtitle,
+    required Color color,
     required VoidCallback onTap,
   }) {
-    return AppCard(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppTheme.spacing12),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withValues(alpha: 0.1),
+                color.withValues(alpha: 0.05),
+              ],
             ),
-            child: Icon(icon, color: AppTheme.primaryColor, size: 28),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
           ),
-          const SizedBox(height: AppTheme.spacing12),
-          Text(
-            title,
-            style: AppTheme.bodyLarge.copyWith(fontWeight: FontWeight.w600),
-            textAlign: TextAlign.center,
+          padding: const EdgeInsets.all(AppTheme.spacing16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppTheme.spacing8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(height: AppTheme.spacing12),
+              Text(
+                title,
+                style: AppTheme.labelLarge.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: AppTheme.bodySmall.copyWith(
+                  color: AppTheme.mutedForegroundAccessible,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: AppTheme.spacing4),
-          Text(
-            subtitle,
-            style: AppTheme.bodySmall.copyWith(
-              color: AppTheme.mutedForegroundAccessible,
-            ),
-            textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildJoinButton(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (context) => const JoinEventDialog(),
+          );
+        },
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        child: Container(
+          padding: const EdgeInsets.all(AppTheme.spacing16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            border: Border.all(color: AppTheme.mutedColor),
+            boxShadow: AppTheme.elevationLow,
           ),
-        ],
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppTheme.spacing8),
+                decoration: BoxDecoration(
+                  color: AppTheme.successColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                ),
+                child: const Icon(
+                  Icons.vpn_key,
+                  color: AppTheme.successColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: AppTheme.spacing12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '参加コードを入力',
+                    style: AppTheme.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    '招待されたイベントに参加する',
+                    style: AppTheme.bodySmall.copyWith(
+                      color: AppTheme.mutedForegroundAccessible,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+                color: AppTheme.mutedForegroundLegacy,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
