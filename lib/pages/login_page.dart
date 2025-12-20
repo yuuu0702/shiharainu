@@ -87,25 +87,40 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // アプリロゴ・タイトル
-              Icon(Icons.payment, size: 80, color: AppTheme.primaryColor),
+              Container(
+                padding: const EdgeInsets.all(AppTheme.spacing24),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.payment,
+                  size: 64,
+                  color: AppTheme.primaryColor,
+                ),
+              ),
               const SizedBox(height: AppTheme.spacing24),
               Text(
                 'Shiharainu',
-                style: AppTheme.displayMedium.copyWith(
-                  fontWeight: FontWeight.bold,
+                style: AppTheme.displayLarge.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.primaryColor,
+                  letterSpacing: -1.0,
                 ),
               ),
               const SizedBox(height: AppTheme.spacing8),
               Text(
                 'イベント支払い管理アプリ',
                 style: AppTheme.bodyMedium.copyWith(
-                  color: AppTheme.mutedForeground,
+                  color: AppTheme.mutedForegroundAccessible,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: AppTheme.spacing48),
 
-              // ログインフォーム
-              AppCard(
+              // ログインフォーム (Open Layout)
+              SizedBox(
+                width: double.infinity,
                 child: Column(
                   children: [
                     AppInput(
@@ -116,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
                       isRequired: true,
                       prefixIcon: const Icon(Icons.email_outlined, size: 20),
                     ),
-                    const SizedBox(height: AppTheme.spacing16),
+                    const SizedBox(height: AppTheme.spacing24),
                     AppInput(
                       label: 'パスワード',
                       placeholder: 'パスワードを入力',
@@ -128,13 +143,15 @@ class _LoginPageState extends State<LoginPage> {
 
                     // エラーメッセージ表示
                     if (_errorMessage != null) ...[
-                      const SizedBox(height: AppTheme.spacing16),
+                      const SizedBox(height: AppTheme.spacing24),
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(AppTheme.spacing12),
                         decoration: BoxDecoration(
                           color: AppTheme.destructive.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusMedium,
+                          ),
                           border: Border.all(
                             color: AppTheme.destructive.withValues(alpha: 0.2),
                           ),
@@ -153,6 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                                 _errorMessage!,
                                 style: AppTheme.bodyMedium.copyWith(
                                   color: AppTheme.destructive,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -161,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
 
-                    const SizedBox(height: AppTheme.spacing24),
+                    const SizedBox(height: AppTheme.spacing32),
                     SizedBox(
                       width: double.infinity,
                       child: AppButton.primary(
@@ -171,14 +189,14 @@ class _LoginPageState extends State<LoginPage> {
                         size: AppButtonSize.large,
                       ),
                     ),
-                    const SizedBox(height: AppTheme.spacing16),
+                    const SizedBox(height: AppTheme.spacing24),
                     AppButton.link(
                       text: 'パスワードを忘れた場合',
                       onPressed: () {
                         _showPasswordResetDialog();
                       },
                     ),
-                    const SizedBox(height: AppTheme.spacing16),
+                    const SizedBox(height: AppTheme.spacing24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -190,7 +208,7 @@ class _LoginPageState extends State<LoginPage> {
                             'こちら',
                             style: TextStyle(
                               color: AppTheme.primaryColor,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                               decoration: TextDecoration.underline,
                               decorationColor: AppTheme.primaryColor,
                             ),

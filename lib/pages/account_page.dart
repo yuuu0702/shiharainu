@@ -25,20 +25,77 @@ class AccountPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // プロフィールカード
-              _buildProfileCard(context, profile),
-              const SizedBox(height: AppTheme.spacing24),
+              const SizedBox(height: AppTheme.spacing16),
+              // プロフィールヘッダー (Hero Style)
+              _buildProfileHeader(context, profile),
+              const SizedBox(height: AppTheme.spacing32),
 
               // アカウント設定セクション
-              _buildAccountSettingsSection(context, ref),
-              const SizedBox(height: AppTheme.spacing24),
+              _buildSectionTitle('アカウント設定'),
+              const SizedBox(height: AppTheme.spacing8),
+              _buildSettingsGroup([
+                _buildSettingsItem(
+                  icon: Icons.edit_outlined,
+                  title: 'プロフィール編集',
+                  subtitle: '名前、年齢、役職の変更',
+                  onTap: () => context.go('/profile-edit'),
+                ),
+                _buildSettingsItem(
+                  icon: Icons.lock_outline,
+                  title: 'パスワード変更',
+                  subtitle: 'ログインパスワードの変更',
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('パスワード変更機能は準備中です')),
+                    );
+                  },
+                ),
+                _buildSettingsItem(
+                  icon: Icons.notifications_outlined,
+                  title: '通知設定',
+                  subtitle: 'プッシュ通知やメール通知の設定',
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('通知設定機能は準備中です')),
+                    );
+                  },
+                  showDivider: false,
+                ),
+              ]),
+              const SizedBox(height: AppTheme.spacing32),
 
               // その他セクション
-              _buildOtherSection(context),
-              const SizedBox(height: AppTheme.spacing24),
+              _buildSectionTitle('その他'),
+              const SizedBox(height: AppTheme.spacing8),
+              _buildSettingsGroup([
+                _buildSettingsItem(
+                  icon: Icons.info_outline,
+                  title: 'アプリについて',
+                  subtitle: 'バージョン情報、利用規約など',
+                  onTap: () => context.go('/app-info'),
+                  showDivider: false,
+                ),
+              ]),
+              const SizedBox(height: AppTheme.spacing32),
 
-              // ログアウトセクション
-              _buildLogoutSection(context, ref),
+              // ログアウトボタン
+              Center(
+                child: TextButton(
+                  onPressed: () => _showLogoutDialog(context, ref),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppTheme.destructive,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.logout, size: 18),
+                      const SizedBox(width: 8),
+                      const Text('ログアウト'),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppTheme.spacing48),
             ],
           ),
         ),
@@ -68,187 +125,118 @@ class AccountPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileCard(BuildContext context, profile) {
-    return AppCard(
-      child: Column(
-        children: [
-          // ユーザーアバター
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppTheme.primaryColor.withValues(alpha: 0.1),
-              border: Border.all(
-                color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                width: 2,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                profile?.name.isNotEmpty == true
-                    ? profile.name.substring(0, 1).toUpperCase()
-                    : '?',
-                style: AppTheme.headlineLarge.copyWith(
-                  color: AppTheme.primaryColor,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: AppTheme.spacing16),
+  Widget _buildProfileHeader(BuildContext context, userProfile) {
+    // データ型が不明確なため、dynamicとして扱うか、適切なキャストが必要ですが、
+    // ここではプロパティアクセスを前提とします。
+    final profile = userProfile;
 
-          // ユーザー情報
-          Text(
-            profile?.name ?? 'ゲスト',
-            style: AppTheme.headlineMedium.copyWith(
-              fontWeight: FontWeight.w700,
+    return Column(
+      children: [
+        // アバター
+        Container(
+          width: 100,
+          height: 100,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            border: Border.all(
+              color: AppTheme.primaryColor.withValues(alpha: 0.2),
+              width: 4,
+            ),
+            boxShadow: AppTheme.elevationMedium,
+          ),
+          child: Center(
+            child: Text(
+              profile?.name.isNotEmpty == true
+                  ? profile.name.substring(0, 1).toUpperCase()
+                  : '?',
+              style: AppTheme.displaySmall.copyWith(
+                color: AppTheme.primaryColor,
+                fontWeight: FontWeight.w700,
+                fontSize: 40,
+              ),
             ),
           ),
-          const SizedBox(height: AppTheme.spacing8),
-          Text(
-            profile?.email ?? '未設定',
-            style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.mutedForeground,
-            ),
-          ),
-          const SizedBox(height: AppTheme.spacing16),
+        ),
+        const SizedBox(height: AppTheme.spacing16),
 
-          // 追加情報
-          if (profile != null) ...[
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(AppTheme.spacing16),
-              decoration: BoxDecoration(
-                color: AppTheme.mutedColor,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+        // ユーザー名とメール
+        Text(
+          profile?.name ?? 'ゲスト',
+          style: AppTheme.headlineMedium.copyWith(
+            fontWeight: FontWeight.w800,
+            color: AppTheme.foregroundColor,
+          ),
+        ),
+        const SizedBox(height: AppTheme.spacing4),
+        Text(
+          profile?.email ?? '未設定',
+          style: AppTheme.bodyMedium.copyWith(
+            color: AppTheme.mutedForegroundAccessible,
+          ),
+        ),
+        const SizedBox(height: AppTheme.spacing24),
+
+        // 統計情報 (Chips)
+        if (profile != null)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildInfoChip(Icons.cake, '${profile.age}歳'),
+              const SizedBox(width: AppTheme.spacing12),
+              Container(width: 1, height: 16, color: AppTheme.mutedColor),
+              const SizedBox(width: AppTheme.spacing12),
+              _buildInfoChip(Icons.work_outline, profile.position),
+              const SizedBox(width: AppTheme.spacing12),
+              Container(width: 1, height: 16, color: AppTheme.mutedColor),
+              const SizedBox(width: AppTheme.spacing12),
+              _buildInfoChip(
+                Icons.calendar_today,
+                _formatDate(profile.createdAt),
               ),
-              child: Column(
-                children: [
-                  _buildInfoRow('年齢', '${profile.age}歳'),
-                  const SizedBox(height: AppTheme.spacing8),
-                  _buildInfoRow('役職', profile.position),
-                  const SizedBox(height: AppTheme.spacing8),
-                  _buildInfoRow('登録日', _formatDate(profile.createdAt)),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
+            ],
+          ),
+      ],
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoChip(IconData icon, String label) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        Icon(icon, size: 14, color: AppTheme.mutedForegroundAccessible),
+        const SizedBox(width: 4),
         Text(
           label,
-          style: AppTheme.bodyMedium.copyWith(color: AppTheme.mutedForeground),
-        ),
-        Text(
-          value,
-          style: AppTheme.bodyMedium.copyWith(fontWeight: FontWeight.w500),
+          style: AppTheme.labelMedium.copyWith(
+            color: AppTheme.mutedForegroundAccessible,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildAccountSettingsSection(BuildContext context, WidgetRef ref) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'アカウント設定',
-            style: AppTheme.headlineSmall.copyWith(
-              color: AppTheme.primaryColor,
-            ),
-          ),
-          const SizedBox(height: AppTheme.spacing16),
-
-          _buildSettingsItem(
-            icon: Icons.edit_outlined,
-            title: 'プロフィール編集',
-            subtitle: '名前、年齢、役職の変更',
-            onTap: () {
-              context.go('/profile-edit');
-            },
-          ),
-          const Divider(height: AppTheme.spacing16),
-          _buildSettingsItem(
-            icon: Icons.lock_outline,
-            title: 'パスワード変更',
-            subtitle: 'ログインパスワードの変更',
-            onTap: () {
-              // パスワード変更画面への遷移（今後実装）
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('パスワード変更機能は準備中です')));
-            },
-          ),
-          const Divider(height: AppTheme.spacing16),
-          _buildSettingsItem(
-            icon: Icons.notifications_outlined,
-            title: '通知設定',
-            subtitle: 'プッシュ通知やメール通知の設定',
-            onTap: () {
-              // 通知設定画面への遷移（今後実装）
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('通知設定機能は準備中です')));
-            },
-          ),
-        ],
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: AppTheme.spacing4),
+      child: Text(
+        title,
+        style: AppTheme.labelMedium.copyWith(
+          color: AppTheme.mutedForegroundAccessible,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
 
-  Widget _buildOtherSection(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'その他',
-            style: AppTheme.headlineSmall.copyWith(
-              color: AppTheme.primaryColor,
-            ),
-          ),
-          const SizedBox(height: AppTheme.spacing16),
-
-          _buildSettingsItem(
-            icon: Icons.info_outline,
-            title: 'アプリについて',
-            subtitle: 'バージョン情報、利用規約など',
-            onTap: () {
-              context.go('/app-info');
-            },
-          ),
-        ],
+  Widget _buildSettingsGroup(List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        border: Border.all(color: AppTheme.mutedColor),
+        boxShadow: AppTheme.elevationLow,
       ),
-    );
-  }
-
-  Widget _buildLogoutSection(BuildContext context, WidgetRef ref) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'アカウント操作',
-            style: AppTheme.headlineSmall.copyWith(color: AppTheme.destructive),
-          ),
-          const SizedBox(height: AppTheme.spacing16),
-
-          AppButton.secondary(
-            text: 'ログアウト',
-            icon: const Icon(Icons.logout, size: 18),
-            onPressed: () => _showLogoutDialog(context, ref),
-          ),
-        ],
-      ),
+      child: Column(children: children),
     );
   }
 
@@ -257,47 +245,71 @@ class AccountPage extends ConsumerWidget {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    bool showDivider = true,
   }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppTheme.spacing12),
-          child: Row(
-            children: [
-              Icon(icon, size: 24, color: AppTheme.mutedForeground),
-              const SizedBox(width: AppTheme.spacing16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: AppTheme.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w500,
+    return Column(
+      children: [
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+            child: Padding(
+              padding: const EdgeInsets.all(AppTheme.spacing16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.mutedColor.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.radiusMedium,
                       ),
                     ),
-                    const SizedBox(height: AppTheme.spacing4),
-                    Text(
-                      subtitle,
-                      style: AppTheme.bodySmall.copyWith(
-                        color: AppTheme.mutedForeground,
-                      ),
+                    child: Icon(
+                      icon,
+                      size: 20,
+                      color: AppTheme.foregroundColor,
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: AppTheme.spacing16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: AppTheme.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          style: AppTheme.labelSmall.copyWith(
+                            color: AppTheme.mutedForegroundAccessible,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: AppTheme.mutedColor,
+                  ),
+                ],
               ),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: AppTheme.mutedForeground,
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+        if (showDivider)
+          Divider(
+            height: 1,
+            indent: 60,
+            color: AppTheme.mutedColor.withValues(alpha: 0.5),
+          ),
+      ],
     );
   }
 

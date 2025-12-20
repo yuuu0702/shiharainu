@@ -51,14 +51,14 @@ class AppSearchBar extends StatelessWidget {
               enabled: enabled,
               onChanged: onChanged,
               style: AppTheme.bodyMedium,
+              textAlignVertical: TextAlignVertical.center,
               decoration: InputDecoration(
                 hintText: hintText ?? '検索...',
                 hintStyle: AppTheme.bodyMedium.copyWith(
                   color: AppTheme.mutedForegroundAccessible,
                 ),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-                isDense: true,
+                isCollapsed: true,
               ),
             ),
           ),
