@@ -1,3 +1,4 @@
+// Governed by Skill: shiharainu-general-design
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -17,13 +18,8 @@ class EventSettingsPage extends HookConsumerWidget {
     final eventAsync = ref.watch(eventStreamProvider(eventId));
     final isOrganizerAsync = ref.watch(isEventOrganizerProvider(eventId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('イベント設定'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 1,
-      ),
+    return SimplePage(
+      title: 'イベント設定',
       body: eventAsync.when(
         data: (event) {
           return isOrganizerAsync.when(
@@ -73,7 +69,9 @@ class _EventSettingsForm extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final titleController = useTextEditingController(text: event.title);
-    final descriptionController = useTextEditingController(text: event.description);
+    final descriptionController = useTextEditingController(
+      text: event.description,
+    );
     final totalAmountController = useTextEditingController(
       text: event.totalAmount.toStringAsFixed(0),
     );
@@ -225,10 +223,7 @@ class _EventSettingsForm extends HookConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const AppCardHeader(
-                  title: '基本情報',
-                  subtitle: 'イベントの基本情報を編集',
-                ),
+                const AppCardHeader(title: '基本情報', subtitle: 'イベントの基本情報を編集'),
                 AppCardContent(
                   child: Column(
                     children: [
@@ -285,7 +280,9 @@ class _EventSettingsForm extends HookConsumerWidget {
                           if (date != null && context.mounted) {
                             final time = await showTimePicker(
                               context: context,
-                              initialTime: TimeOfDay.fromDateTime(selectedDate.value),
+                              initialTime: TimeOfDay.fromDateTime(
+                                selectedDate.value,
+                              ),
                             );
                             if (time != null) {
                               selectedDate.value = DateTime(
@@ -321,10 +318,7 @@ class _EventSettingsForm extends HookConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const AppCardHeader(
-                  title: '支払い設定',
-                  subtitle: '金額と支払い方法',
-                ),
+                const AppCardHeader(title: '支払い設定', subtitle: '金額と支払い方法'),
                 AppCardContent(
                   child: Column(
                     children: [
@@ -369,10 +363,7 @@ class _EventSettingsForm extends HookConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const AppCardHeader(
-                  title: 'ステータス管理',
-                  subtitle: 'イベントの進行状況',
-                ),
+                const AppCardHeader(title: 'ステータス管理', subtitle: 'イベントの進行状況'),
                 AppCardContent(
                   child: AppSelect<EventStatus>(
                     label: 'イベントステータス',
@@ -421,18 +412,14 @@ class _EventSettingsForm extends HookConsumerWidget {
 
           Text(
             '危険なアクション',
-            style: AppTheme.headlineSmall.copyWith(
-              color: AppTheme.destructive,
-            ),
+            style: AppTheme.headlineSmall.copyWith(color: AppTheme.destructive),
           ),
 
           const SizedBox(height: AppTheme.spacing8),
 
           Text(
             'イベントを削除すると、すべての参加者情報と支払い記録が失われます。',
-            style: AppTheme.bodySmall.copyWith(
-              color: AppTheme.mutedForeground,
-            ),
+            style: AppTheme.bodySmall.copyWith(color: AppTheme.mutedForeground),
           ),
 
           const SizedBox(height: AppTheme.spacing16),

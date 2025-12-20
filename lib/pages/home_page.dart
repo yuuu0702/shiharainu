@@ -1,3 +1,4 @@
+// Governed by Skill: shiharainu-general-design
 import 'dart:math';
 
 import 'package:flutter/material.dart';

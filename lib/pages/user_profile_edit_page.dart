@@ -1,3 +1,4 @@
+// Governed by Skill: shiharainu-general-design
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -280,13 +281,8 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('プロフィール編集'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 1,
-      ),
+    return SimplePage(
+      title: 'プロフィール編集',
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppTheme.spacing24),

@@ -1,3 +1,4 @@
+// Governed by Skill: shiharainu-general-design
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
@@ -25,18 +26,15 @@ class _EventPaymentManagementPageState
   @override
   Widget build(BuildContext context) {
     final eventAsync = ref.watch(eventStreamProvider(widget.eventId));
-    final participantsAsync =
-        ref.watch(eventParticipantsStreamProvider(widget.eventId));
-    final isOrganizerAsync =
-        ref.watch(isEventOrganizerProvider(widget.eventId));
+    final participantsAsync = ref.watch(
+      eventParticipantsStreamProvider(widget.eventId),
+    );
+    final isOrganizerAsync = ref.watch(
+      isEventOrganizerProvider(widget.eventId),
+    );
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('支払い管理'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 1,
-      ),
+    return SimplePage(
+      title: '支払い管理',
       body: eventAsync.when(
         data: (event) {
           return participantsAsync.when(
@@ -74,8 +72,9 @@ class _EventPaymentManagementPageState
     final filteredParticipants = _filterParticipants(participants);
 
     // 支払いサマリーを計算
-    final paidCount =
-        participants.where((p) => p.paymentStatus == PaymentStatus.paid).length;
+    final paidCount = participants
+        .where((p) => p.paymentStatus == PaymentStatus.paid)
+        .length;
     final unpaidCount = participants.length - paidCount;
     final paidAmount = participants
         .where((p) => p.paymentStatus == PaymentStatus.paid)
@@ -214,10 +213,7 @@ class _EventPaymentManagementPageState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AppCardHeader(
-              title: '支払いサマリー',
-              subtitle: '現在の支払い状況',
-            ),
+            const AppCardHeader(title: '支払いサマリー', subtitle: '現在の支払い状況'),
             AppCardContent(
               child: Column(
                 children: [
@@ -298,11 +294,15 @@ class _EventPaymentManagementPageState
           child: Icon(icon, size: 24, color: color),
         ),
         const SizedBox(height: AppTheme.spacing8),
-        Text(label, style: AppTheme.bodySmall.copyWith(
-          color: AppTheme.mutedForeground,
-        )),
+        Text(
+          label,
+          style: AppTheme.bodySmall.copyWith(color: AppTheme.mutedForeground),
+        ),
         const SizedBox(height: AppTheme.spacing4),
-        Text(value, style: AppTheme.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
+        Text(
+          value,
+          style: AppTheme.bodyLarge.copyWith(fontWeight: FontWeight.w600),
+        ),
       ],
     );
   }
@@ -312,9 +312,7 @@ class _EventPaymentManagementPageState
       children: [
         Text(
           label,
-          style: AppTheme.bodySmall.copyWith(
-            color: AppTheme.mutedForeground,
-          ),
+          style: AppTheme.bodySmall.copyWith(color: AppTheme.mutedForeground),
         ),
         const SizedBox(height: AppTheme.spacing4),
         Text(
@@ -352,7 +350,8 @@ class _EventPaymentManagementPageState
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          if (participant.role == ParticipantRole.organizer) ...[
+                          if (participant.role ==
+                              ParticipantRole.organizer) ...[
                             const SizedBox(width: AppTheme.spacing8),
                             AppBadge(
                               text: '主催者',
@@ -407,7 +406,8 @@ class _EventPaymentManagementPageState
                             ? '未払に戻す'
                             : '支払済にする',
                         size: AppButtonSize.small,
-                        onPressed: () => _handleTogglePaymentStatus(participant),
+                        onPressed: () =>
+                            _handleTogglePaymentStatus(participant),
                       ),
                     ],
                   ),

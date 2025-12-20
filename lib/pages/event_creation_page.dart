@@ -1,3 +1,4 @@
+// Governed by Skill: shiharainu-general-design
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -145,10 +146,8 @@ class _EventCreationPageState extends State<EventCreationPage> {
             if (mounted) {
               showDialog(
                 context: context,
-                builder: (context) => InviteLinkDialog(
-                  eventId: eventId,
-                  eventTitle: eventName,
-                ),
+                builder: (context) =>
+                    InviteLinkDialog(eventId: eventId, eventTitle: eventName),
               );
             }
           }
@@ -166,13 +165,11 @@ class _EventCreationPageState extends State<EventCreationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('イベント作成'),
-        leading: AppButton.icon(
-          icon: const Icon(Icons.arrow_back, size: 20),
-          onPressed: () => context.pop(),
-        ),
+    return SimplePage(
+      title: 'イベント作成',
+      leading: AppButton.icon(
+        icon: const Icon(Icons.arrow_back, size: 20),
+        onPressed: () => context.pop(),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.spacing16),
@@ -221,7 +218,10 @@ class _EventCreationPageState extends State<EventCreationPage> {
                         value: EventType.yearEndParty,
                         child: Text('忘年会・新年会'),
                       ),
-                      DropdownMenuItem(value: EventType.other, child: Text('その他')),
+                      DropdownMenuItem(
+                        value: EventType.other,
+                        child: Text('その他'),
+                      ),
                     ],
                     onChanged: (value) {
                       if (value != null) {
@@ -271,7 +271,9 @@ class _EventCreationPageState extends State<EventCreationPage> {
                                 }
                               },
                               child: Container(
-                                padding: const EdgeInsets.all(AppTheme.spacing12),
+                                padding: const EdgeInsets.all(
+                                  AppTheme.spacing12,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppTheme.inputBackground,
                                   borderRadius: BorderRadius.circular(
@@ -323,7 +325,9 @@ class _EventCreationPageState extends State<EventCreationPage> {
                                 }
                               },
                               child: Container(
-                                padding: const EdgeInsets.all(AppTheme.spacing12),
+                                padding: const EdgeInsets.all(
+                                  AppTheme.spacing12,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppTheme.inputBackground,
                                   borderRadius: BorderRadius.circular(

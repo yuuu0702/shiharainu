@@ -1,3 +1,4 @@
+// Governed by Skill: shiharainu-login-design
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,10 +15,7 @@ import 'package:shiharainu/shared/widgets/app_progress.dart';
 class InviteAcceptPage extends HookConsumerWidget {
   final String inviteCode;
 
-  const InviteAcceptPage({
-    super.key,
-    required this.inviteCode,
-  });
+  const InviteAcceptPage({super.key, required this.inviteCode});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,8 +38,9 @@ class InviteAcceptPage extends HookConsumerWidget {
         }
 
         // イベントID取得
-        final fetchedEventId =
-            await inviteService.getEventIdFromInviteCode(inviteCode);
+        final fetchedEventId = await inviteService.getEventIdFromInviteCode(
+          inviteCode,
+        );
         eventId.value = fetchedEventId;
 
         // イベント情報取得
@@ -88,8 +87,9 @@ class InviteAcceptPage extends HookConsumerWidget {
             .collection('participants');
 
         // 既に参加済みか確認
-        final existingParticipant =
-            await participantsRef.where('userId', isEqualTo: user.uid).get();
+        final existingParticipant = await participantsRef
+            .where('userId', isEqualTo: user.uid)
+            .get();
 
         if (existingParticipant.docs.isNotEmpty) {
           // 既に参加済みの場合はイベント詳細ページへ
@@ -137,28 +137,59 @@ class InviteAcceptPage extends HookConsumerWidget {
       return null;
     }, []);
 
+    // Premium Gradient Background (Same as Login Page)
+    final backgroundGradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        Color(0xFF6366F1), // Indigo 500
+        Color(0xFF8B5CF6), // Violet 500
+        Color(0xFFEC4899), // Pink 500 (Subtle hint)
+      ],
+      stops: const [0.0, 0.5, 1.0],
+    );
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 500),
-            padding: const EdgeInsets.all(24),
-            child: isLoading.value
-                ? const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AppProgress.circular(),
-                      SizedBox(height: 16),
-                      Text(
-                        '招待情報を確認中...',
-                        style: AppTheme.bodyMedium,
-                      ),
-                    ],
-                  )
-                : error.value != null
+      body: Stack(
+        children: [
+          // 1. Background Layer
+          Container(decoration: BoxDecoration(gradient: backgroundGradient)),
+
+          // 2. Mesh/Noise Overlay
+          Container(color: Colors.black.withValues(alpha: 0.1)),
+
+          // 3. Content Layer
+          SafeArea(
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 500),
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(
+                    alpha: 0.95,
+                  ), // Slightly transparent white
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: isLoading.value
+                    ? const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AppProgress.circular(),
+                          SizedBox(height: 16),
+                          Text('招待情報を確認中...', style: AppTheme.bodyMedium),
+                        ],
+                      )
+                    : error.value != null
                     ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.error_outline,
@@ -181,42 +212,63 @@ class InviteAcceptPage extends HookConsumerWidget {
                         ],
                       )
                     : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
-                            Icons.event,
-                            size: 64,
-                            color: AppTheme.primaryColor,
+                          Container(
+                            padding: const EdgeInsets.all(AppTheme.spacing16),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.1,
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.event_available,
+                              size: 48,
+                              color: AppTheme.primaryColor,
+                            ),
                           ),
                           const SizedBox(height: 24),
                           Text(
                             '${eventTitle.value}に招待されました',
-                            style: AppTheme.headlineLarge,
+                            style: AppTheme.headlineMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
                           Text(
-                            'イベントに参加しますか?',
+                            'イベントに参加して詳細を確認しましょう',
                             style: AppTheme.bodyLarge.copyWith(
                               color: AppTheme.mutedForeground,
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 48),
-                          AppButton.primary(
-                            text: isJoining.value ? '参加中...' : 'イベントに参加',
-                            onPressed: isJoining.value ? null : joinEvent,
-                            isLoading: isJoining.value,
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            child: AppButton.primary(
+                              text: isJoining.value ? '参加中...' : 'イベントに参加',
+                              onPressed: isJoining.value ? null : joinEvent,
+                              isLoading: isJoining.value,
+                              size: AppButtonSize.large,
+                            ),
                           ),
                           const SizedBox(height: 16),
-                          AppButton.outline(
-                            text: 'キャンセル',
-                            onPressed: () => context.go('/home'),
+                          SizedBox(
+                            width: double.infinity,
+                            child: AppButton.outline(
+                              text: 'キャンセル',
+                              onPressed: () => context.go('/home'),
+                              size: AppButtonSize.large,
+                            ),
                           ),
                         ],
                       ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

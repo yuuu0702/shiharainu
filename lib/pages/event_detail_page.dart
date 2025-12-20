@@ -1,3 +1,4 @@
+// Governed by Skill: shiharainu-general-design
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -23,7 +24,9 @@ class EventDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final eventAsync = ref.watch(eventStreamProvider(eventId));
-    final participantsAsync = ref.watch(eventParticipantsStreamProvider(eventId));
+    final participantsAsync = ref.watch(
+      eventParticipantsStreamProvider(eventId),
+    );
     final isOrganizerAsync = ref.watch(isEventOrganizerProvider(eventId));
     final currentParticipantAsync = ref.watch(
       currentUserParticipantProvider(eventId),
@@ -73,25 +76,21 @@ class EventDetailPage extends ConsumerWidget {
         ? ParticipantRole.organizer
         : ParticipantRole.participant;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(event.title),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 1,
-        actions: isOrganizer
-            ? [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: AppButton.outline(
-                    text: '設定',
-                    icon: const Icon(Icons.settings_outlined, size: 18),
-                    onPressed: () => context.go('/events/$eventId/settings'),
-                  ),
+    return SimplePage(
+      title: event.title,
+      actions: isOrganizer
+          ? [
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: AppButton.outline(
+                  text: '設定',
+                  icon: const Icon(Icons.settings_outlined, size: 18),
+                  onPressed: () => context.go('/events/$eventId/settings'),
+                  size: AppButtonSize.small,
                 ),
-              ]
-            : null,
-      ),
+              ),
+            ]
+          : null,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.spacing16),
         child: Column(
@@ -102,26 +101,16 @@ class EventDetailPage extends ConsumerWidget {
             const SizedBox(height: AppTheme.spacing24),
 
             // アクションカード
-            EventDetailActionCards(
-              eventId: eventId,
-              event: event,
-              role: role,
-            ),
+            EventDetailActionCards(eventId: eventId, event: event, role: role),
             const SizedBox(height: AppTheme.spacing32),
 
             // イベント情報
-            EventDetailInfoSection(
-              event: event,
-              participants: participants,
-            ),
+            EventDetailInfoSection(event: event, participants: participants),
             const SizedBox(height: AppTheme.spacing32),
 
             // 二次会セクション（主催者のみ）
             if (isOrganizer) ...[
-              AfterPartySection(
-                eventId: eventId,
-                eventTitle: event.title,
-              ),
+              AfterPartySection(eventId: eventId, eventTitle: event.title),
               const SizedBox(height: AppTheme.spacing32),
             ],
 

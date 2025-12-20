@@ -1,3 +1,4 @@
+// Governed by Skill: shiharainu-general-design
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -16,16 +17,13 @@ class EventParticipantManagementPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final eventAsync = ref.watch(eventStreamProvider(eventId));
-    final participantsAsync = ref.watch(eventParticipantsStreamProvider(eventId));
+    final participantsAsync = ref.watch(
+      eventParticipantsStreamProvider(eventId),
+    );
     final isOrganizerAsync = ref.watch(isEventOrganizerProvider(eventId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('参加者管理'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 1,
-      ),
+    return SimplePage(
+      title: '参加者管理',
       body: eventAsync.when(
         data: (event) {
           return participantsAsync.when(
@@ -72,10 +70,7 @@ class EventParticipantManagementPage extends ConsumerWidget {
               color: AppTheme.mutedForeground,
             ),
             const SizedBox(height: AppTheme.spacing16),
-            Text(
-              '参加者がいません',
-              style: AppTheme.headlineMedium,
-            ),
+            Text('参加者がいません', style: AppTheme.headlineMedium),
             const SizedBox(height: AppTheme.spacing8),
             Text(
               '招待コードを共有して参加者を招待しましょう',
@@ -203,7 +198,10 @@ class _ParticipantCard extends ConsumerWidget {
                         value: 'remove',
                         child: Row(
                           children: [
-                            Icon(Icons.delete_outline, color: AppTheme.destructive),
+                            Icon(
+                              Icons.delete_outline,
+                              color: AppTheme.destructive,
+                            ),
                             const SizedBox(width: AppTheme.spacing8),
                             Text(
                               '削除',
@@ -257,16 +255,12 @@ class _ParticipantCard extends ConsumerWidget {
         const SizedBox(height: AppTheme.spacing4),
         Text(
           label,
-          style: AppTheme.bodySmall.copyWith(
-            color: AppTheme.mutedForeground,
-          ),
+          style: AppTheme.bodySmall.copyWith(color: AppTheme.mutedForeground),
         ),
         const SizedBox(height: AppTheme.spacing4),
         Text(
           value,
-          style: AppTheme.bodyMedium.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+          style: AppTheme.bodyMedium.copyWith(fontWeight: FontWeight.w500),
         ),
       ],
     );
@@ -286,10 +280,8 @@ class _ParticipantCard extends ConsumerWidget {
   void _showEditDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
-      builder: (context) => _EditParticipantDialog(
-        participant: participant,
-        eventId: eventId,
-      ),
+      builder: (context) =>
+          _EditParticipantDialog(participant: participant, eventId: eventId),
     );
   }
 
@@ -353,9 +345,7 @@ class _ParticipantCard extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('参加者削除'),
-        content: Text(
-          '${participant.displayName}を削除しますか?\n\nこの操作は取り消せません。',
-        ),
+        content: Text('${participant.displayName}を削除しますか?\n\nこの操作は取り消せません。'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
