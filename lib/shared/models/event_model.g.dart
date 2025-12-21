@@ -12,9 +12,9 @@ _$EventModelImpl _$$EventModelImplFromJson(
   id: json['id'] as String,
   title: json['title'] as String,
   description: json['description'] as String,
-  eventType:
-      $enumDecodeNullable(_$EventTypeEnumMap, json['eventType']) ??
-      EventType.other,
+  eventType: json['eventType'] == null
+      ? EventType.other
+      : const EventTypeConverter().fromJson(json['eventType'] as String),
   date: const TimestampConverter().fromJson(json['date'] as Object),
   organizerIds: (json['organizerIds'] as List<dynamic>)
       .map((e) => e as String)
@@ -43,7 +43,7 @@ Map<String, dynamic> _$$EventModelImplToJson(_$EventModelImpl instance) =>
       'id': instance.id,
       'title': instance.title,
       'description': instance.description,
-      'eventType': _$EventTypeEnumMap[instance.eventType]!,
+      'eventType': const EventTypeConverter().toJson(instance.eventType),
       'date': const TimestampConverter().toJson(instance.date),
       'organizerIds': instance.organizerIds,
       'totalAmount': instance.totalAmount,
@@ -56,13 +56,6 @@ Map<String, dynamic> _$$EventModelImplToJson(_$EventModelImpl instance) =>
       'childEventIds': instance.childEventIds,
       'isAfterParty': instance.isAfterParty,
     };
-
-const _$EventTypeEnumMap = {
-  EventType.drinkingParty: 'drinking_party',
-  EventType.welcomeParty: 'welcome_party',
-  EventType.yearEndParty: 'year_end_party',
-  EventType.other: 'other',
-};
 
 const _$EventStatusEnumMap = {
   EventStatus.planning: 'planning',

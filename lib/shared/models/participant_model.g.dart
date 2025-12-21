@@ -15,7 +15,11 @@ _$ParticipantModelImpl _$$ParticipantModelImplFromJson(
   displayName: json['displayName'] as String,
   email: json['email'] as String,
   role:
-      $enumDecodeNullable(_$ParticipantRoleEnumMap, json['role']) ??
+      $enumDecodeNullable(
+        _$ParticipantRoleEnumMap,
+        json['role'],
+        unknownValue: ParticipantRole.other,
+      ) ??
       ParticipantRole.participant,
   age: (json['age'] as num?)?.toInt(),
   position: json['position'] as String?,
@@ -55,6 +59,7 @@ Map<String, dynamic> _$$ParticipantModelImplToJson(
 const _$ParticipantRoleEnumMap = {
   ParticipantRole.organizer: 'organizer',
   ParticipantRole.participant: 'participant',
+  ParticipantRole.other: 'other',
 };
 
 const _$ParticipantGenderEnumMap = {

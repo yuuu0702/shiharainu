@@ -55,12 +55,14 @@ class App extends ConsumerWidget {
 
         // 未ログインの場合
         if (!isLoggedIn) {
-          // ログイン・サインアップ以外はログインページにリダイレクト
-          if (currentPath != '/login' && currentPath != '/signup') {
+          // ログイン・サインアップ・招待ページ以外はログインページにリダイレクト
+          if (currentPath != '/login' &&
+              currentPath != '/signup' &&
+              !currentPath.startsWith('/invite')) {
             AppLogger.navigation('未ログインのため/loginにリダイレクト', route: currentPath);
             return '/login';
           }
-          return null; // ログイン・サインアップページは表示
+          return null; // ログイン・サインアップ・招待ページは表示
         }
 
         // ログイン済みの場合
@@ -88,15 +90,16 @@ class App extends ConsumerWidget {
             }
             // プロフィールが存在しない場合
             else {
-              // プロフィール設定ページ以外はプロフィール設定にリダイレクト
-              if (currentPath != '/profile-setup') {
+              // プロフィール設定ページ、招待ページ以外はプロフィール設定にリダイレクト
+              if (currentPath != '/profile-setup' &&
+                  !currentPath.startsWith('/invite')) {
                 AppLogger.navigation(
                   'プロフィール未設定、/profile-setupにリダイレクト',
                   route: currentPath,
                 );
                 return '/profile-setup';
               }
-              return null; // プロフィール設定ページは表示
+              return null; // プロフィール設定ページ、招待ページは表示
             }
           },
           loading: () {
@@ -209,7 +212,9 @@ class App extends ConsumerWidget {
                       pageBuilder: (context, state) {
                         final eventId = state.pathParameters['eventId']!;
                         return AppPageTransitions.buildPageWithTransition(
-                          child: EventParticipantManagementPage(eventId: eventId),
+                          child: EventParticipantManagementPage(
+                            eventId: eventId,
+                          ),
                           name: 'event-participants',
                           transitionType: PageTransitionType.slide,
                         );
@@ -255,7 +260,11 @@ class App extends ConsumerWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.construction, size: 64, color: AppTheme.mutedForeground),
+                        Icon(
+                          Icons.construction,
+                          size: 64,
+                          color: AppTheme.mutedForeground,
+                        ),
                         SizedBox(height: 16),
                         Text(
                           'グローバル支払い管理ページ（準備中）',

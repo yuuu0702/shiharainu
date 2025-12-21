@@ -44,10 +44,6 @@ class _LoginPageState extends State<LoginPage> {
     await _performLogin(email, password);
   }
 
-  void _handleDebugLogin() async {
-    await _performLogin(DebugUtils.testEmail, DebugUtils.testPassword);
-  }
-
   Future<void> _performLogin(String email, String password) async {
     setState(() {
       _isLoading = true;
@@ -64,7 +60,13 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (mounted) {
-        context.go('/home');
+        final state = GoRouterState.of(context);
+        final redirect = state.uri.queryParameters['redirect'];
+        if (redirect != null) {
+          context.go(redirect);
+        } else {
+          context.go('/home');
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -257,22 +259,7 @@ class _LoginPageState extends State<LoginPage> {
         const SizedBox(height: AppTheme.spacing48),
 
         // Debug Login (Only in Debug Mode)
-        if (DebugUtils.isDebugMode) ...[
-          GestureDetector(
-            onTap: _isLoading ? null : _handleDebugLogin,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              child: const Text(
-                'Debug Login',
-                style: TextStyle(
-                  color: Colors.white54,
-                  decoration: TextDecoration.underline,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ),
-        ],
+        _DebugActions(onLogin: _performLogin, isLoading: _isLoading),
       ],
     );
   }
@@ -369,28 +356,9 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
 
-        // Debug Login (Only in Form View)
-        if (DebugUtils.isDebugMode) ...[
-          const SizedBox(height: AppTheme.spacing20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.bug_report, size: 16, color: Colors.white54),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: _isLoading ? null : _handleDebugLogin,
-                child: const Text(
-                  'Debug Login',
-                  style: TextStyle(
-                    color: Colors.white54,
-                    decoration: TextDecoration.underline,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+        // Debug Login (Only in Debug Mode)
+        const SizedBox(height: AppTheme.spacing20),
+        _DebugActions(onLogin: _performLogin, isLoading: _isLoading),
 
         const SizedBox(height: AppTheme.spacing32),
       ],
@@ -460,6 +428,61 @@ class _LoginPageState extends State<LoginPage> {
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DebugActions extends StatelessWidget {
+  const _DebugActions({required this.onLogin, required this.isLoading});
+
+  final void Function(String email, String password) onLogin;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!DebugUtils.isDebugMode) return const SizedBox.shrink();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _DebugButton(
+          label: 'Debug 1',
+          onTap: isLoading
+              ? null
+              : () => onLogin(DebugUtils.testEmail, DebugUtils.testPassword),
+        ),
+        _DebugButton(
+          label: 'Debug 2',
+          onTap: isLoading
+              ? null
+              : () => onLogin(DebugUtils.testEmail2, DebugUtils.testPassword2),
+        ),
+      ],
+    );
+  }
+}
+
+class _DebugButton extends StatelessWidget {
+  const _DebugButton({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white54,
+            decoration: TextDecoration.underline,
+            fontSize: 12,
+          ),
+        ),
       ),
     );
   }

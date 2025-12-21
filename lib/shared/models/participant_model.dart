@@ -11,6 +11,8 @@ enum ParticipantRole {
   organizer, // 主催者
   @JsonValue('participant')
   participant, // 参加者
+  // Fallback
+  other,
 }
 
 /// 参加者の性別
@@ -42,7 +44,10 @@ class ParticipantModel with _$ParticipantModel {
     required String userId,
     required String displayName,
     required String email, // メールアドレス
-    @Default(ParticipantRole.participant) ParticipantRole role,
+    @Default(ParticipantRole.participant)
+    // ignore: invalid_annotation_target
+    @JsonKey(unknownEnumValue: ParticipantRole.other)
+    ParticipantRole role,
     int? age, // 年齢（オプション）
     String? position, // 役職（オプション）
     @Default(ParticipantGender.other) ParticipantGender gender,

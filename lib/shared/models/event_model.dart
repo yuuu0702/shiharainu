@@ -41,7 +41,9 @@ class EventModel with _$EventModel {
     required String id,
     required String title,
     required String description,
-    @Default(EventType.other) EventType eventType, // イベント種別
+    @Default(EventType.other)
+    @EventTypeConverter()
+    EventType eventType, // イベント種別
     @TimestampConverter() required DateTime date,
     required List<String> organizerIds, // 複数の主催者をサポート
     @Default(0.0) double totalAmount,
@@ -93,4 +95,49 @@ class TimestampConverter implements JsonConverter<DateTime, Object> {
 
   @override
   Object toJson(DateTime dateTime) => Timestamp.fromDate(dateTime);
+}
+
+/// EventType 変換用カスタムコンバーター
+///
+/// 過去のデータ（camelCase）と現在のデータ（snake_case）の両方をサポートします。
+class EventTypeConverter implements JsonConverter<EventType, String> {
+  const EventTypeConverter();
+
+  @override
+  EventType fromJson(String json) {
+    switch (json) {
+      // Legacy camelCase values
+      case 'drinkingParty':
+        return EventType.drinkingParty;
+      case 'welcomeParty':
+        return EventType.welcomeParty;
+      case 'yearEndParty':
+        return EventType.yearEndParty;
+      // Standard snake_case values
+      case 'drinking_party':
+        return EventType.drinkingParty;
+      case 'welcome_party':
+        return EventType.welcomeParty;
+      case 'year_end_party':
+        return EventType.yearEndParty;
+      case 'other':
+      default:
+        // 未知の値はその他扱いにする（エラーを防ぐ）
+        return EventType.other;
+    }
+  }
+
+  @override
+  String toJson(EventType object) {
+    switch (object) {
+      case EventType.drinkingParty:
+        return 'drinking_party';
+      case EventType.welcomeParty:
+        return 'welcome_party';
+      case EventType.yearEndParty:
+        return 'year_end_party';
+      case EventType.other:
+        return 'other';
+    }
+  }
 }

@@ -24,6 +24,7 @@ mixin _$EventModel {
   String get id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
+  @EventTypeConverter()
   EventType get eventType => throw _privateConstructorUsedError; // イベント種別
   @TimestampConverter()
   DateTime get date => throw _privateConstructorUsedError;
@@ -64,7 +65,7 @@ abstract class $EventModelCopyWith<$Res> {
     String id,
     String title,
     String description,
-    EventType eventType,
+    @EventTypeConverter() EventType eventType,
     @TimestampConverter() DateTime date,
     List<String> organizerIds,
     double totalAmount,
@@ -191,7 +192,7 @@ abstract class _$$EventModelImplCopyWith<$Res>
     String id,
     String title,
     String description,
-    EventType eventType,
+    @EventTypeConverter() EventType eventType,
     @TimestampConverter() DateTime date,
     List<String> organizerIds,
     double totalAmount,
@@ -310,7 +311,7 @@ class _$EventModelImpl implements _EventModel {
     required this.id,
     required this.title,
     required this.description,
-    this.eventType = EventType.other,
+    @EventTypeConverter() this.eventType = EventType.other,
     @TimestampConverter() required this.date,
     required final List<String> organizerIds,
     this.totalAmount = 0.0,
@@ -336,6 +337,7 @@ class _$EventModelImpl implements _EventModel {
   final String description;
   @override
   @JsonKey()
+  @EventTypeConverter()
   final EventType eventType;
   // イベント種別
   @override
@@ -468,7 +470,7 @@ abstract class _EventModel implements EventModel {
     required final String id,
     required final String title,
     required final String description,
-    final EventType eventType,
+    @EventTypeConverter() final EventType eventType,
     @TimestampConverter() required final DateTime date,
     required final List<String> organizerIds,
     final double totalAmount,
@@ -492,6 +494,7 @@ abstract class _EventModel implements EventModel {
   @override
   String get description;
   @override
+  @EventTypeConverter()
   EventType get eventType; // イベント種別
   @override
   @TimestampConverter()

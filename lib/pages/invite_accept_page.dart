@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/models/participant_model.dart';
 import 'package:shiharainu/shared/services/invite_service.dart';
+import 'package:shiharainu/shared/services/auth_service.dart';
 import 'package:shiharainu/shared/widgets/app_button.dart';
 import 'package:shiharainu/shared/widgets/app_progress.dart';
 
@@ -245,15 +246,45 @@ class InviteAcceptPage extends HookConsumerWidget {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 32),
-                          SizedBox(
-                            width: double.infinity,
-                            child: AppButton.primary(
-                              text: isJoining.value ? '参加中...' : 'イベントに参加',
-                              onPressed: isJoining.value ? null : joinEvent,
-                              isLoading: isJoining.value,
-                              size: AppButtonSize.large,
+                          if (ref.watch(authStateProvider).value == null) ...[
+                            Text(
+                              'イベントに参加するにはログインが必要です',
+                              style: AppTheme.bodyMedium.copyWith(
+                                color: AppTheme.destructiveColor,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              child: AppButton.primary(
+                                text: 'ログインして参加',
+                                onPressed: () => context.go(
+                                  '/login?redirect=${Uri.encodeComponent('/invite/$inviteCode')}',
+                                ),
+                                size: AppButtonSize.large,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              width: double.infinity,
+                              child: AppButton.outline(
+                                text: 'アカウント作成',
+                                onPressed: () => context.go('/signup'),
+                                size: AppButtonSize.large,
+                              ),
+                            ),
+                          ] else ...[
+                            SizedBox(
+                              width: double.infinity,
+                              child: AppButton.primary(
+                                text: isJoining.value ? '参加中...' : 'イベントに参加',
+                                onPressed: isJoining.value ? null : joinEvent,
+                                isLoading: isJoining.value,
+                                size: AppButtonSize.large,
+                              ),
+                            ),
+                          ],
                           const SizedBox(height: 16),
                           SizedBox(
                             width: double.infinity,

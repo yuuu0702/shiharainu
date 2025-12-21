@@ -20,9 +20,7 @@ class AppLoadingState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: showAppBar && title != null
-          ? AppBar(title: Text(title!))
-          : null,
+      appBar: showAppBar && title != null ? AppBar(title: Text(title!)) : null,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -73,9 +71,7 @@ class AppErrorState extends StatelessWidget {
     final isNetworkError = _isNetworkError(error);
 
     return Scaffold(
-      appBar: showAppBar && title != null
-          ? AppBar(title: Text(title!))
-          : null,
+      appBar: showAppBar && title != null ? AppBar(title: Text(title!)) : null,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppTheme.spacing32),
@@ -103,6 +99,26 @@ class AppErrorState extends StatelessWidget {
                   color: AppTheme.mutedForegroundAccessible,
                 ),
                 textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppTheme.spacing16),
+              Container(
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(maxHeight: 200),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: SingleChildScrollView(
+                  child: SelectableText(
+                    error.toString(),
+                    style: AppTheme.bodySmall.copyWith(
+                      fontFamily: 'monospace',
+                      color: AppTheme.destructive,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
               ),
               if (onRetry != null) ...[
                 const SizedBox(height: AppTheme.spacing24),
@@ -153,11 +169,7 @@ class AppInlineLoading extends StatelessWidget {
   final String? message;
   final double size;
 
-  const AppInlineLoading({
-    super.key,
-    this.message,
-    this.size = 24.0,
-  });
+  const AppInlineLoading({super.key, this.message, this.size = 24.0});
 
   @override
   Widget build(BuildContext context) {

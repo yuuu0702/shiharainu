@@ -26,6 +26,7 @@ mixin _$ParticipantModel {
   String get userId => throw _privateConstructorUsedError;
   String get displayName => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError; // メールアドレス
+  @JsonKey(unknownEnumValue: ParticipantRole.other)
   ParticipantRole get role => throw _privateConstructorUsedError;
   int? get age => throw _privateConstructorUsedError; // 年齢（オプション）
   String? get position => throw _privateConstructorUsedError; // 役職（オプション）
@@ -64,7 +65,7 @@ abstract class $ParticipantModelCopyWith<$Res> {
     String userId,
     String displayName,
     String email,
-    ParticipantRole role,
+    @JsonKey(unknownEnumValue: ParticipantRole.other) ParticipantRole role,
     int? age,
     String? position,
     ParticipantGender gender,
@@ -191,7 +192,7 @@ abstract class _$$ParticipantModelImplCopyWith<$Res>
     String userId,
     String displayName,
     String email,
-    ParticipantRole role,
+    @JsonKey(unknownEnumValue: ParticipantRole.other) ParticipantRole role,
     int? age,
     String? position,
     ParticipantGender gender,
@@ -310,6 +311,7 @@ class _$ParticipantModelImpl implements _ParticipantModel {
     required this.userId,
     required this.displayName,
     required this.email,
+    @JsonKey(unknownEnumValue: ParticipantRole.other)
     this.role = ParticipantRole.participant,
     this.age,
     this.position,
@@ -337,7 +339,7 @@ class _$ParticipantModelImpl implements _ParticipantModel {
   final String email;
   // メールアドレス
   @override
-  @JsonKey()
+  @JsonKey(unknownEnumValue: ParticipantRole.other)
   final ParticipantRole role;
   @override
   final int? age;
@@ -451,6 +453,7 @@ abstract class _ParticipantModel implements ParticipantModel {
     required final String userId,
     required final String displayName,
     required final String email,
+    @JsonKey(unknownEnumValue: ParticipantRole.other)
     final ParticipantRole role,
     final int? age,
     final String? position,
@@ -477,6 +480,7 @@ abstract class _ParticipantModel implements ParticipantModel {
   @override
   String get email; // メールアドレス
   @override
+  @JsonKey(unknownEnumValue: ParticipantRole.other)
   ParticipantRole get role;
   @override
   int? get age; // 年齢（オプション）
