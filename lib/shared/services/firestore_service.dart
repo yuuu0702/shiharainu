@@ -107,8 +107,8 @@ class FirestoreService {
     while (true) {
       // 6文字のランダムコード生成
       code = List.generate(6, (index) {
-        final random = DateTime.now().microsecondsSinceEpoch % chars.length;
-        return chars[random + index % chars.length];
+        final random = DateTime.now().microsecondsSinceEpoch;
+        return chars[(random + index) % chars.length];
       }).join();
 
       // 既存コードとの重複チェック

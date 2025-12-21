@@ -5,9 +5,11 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/constants/app_breakpoints.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/models/participant_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shiharainu/shared/services/event_service.dart';
 import 'package:shiharainu/shared/services/payment_service.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EventPaymentManagementPage extends ConsumerStatefulWidget {
   final String eventId;
@@ -41,11 +43,21 @@ class _EventPaymentManagementPageState
             data: (participants) {
               return isOrganizerAsync.when(
                 data: (isOrganizer) {
+                  // 現在のユーザーの参加者情報を取得
+                  // 自分がリストにいない場合はnull扱いにするための安全策
+                  final myParticipant = participants
+                      .where(
+                        (p) =>
+                            p.userId == FirebaseAuth.instance.currentUser?.uid,
+                      )
+                      .firstOrNull;
+
                   return _buildContent(
                     context,
                     event,
                     participants,
                     isOrganizer,
+                    myParticipant,
                   );
                 },
                 loading: () => const AppInlineLoading(message: 'データを読み込み中...'),
@@ -67,6 +79,7 @@ class _EventPaymentManagementPageState
     EventModel event,
     List<ParticipantModel> participants,
     bool isOrganizer,
+    ParticipantModel? myParticipant,
   ) {
     // フィルタリング
     final filteredParticipants = _filterParticipants(participants);
@@ -83,6 +96,10 @@ class _EventPaymentManagementPageState
 
     return Column(
       children: [
+        // 参加者自身の支払い情報（主催者以外）
+        if (myParticipant != null && !isOrganizer)
+          _buildMyPaymentCard(context, event, myParticipant),
+
         // 支払いサマリーカード
         _buildPaymentSummaryCard(
           totalParticipants: participants.length,
@@ -196,6 +213,243 @@ class _EventPaymentManagementPageState
             .toList();
       default: // 全員
         return participants;
+    }
+  }
+
+  Widget _buildMyPaymentCard(
+    BuildContext context,
+    EventModel event,
+    ParticipantModel myParticipant,
+  ) {
+    final hasPaymentUrl =
+        event.paymentUrl != null && event.paymentUrl!.isNotEmpty;
+    final hasPaymentNote =
+        event.paymentNote != null && event.paymentNote!.isNotEmpty;
+
+    return Container(
+      margin: const EdgeInsets.only(
+        left: AppTheme.spacing16,
+        right: AppTheme.spacing16,
+        top: AppTheme.spacing16,
+      ),
+      child: AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const AppCardHeader(
+              title: 'あなたの支払い',
+              subtitle: '支払い金額と方法を確認して支払いを完了しましょう',
+            ),
+            AppCardContent(
+              child: Column(
+                children: [
+                  // 金額表示
+                  Container(
+                    padding: const EdgeInsets.all(AppTheme.spacing16),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.radiusMedium,
+                      ),
+                      border: Border.all(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '支払い金額',
+                          style: AppTheme.bodyLarge.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.foregroundColor,
+                          ),
+                        ),
+                        Text(
+                          '¥${myParticipant.amountToPay.toStringAsFixed(0)}',
+                          style: AppTheme.headlineMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // 支払い方法・メモ
+                  if (hasPaymentUrl || hasPaymentNote) ...[
+                    const SizedBox(height: AppTheme.spacing16),
+                    const Divider(),
+                    const SizedBox(height: AppTheme.spacing16),
+                  ],
+
+                  if (hasPaymentUrl) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: AppButton.primary(
+                        text: '支払いリンクを開く (PayPayなど)',
+                        icon: const Icon(Icons.payment, size: 20),
+                        onPressed: () => _launchPaymentUrl(event.paymentUrl!),
+                      ),
+                    ),
+                    if (hasPaymentNote)
+                      const SizedBox(height: AppTheme.spacing16),
+                  ],
+
+                  if (hasPaymentNote) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(AppTheme.spacing12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusMedium,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '支払いメモ',
+                            style: AppTheme.bodySmall.copyWith(
+                              color: AppTheme.mutedForeground,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: AppTheme.spacing4),
+                          SelectableText(
+                            event.paymentNote!,
+                            style: AppTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: AppTheme.spacing24),
+
+                  // アクションボタン
+                  if (myParticipant.paymentStatus == PaymentStatus.unpaid)
+                    SizedBox(
+                      width: double.infinity,
+                      child: AppButton(
+                        text: '支払いを完了して報告する',
+                        icon: const Icon(Icons.check_circle_outline, size: 20),
+                        variant: AppButtonVariant.outline,
+                        onPressed: () => _handleReportPayment(myParticipant),
+                      ),
+                    )
+                  else if (myParticipant.paymentStatus == PaymentStatus.pending)
+                    Container(
+                      padding: const EdgeInsets.all(AppTheme.spacing12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.warningColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusMedium,
+                        ),
+                        border: Border.all(
+                          color: AppTheme.warningColor.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.access_time,
+                            color: AppTheme.warningColor,
+                          ),
+                          const SizedBox(width: AppTheme.spacing12),
+                          Expanded(
+                            child: Text(
+                              '支払い確認待ちです。主催者が承認するまでお待ちください。',
+                              style: AppTheme.bodyMedium.copyWith(
+                                color: const Color(0xFF854D0E), // 黄土色
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.all(AppTheme.spacing12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.successColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusMedium,
+                        ),
+                        border: Border.all(
+                          color: AppTheme.successColor.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.check_circle,
+                            color: AppTheme.successColor,
+                          ),
+                          const SizedBox(width: AppTheme.spacing12),
+                          Expanded(
+                            child: Text(
+                              '支払いが完了しています！',
+                              style: AppTheme.bodyMedium.copyWith(
+                                color: const Color(0xFF14532D), // 深緑
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launchPaymentUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('リンクを開けませんでした: $url'),
+            backgroundColor: AppTheme.destructive,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleReportPayment(ParticipantModel participant) async {
+    try {
+      final paymentService = ref.read(paymentServiceProvider);
+      await paymentService.updatePaymentStatus(
+        eventId: widget.eventId,
+        participantId: participant.id,
+        status: PaymentStatus.pending,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('支払いを報告しました。主催者の確認を待ちます。'),
+            backgroundColor: AppTheme.successColor,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('報告に失敗しました: $e'),
+            backgroundColor: AppTheme.destructive,
+          ),
+        );
+      }
     }
   }
 

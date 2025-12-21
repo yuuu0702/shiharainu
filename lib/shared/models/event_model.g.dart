@@ -36,6 +36,8 @@ _$EventModelImpl _$$EventModelImplFromJson(
           .toList() ??
       const [],
   isAfterParty: json['isAfterParty'] as bool? ?? false,
+  paymentUrl: json['paymentUrl'] as String?,
+  paymentNote: json['paymentNote'] as String?,
 );
 
 Map<String, dynamic> _$$EventModelImplToJson(_$EventModelImpl instance) =>
@@ -55,6 +57,8 @@ Map<String, dynamic> _$$EventModelImplToJson(_$EventModelImpl instance) =>
       'parentEventId': instance.parentEventId,
       'childEventIds': instance.childEventIds,
       'isAfterParty': instance.isAfterParty,
+      'paymentUrl': instance.paymentUrl,
+      'paymentNote': instance.paymentNote,
     };
 
 const _$EventStatusEnumMap = {

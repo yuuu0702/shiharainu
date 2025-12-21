@@ -55,6 +55,8 @@ class EventModel with _$EventModel {
     String? parentEventId, // 親イベントID（二次会の場合のみ）
     @Default([]) List<String> childEventIds, // 子イベントID配列（二次会リスト）
     @Default(false) bool isAfterParty, // 二次会フラグ
+    String? paymentUrl, // 支払いリンク（PayPay URLなど）
+    String? paymentNote, // 支払いメモ（ID、口座情報など）
   }) = _EventModel;
 
   factory EventModel.fromJson(Map<String, dynamic> json) =>
@@ -82,15 +84,18 @@ class TimestampConverter implements JsonConverter<DateTime, Object> {
   const TimestampConverter();
 
   @override
-  DateTime fromJson(Object json) {
+  DateTime fromJson(Object? json) {
+    if (json == null) {
+      return DateTime.now(); // Fallback for missing timestamps
+    }
     if (json is Timestamp) {
       return json.toDate();
     } else if (json is String) {
-      return DateTime.parse(json);
+      return DateTime.tryParse(json) ?? DateTime.now();
     } else if (json is int) {
       return DateTime.fromMillisecondsSinceEpoch(json);
     }
-    throw Exception('Invalid timestamp format');
+    return DateTime.now();
   }
 
   @override
@@ -104,7 +109,8 @@ class EventTypeConverter implements JsonConverter<EventType, String> {
   const EventTypeConverter();
 
   @override
-  EventType fromJson(String json) {
+  EventType fromJson(String? json) {
+    if (json == null) return EventType.other;
     switch (json) {
       // Legacy camelCase values
       case 'drinkingParty':

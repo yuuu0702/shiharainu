@@ -122,9 +122,10 @@ class App extends ConsumerWidget {
           },
         );
       },
-      refreshListenable: GoRouterRefreshStream(
+      refreshListenable: GoRouterRefreshStream([
         ref.read(authServiceProvider).authStateChanges,
-      ),
+        ref.read(hasUserProfileProvider.stream),
+      ]),
       routes: [
         // ルートパス（リダイレクト専用）
         GoRoute(
@@ -331,17 +332,21 @@ class App extends ConsumerWidget {
 
 // GoRouterのリフレッシュ機能のためのStream変換クラス
 class GoRouterRefreshStream extends ChangeNotifier {
-  GoRouterRefreshStream(Stream<dynamic> stream) {
-    _subscription = stream.listen((_) {
-      notifyListeners();
-    });
+  GoRouterRefreshStream(List<Stream<dynamic>> streams) {
+    _subscriptions = streams.map((stream) {
+      return stream.listen((_) {
+        notifyListeners();
+      });
+    }).toList();
   }
 
-  late final StreamSubscription _subscription;
+  late final List<StreamSubscription> _subscriptions;
 
   @override
   void dispose() {
-    _subscription.cancel();
+    for (final subscription in _subscriptions) {
+      subscription.cancel();
+    }
     super.dispose();
   }
 }

@@ -154,6 +154,8 @@ class EventService {
     double? totalAmount,
     PaymentType? paymentType,
     EventStatus? status,
+    String? paymentUrl,
+    String? paymentNote,
   }) async {
     try {
       AppLogger.info('イベントフィールド更新: $eventId', name: 'EventService');
@@ -169,12 +171,18 @@ class EventService {
       if (totalAmount != null) updates['totalAmount'] = totalAmount;
       if (paymentType != null) updates['paymentType'] = paymentType.name;
       if (status != null) updates['status'] = status.name;
+      if (paymentUrl != null) updates['paymentUrl'] = paymentUrl;
+      if (paymentNote != null) updates['paymentNote'] = paymentNote;
 
       await _firestore.collection('events').doc(eventId).update(updates);
 
       AppLogger.info('イベントフィールド更新完了: $eventId', name: 'EventService');
     } catch (e) {
-      AppLogger.error('イベントフィールド更新エラー: $eventId', name: 'EventService', error: e);
+      AppLogger.error(
+        'イベントフィールド更新エラー: $eventId',
+        name: 'EventService',
+        error: e,
+      );
       throw Exception('イベント情報の更新に失敗しました: $e');
     }
   }
@@ -194,7 +202,11 @@ class EventService {
 
       AppLogger.info('イベントステータス変更完了: $eventId', name: 'EventService');
     } catch (e) {
-      AppLogger.error('イベントステータス変更エラー: $eventId', name: 'EventService', error: e);
+      AppLogger.error(
+        'イベントステータス変更エラー: $eventId',
+        name: 'EventService',
+        error: e,
+      );
       throw Exception('イベントステータスの変更に失敗しました: $e');
     }
   }
@@ -427,36 +439,43 @@ final userEventsStreamProvider = StreamProvider<List<EventModel>>((ref) {
       .where('userId', isEqualTo: currentUserId)
       .snapshots()
       .asyncMap((participantsSnapshot) async {
-    if (participantsSnapshot.docs.isEmpty) {
-      return <EventModel>[];
-    }
-
-    // 参加しているイベントIDを取得（重複を除外）
-    final eventIds = participantsSnapshot.docs
-        .map((doc) => doc.data()['eventId'] as String)
-        .toSet()
-        .toList();
-
-    AppLogger.debug('参加イベント数: ${eventIds.length}', name: 'userEventsStreamProvider');
-
-    // 各イベントの情報を取得
-    final eventsCollection = ref.read(eventsCollectionProvider);
-    final events = <EventModel>[];
-
-    for (final eventId in eventIds) {
-      try {
-        final eventDoc = await eventsCollection.doc(eventId).get();
-        if (eventDoc.exists) {
-          events.add(eventDoc.data()!);
+        if (participantsSnapshot.docs.isEmpty) {
+          return <EventModel>[];
         }
-      } catch (e) {
-        AppLogger.error('イベント取得エラー: $eventId', name: 'userEventsStreamProvider', error: e);
-      }
-    }
 
-    // 日付順でソート（新しい順）
-    events.sort((a, b) => b.date.compareTo(a.date));
+        // 参加しているイベントIDを取得（重複を除外）
+        final eventIds = participantsSnapshot.docs
+            .map((doc) => doc.data()['eventId'] as String)
+            .toSet()
+            .toList();
 
-    return events;
-  });
+        AppLogger.debug(
+          '参加イベント数: ${eventIds.length}',
+          name: 'userEventsStreamProvider',
+        );
+
+        // 各イベントの情報を取得
+        final eventsCollection = ref.read(eventsCollectionProvider);
+        final events = <EventModel>[];
+
+        for (final eventId in eventIds) {
+          try {
+            final eventDoc = await eventsCollection.doc(eventId).get();
+            if (eventDoc.exists) {
+              events.add(eventDoc.data()!);
+            }
+          } catch (e) {
+            AppLogger.error(
+              'イベント取得エラー: $eventId',
+              name: 'userEventsStreamProvider',
+              error: e,
+            );
+          }
+        }
+
+        // 日付順でソート（新しい順）
+        events.sort((a, b) => b.date.compareTo(a.date));
+
+        return events;
+      });
 });

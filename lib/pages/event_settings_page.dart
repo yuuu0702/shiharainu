@@ -7,6 +7,7 @@ import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/services/event_service.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
+import 'package:shiharainu/shared/utils/string_utils.dart'; // Import this
 
 class EventSettingsPage extends HookConsumerWidget {
   final String eventId;
@@ -75,6 +76,12 @@ class _EventSettingsForm extends HookConsumerWidget {
     final totalAmountController = useTextEditingController(
       text: event.totalAmount.toStringAsFixed(0),
     );
+    final paymentUrlController = useTextEditingController(
+      text: event.paymentUrl,
+    );
+    final paymentNoteController = useTextEditingController(
+      text: event.paymentNote,
+    );
     final selectedEventType = useState<EventType>(event.eventType);
     final selectedPaymentType = useState<PaymentType>(event.paymentType);
     final selectedStatus = useState<EventStatus>(event.status);
@@ -86,7 +93,9 @@ class _EventSettingsForm extends HookConsumerWidget {
 
       final title = titleController.text.trim();
       final description = descriptionController.text.trim();
-      final totalAmountText = totalAmountController.text.trim();
+      final totalAmountText = totalAmountController.text
+          .trim()
+          .normalizeNumbers();
 
       if (title.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -132,6 +141,8 @@ class _EventSettingsForm extends HookConsumerWidget {
           totalAmount: totalAmount,
           paymentType: selectedPaymentType.value,
           status: selectedStatus.value,
+          paymentUrl: paymentUrlController.text.trim(),
+          paymentNote: paymentNoteController.text.trim(),
         );
 
         if (context.mounted) {
@@ -381,6 +392,27 @@ class _EventSettingsForm extends HookConsumerWidget {
                             selectedPaymentType.value = value;
                           }
                         },
+                      ),
+                      const SizedBox(height: AppTheme.spacing16),
+                      AppInput(
+                        label: '支払いリンク (PayPay, Kyashなど)',
+                        controller: paymentUrlController,
+                        placeholder: 'https://paypay.ne.jp/...',
+                      ),
+                      const SizedBox(height: AppTheme.spacing8),
+                      Text(
+                        '送金リンクを設定すると、参加者がワンタップで送金画面を開けます',
+                        style: AppTheme.bodySmall.copyWith(
+                          color: AppTheme.mutedForeground,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: AppTheme.spacing16),
+                      AppInput(
+                        label: '支払いメモ (口座情報など)',
+                        controller: paymentNoteController,
+                        placeholder: 'PayPay ID: xxxx\n銀行: xx銀行 xx支店...',
+                        maxLines: 2,
                       ),
                     ],
                   ),

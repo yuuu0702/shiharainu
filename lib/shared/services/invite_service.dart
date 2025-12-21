@@ -12,11 +12,9 @@ class InviteService {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
 
-  InviteService({
-    FirebaseFirestore? firestore,
-    FirebaseAuth? auth,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+  InviteService({FirebaseFirestore? firestore, FirebaseAuth? auth})
+    : _firestore = firestore ?? FirebaseFirestore.instance,
+      _auth = auth ?? FirebaseAuth.instance;
 
   /// 招待コードを生成してFirestoreに保存
   ///
@@ -32,8 +30,10 @@ class InviteService {
       // ランダムな8文字の招待コードを生成
       final random = Random.secure();
       final chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-      final code =
-          List.generate(8, (_) => chars[random.nextInt(chars.length)]).join();
+      final code = List.generate(
+        8,
+        (_) => chars[random.nextInt(chars.length)],
+      ).join();
       final inviteCode = 'evt_$code';
 
       // Firestoreに招待コード情報を保存
@@ -56,8 +56,12 @@ class InviteService {
 
       return inviteCode;
     } catch (e, stackTrace) {
-      AppLogger.error('招待コード生成エラー',
-          name: 'InviteService', error: e, stackTrace: stackTrace);
+      AppLogger.error(
+        '招待コード生成エラー',
+        name: 'InviteService',
+        error: e,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -69,8 +73,7 @@ class InviteService {
   Future<String> getOrCreateInviteCode(String eventId) async {
     try {
       // イベントドキュメントから既存の招待コードを取得
-      final eventDoc =
-          await _firestore.collection('events').doc(eventId).get();
+      final eventDoc = await _firestore.collection('events').doc(eventId).get();
 
       if (!eventDoc.exists) {
         throw Exception('イベントが見つかりません');
@@ -91,8 +94,12 @@ class InviteService {
       // なければ新規生成
       return await generateInviteCode(eventId);
     } catch (e, stackTrace) {
-      AppLogger.error('招待コード取得エラー',
-          name: 'InviteService', error: e, stackTrace: stackTrace);
+      AppLogger.error(
+        '招待コード取得エラー',
+        name: 'InviteService',
+        error: e,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -110,10 +117,7 @@ class InviteService {
 
     final link = '$baseUrl/invite/$inviteCode';
 
-    AppLogger.info(
-      '招待リンク生成: link=$link',
-      name: 'InviteService',
-    );
+    AppLogger.info('招待リンク生成: link=$link', name: 'InviteService');
 
     return link;
   }
@@ -126,8 +130,12 @@ class InviteService {
       await Clipboard.setData(ClipboardData(text: inviteLink));
       AppLogger.info('クリップボードコピー成功', name: 'InviteService');
     } catch (e, stackTrace) {
-      AppLogger.error('クリップボードコピーエラー',
-          name: 'InviteService', error: e, stackTrace: stackTrace);
+      AppLogger.error(
+        'クリップボードコピーエラー',
+        name: 'InviteService',
+        error: e,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -175,8 +183,12 @@ class InviteService {
         AppLogger.info('Mobile: クリップボードコピー', name: 'InviteService');
       }
     } catch (e, stackTrace) {
-      AppLogger.error('シェアエラー',
-          name: 'InviteService', error: e, stackTrace: stackTrace);
+      AppLogger.error(
+        'シェアエラー',
+        name: 'InviteService',
+        error: e,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -187,24 +199,45 @@ class InviteService {
   /// Returns: イベントID
   Future<String> getEventIdFromInviteCode(String inviteCode) async {
     try {
-      final inviteDoc =
-          await _firestore.collection('inviteCodes').doc(inviteCode).get();
+      final inviteDoc = await _firestore
+          .collection('inviteCodes')
+          .doc(inviteCode)
+          .get();
 
-      if (!inviteDoc.exists) {
-        throw Exception('無効な招待コードです');
+      if (inviteDoc.exists) {
+        final eventId = inviteDoc.data()!['eventId'] as String;
+        AppLogger.info(
+          '招待コードからイベントID取得(inviteCodes): inviteCode=$inviteCode, eventId=$eventId',
+          name: 'InviteService',
+        );
+        return eventId;
       }
 
-      final eventId = inviteDoc.data()!['eventId'] as String;
+      // フォールバック: eventsコレクションを直接検索
+      // NOTE: EventService.createEventで作成されたコードはこちらに保存される
+      final eventQuery = await _firestore
+          .collection('events')
+          .where('inviteCode', isEqualTo: inviteCode)
+          .limit(1)
+          .get();
 
-      AppLogger.info(
-        '招待コードからイベントID取得: inviteCode=$inviteCode, eventId=$eventId',
-        name: 'InviteService',
-      );
+      if (eventQuery.docs.isNotEmpty) {
+        final eventId = eventQuery.docs.first.id;
+        AppLogger.info(
+          '招待コードからイベントID取得(events): inviteCode=$inviteCode, eventId=$eventId',
+          name: 'InviteService',
+        );
+        return eventId;
+      }
 
-      return eventId;
+      throw Exception('無効な招待コードです');
     } catch (e, stackTrace) {
-      AppLogger.error('イベントID取得エラー',
-          name: 'InviteService', error: e, stackTrace: stackTrace);
+      AppLogger.error(
+        'イベントID取得エラー',
+        name: 'InviteService',
+        error: e,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -223,8 +256,12 @@ class InviteService {
         name: 'InviteService',
       );
     } catch (e, stackTrace) {
-      AppLogger.error('使用回数更新エラー',
-          name: 'InviteService', error: e, stackTrace: stackTrace);
+      AppLogger.error(
+        '使用回数更新エラー',
+        name: 'InviteService',
+        error: e,
+        stackTrace: stackTrace,
+      );
       // 使用回数の更新失敗は致命的ではないのでログのみ
     }
   }
@@ -235,20 +272,41 @@ class InviteService {
   /// Returns: 有効な場合true
   Future<bool> validateInviteCode(String inviteCode) async {
     try {
-      final inviteDoc =
-          await _firestore.collection('inviteCodes').doc(inviteCode).get();
+      final inviteDoc = await _firestore
+          .collection('inviteCodes')
+          .doc(inviteCode)
+          .get();
 
-      final isValid = inviteDoc.exists;
+      if (inviteDoc.exists) {
+        AppLogger.info(
+          '招待コード検証(inviteCodes): inviteCode=$inviteCode, isValid=true',
+          name: 'InviteService',
+        );
+        return true;
+      }
+
+      // フォールバック: eventsコレクションを直接検索
+      final eventQuery = await _firestore
+          .collection('events')
+          .where('inviteCode', isEqualTo: inviteCode)
+          .limit(1)
+          .get();
+
+      final isValid = eventQuery.docs.isNotEmpty;
 
       AppLogger.info(
-        '招待コード検証: inviteCode=$inviteCode, isValid=$isValid',
+        '招待コード検証(events): inviteCode=$inviteCode, isValid=$isValid',
         name: 'InviteService',
       );
 
       return isValid;
     } catch (e, stackTrace) {
-      AppLogger.error('招待コード検証エラー',
-          name: 'InviteService', error: e, stackTrace: stackTrace);
+      AppLogger.error(
+        '招待コード検証エラー',
+        name: 'InviteService',
+        error: e,
+        stackTrace: stackTrace,
+      );
       return false;
     }
   }

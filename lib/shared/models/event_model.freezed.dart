@@ -42,7 +42,10 @@ mixin _$EventModel {
       throw _privateConstructorUsedError; // 親イベントID（二次会の場合のみ）
   List<String> get childEventIds =>
       throw _privateConstructorUsedError; // 子イベントID配列（二次会リスト）
-  bool get isAfterParty => throw _privateConstructorUsedError;
+  bool get isAfterParty => throw _privateConstructorUsedError; // 二次会フラグ
+  String? get paymentUrl =>
+      throw _privateConstructorUsedError; // 支払いリンク（PayPay URLなど）
+  String? get paymentNote => throw _privateConstructorUsedError;
 
   /// Serializes this EventModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -77,6 +80,8 @@ abstract class $EventModelCopyWith<$Res> {
     String? parentEventId,
     List<String> childEventIds,
     bool isAfterParty,
+    String? paymentUrl,
+    String? paymentNote,
   });
 }
 
@@ -110,6 +115,8 @@ class _$EventModelCopyWithImpl<$Res, $Val extends EventModel>
     Object? parentEventId = freezed,
     Object? childEventIds = null,
     Object? isAfterParty = null,
+    Object? paymentUrl = freezed,
+    Object? paymentNote = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -173,6 +180,14 @@ class _$EventModelCopyWithImpl<$Res, $Val extends EventModel>
                 ? _value.isAfterParty
                 : isAfterParty // ignore: cast_nullable_to_non_nullable
                       as bool,
+            paymentUrl: freezed == paymentUrl
+                ? _value.paymentUrl
+                : paymentUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            paymentNote: freezed == paymentNote
+                ? _value.paymentNote
+                : paymentNote // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -204,6 +219,8 @@ abstract class _$$EventModelImplCopyWith<$Res>
     String? parentEventId,
     List<String> childEventIds,
     bool isAfterParty,
+    String? paymentUrl,
+    String? paymentNote,
   });
 }
 
@@ -236,6 +253,8 @@ class __$$EventModelImplCopyWithImpl<$Res>
     Object? parentEventId = freezed,
     Object? childEventIds = null,
     Object? isAfterParty = null,
+    Object? paymentUrl = freezed,
+    Object? paymentNote = freezed,
   }) {
     return _then(
       _$EventModelImpl(
@@ -299,6 +318,14 @@ class __$$EventModelImplCopyWithImpl<$Res>
             ? _value.isAfterParty
             : isAfterParty // ignore: cast_nullable_to_non_nullable
                   as bool,
+        paymentUrl: freezed == paymentUrl
+            ? _value.paymentUrl
+            : paymentUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        paymentNote: freezed == paymentNote
+            ? _value.paymentNote
+            : paymentNote // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -323,6 +350,8 @@ class _$EventModelImpl implements _EventModel {
     this.parentEventId,
     final List<String> childEventIds = const [],
     this.isAfterParty = false,
+    this.paymentUrl,
+    this.paymentNote,
   }) : _organizerIds = organizerIds,
        _childEventIds = childEventIds;
 
@@ -387,10 +416,16 @@ class _$EventModelImpl implements _EventModel {
   @override
   @JsonKey()
   final bool isAfterParty;
+  // 二次会フラグ
+  @override
+  final String? paymentUrl;
+  // 支払いリンク（PayPay URLなど）
+  @override
+  final String? paymentNote;
 
   @override
   String toString() {
-    return 'EventModel(id: $id, title: $title, description: $description, eventType: $eventType, date: $date, organizerIds: $organizerIds, totalAmount: $totalAmount, status: $status, paymentType: $paymentType, createdAt: $createdAt, updatedAt: $updatedAt, inviteCode: $inviteCode, parentEventId: $parentEventId, childEventIds: $childEventIds, isAfterParty: $isAfterParty)';
+    return 'EventModel(id: $id, title: $title, description: $description, eventType: $eventType, date: $date, organizerIds: $organizerIds, totalAmount: $totalAmount, status: $status, paymentType: $paymentType, createdAt: $createdAt, updatedAt: $updatedAt, inviteCode: $inviteCode, parentEventId: $parentEventId, childEventIds: $childEventIds, isAfterParty: $isAfterParty, paymentUrl: $paymentUrl, paymentNote: $paymentNote)';
   }
 
   @override
@@ -427,7 +462,11 @@ class _$EventModelImpl implements _EventModel {
               _childEventIds,
             ) &&
             (identical(other.isAfterParty, isAfterParty) ||
-                other.isAfterParty == isAfterParty));
+                other.isAfterParty == isAfterParty) &&
+            (identical(other.paymentUrl, paymentUrl) ||
+                other.paymentUrl == paymentUrl) &&
+            (identical(other.paymentNote, paymentNote) ||
+                other.paymentNote == paymentNote));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -449,6 +488,8 @@ class _$EventModelImpl implements _EventModel {
     parentEventId,
     const DeepCollectionEquality().hash(_childEventIds),
     isAfterParty,
+    paymentUrl,
+    paymentNote,
   );
 
   /// Create a copy of EventModel
@@ -482,6 +523,8 @@ abstract class _EventModel implements EventModel {
     final String? parentEventId,
     final List<String> childEventIds,
     final bool isAfterParty,
+    final String? paymentUrl,
+    final String? paymentNote,
   }) = _$EventModelImpl;
 
   factory _EventModel.fromJson(Map<String, dynamic> json) =
@@ -520,7 +563,11 @@ abstract class _EventModel implements EventModel {
   @override
   List<String> get childEventIds; // 子イベントID配列（二次会リスト）
   @override
-  bool get isAfterParty;
+  bool get isAfterParty; // 二次会フラグ
+  @override
+  String? get paymentUrl; // 支払いリンク（PayPay URLなど）
+  @override
+  String? get paymentNote;
 
   /// Create a copy of EventModel
   /// with the given fields replaced by the non-null parameter values.

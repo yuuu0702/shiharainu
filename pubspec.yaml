@@ -60,6 +60,7 @@ dependencies:
 
   # QR Code
   qr_flutter: ^4.1.0
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

@@ -6,6 +6,8 @@ import 'package:shiharainu/shared/widgets/widgets.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/services/event_service.dart';
+import 'package:shiharainu/shared/utils/app_logger.dart';
+import 'package:shiharainu/shared/utils/string_utils.dart'; // Import this
 
 class EventCreationPage extends StatefulWidget {
   const EventCreationPage({super.key});
@@ -38,7 +40,9 @@ class _EventCreationPageState extends State<EventCreationPage> {
     // バリデーション
     final eventName = _eventNameController.text.trim();
     final description = _descriptionController.text.trim();
-    final totalAmountText = _totalAmountController.text.trim();
+    final totalAmountText = _totalAmountController.text
+        .trim()
+        .normalizeNumbers();
 
     if (eventName.isEmpty) {
       setState(() {
@@ -153,11 +157,19 @@ class _EventCreationPageState extends State<EventCreationPage> {
           }
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      // エラー詳細をログ出力
+      AppLogger.error(
+        'イベント作成エラー詳細',
+        name: 'EventCreationPage',
+        error: e,
+        stackTrace: stackTrace,
+      );
+
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+          _errorMessage = 'エラーが発生しました: $e';
         });
       }
     }
