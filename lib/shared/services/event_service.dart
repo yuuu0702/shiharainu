@@ -106,7 +106,7 @@ class EventService {
           gender: userProfile.gender ?? ParticipantGender.other,
           multiplier: 1.0,
           amountToPay: 0.0,
-          paymentStatus: PaymentStatus.unpaid,
+          paymentStatus: PaymentStatus.paid, // 主催者は支払済（集金側）
           joinedAt: now,
           updatedAt: now,
         );
@@ -462,7 +462,12 @@ final userEventsStreamProvider = StreamProvider<List<EventModel>>((ref) {
           try {
             final eventDoc = await eventsCollection.doc(eventId).get();
             if (eventDoc.exists) {
-              events.add(eventDoc.data()!);
+              final event = eventDoc.data()!;
+              // イベント一覧には二次会を表示しない（親イベント詳細からアクセス可能）
+              // isAfterPartyがtrueの場合はリストに追加しない
+              if (!event.isAfterParty) {
+                events.add(event);
+              }
             }
           } catch (e) {
             AppLogger.error(
@@ -477,5 +482,29 @@ final userEventsStreamProvider = StreamProvider<List<EventModel>>((ref) {
         events.sort((a, b) => b.date.compareTo(a.date));
 
         return events;
+      });
+});
+
+/// 現在のユーザーの参加状況一覧のStreamProvider（リアルタイム更新）
+final myParticipationsStreamProvider = StreamProvider<List<ParticipantModel>>((
+  ref,
+) {
+  final auth = FirebaseAuth.instance;
+  final currentUserId = auth.currentUser?.uid;
+
+  if (currentUserId == null) {
+    return Stream.value([]);
+  }
+
+  final firestore = FirebaseFirestore.instance;
+
+  return firestore
+      .collectionGroup('participants')
+      .where('userId', isEqualTo: currentUserId)
+      .snapshots()
+      .map((snapshot) {
+        return snapshot.docs
+            .map((doc) => ParticipantModel.fromFirestore(doc))
+            .toList();
       });
 });

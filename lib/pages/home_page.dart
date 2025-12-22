@@ -1,17 +1,19 @@
-// Governed by Skill: shiharainu-general-design
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
+import 'package:shiharainu/shared/services/event_service.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
 import 'package:shiharainu/pages/home/home_data_models.dart';
 import 'package:shiharainu/pages/home/home_welcome_section.dart';
 import 'package:shiharainu/pages/home/home_quick_actions.dart';
-import 'package:shiharainu/pages/home/home_notifications_section.dart';
 import 'package:shiharainu/pages/home/home_events_section.dart';
 import 'package:shiharainu/pages/home/home_activity_summary.dart';
+import 'package:shiharainu/pages/home/smart_dashboard.dart';
+import 'package:shiharainu/pages/home/smart_dashboard_logic.dart';
 
 /// ホームページ
 ///
@@ -38,62 +40,12 @@ class _HomePageState extends ConsumerState<HomePage> {
     _selectedDogEmoji = _dogEmojis[random.nextInt(_dogEmojis.length)];
   }
 
-  // サンプルデータ - 近日中のイベントのみ（3件まで）
-  static final List<EventData> _upcomingEvents = [
-    EventData(
-      id: '1',
-      title: '新年会2024',
-      description: '会社の新年会です',
-      date: DateTime.now().add(const Duration(days: 2)),
-      participantCount: 15,
-      role: EventRole.organizer,
-      status: EventStatus.active,
-    ),
-    EventData(
-      id: '2',
-      title: 'チーム懇親会',
-      description: 'プロジェクト打ち上げ',
-      date: DateTime.now().add(const Duration(days: 7)),
-      participantCount: 8,
-      role: EventRole.participant,
-      status: EventStatus.planning,
-    ),
-    EventData(
-      id: '3',
-      title: '送別会',
-      description: '田中さんの送別会',
-      date: DateTime.now().add(const Duration(days: 14)),
-      participantCount: 12,
-      role: EventRole.participant,
-      status: EventStatus.active,
-    ),
-  ];
-
-  // 重要な通知のみ（最大2件）
-  static final List<NotificationData> _importantNotifications = [
-    NotificationData(
-      id: '1',
-      type: NotificationType.paymentReminder,
-      title: '支払い未完了',
-      message: '新年会の参加費をお支払いください',
-      eventTitle: '新年会2024',
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      isRead: false,
-    ),
-    NotificationData(
-      id: '2',
-      type: NotificationType.invitation,
-      title: 'イベント招待',
-      message: 'チーム懇親会に招待されました',
-      eventTitle: 'チーム懇親会',
-      createdAt: DateTime.now().subtract(const Duration(hours: 6)),
-      isRead: false,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final userProfile = ref.watch(userProfileProvider);
+    final upcomingEventsAsync = ref.watch(userEventsStreamProvider);
+    final myParticipationsAsync = ref.watch(myParticipationsStreamProvider);
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
     return userProfile.when(
       data: (profile) {
@@ -102,6 +54,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           body: RefreshIndicator(
             onRefresh: () async {
               ref.invalidate(userProfileProvider);
+              // StreamProviderは自動更新なのでinvalidate不要だが、念の為
               await Future.delayed(const Duration(milliseconds: 800));
             },
             child: SingleChildScrollView(
@@ -115,22 +68,72 @@ class _HomePageState extends ConsumerState<HomePage> {
                     userName: profile?.name ?? 'ゲスト',
                     dogEmoji: _selectedDogEmoji,
                   ),
-                  const SizedBox(height: AppTheme.spacing24),
+                  const SizedBox(height: AppTheme.spacing16),
 
-                  // アクションカード（主要機能へのショートカット）
+                  // Smart Dashboard (文脈に応じたアクション)
+                  if (currentUserId != null)
+                    upcomingEventsAsync.when(
+                      data: (events) {
+                        return myParticipationsAsync.when(
+                          data: (participations) {
+                            final action =
+                                SmartDashboardLogic.determinePrimaryAction(
+                                  events: events,
+                                  myParticipations: participations,
+                                  currentUserId: currentUserId,
+                                );
+                            return Column(
+                              children: [
+                                SmartDashboard(action: action),
+                                const SizedBox(height: AppTheme.spacing24),
+                              ],
+                            );
+                          },
+                          loading: () => const SizedBox.shrink(), // Loading...
+                          error: (_, __) => const SizedBox.shrink(),
+                        );
+                      },
+                      loading: () =>
+                          const Center(child: AppProgress.circular()),
+                      error: (_, __) => const SizedBox.shrink(),
+                    ),
+
+                  // アクションカード（主要機能へのショートカット） - 優先度下げ
+                  // const HomeQuickActions(), // Smart Dashboardが機能すれば、ここはシンプルにしてもいいかも
+                  // 一旦そのまま残すが、SmartDashboardでカバーされるアクションとの重複を考慮
                   const HomeQuickActions(),
                   const SizedBox(height: AppTheme.spacing24),
 
-                  // 重要な通知（2件まで）
-                  if (_importantNotifications.isNotEmpty) ...[
-                    HomeNotificationsSection(
-                      notifications: _importantNotifications,
-                    ),
-                    const SizedBox(height: AppTheme.spacing24),
-                  ],
-
                   // 近日中のイベント（3件まで）
-                  HomeEventsSection(events: _upcomingEvents),
+                  upcomingEventsAsync.when(
+                    data: (events) {
+                      // EventModel -> EventData 変換 (表示用)
+                      final eventDataList = events.take(3).map((e) {
+                        // ここで簡易的に変換
+                        return EventData(
+                          id: e.id,
+                          title: e.title,
+                          description: e.description ?? '',
+                          date: e.date,
+                          participantCount:
+                              0, // ※ここを正確にするには別途取得が必要だが、一旦0かProviderで
+                          role: EventRole.participant, // 仮
+                          status: EventStatus.active,
+                        );
+                      }).toList();
+
+                      // NOTE: home_events_sectionがEventDataを要求するため、簡易変換のみ行う。
+                      // 本来的にはHomeEventsSectionをEventModel対応にするべきだが、
+                      // 大規模改修を避けるため、一旦既存のUIを維持する。
+                      // ただし、これだとparticipantCountなどが正しく出ない。
+
+                      // 今回はSmartDashboardがメインなので、ここのリストは補助的。
+                      // TODO: HomeEventsSectionをEventModel対応にリファクタリング推奨
+                      return HomeEventsSection(events: eventDataList);
+                    },
+                    loading: () => const AppProgress.circular(),
+                    error: (err, stack) => Text('イベント読み込みエラー: $err'),
+                  ),
                   const SizedBox(height: AppTheme.spacing24),
 
                   // 今月の活動サマリー

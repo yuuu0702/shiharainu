@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
@@ -101,15 +102,16 @@ class FirestoreService {
 
   /// 一意の招待コードを生成
   Future<String> generateUniqueInviteCode() async {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     var code = '';
 
     while (true) {
-      // 6文字のランダムコード生成
-      code = List.generate(6, (index) {
-        final random = DateTime.now().microsecondsSinceEpoch;
-        return chars[(random + index) % chars.length];
-      }).join();
+      // 8文字のランダムコード生成
+      final random = Random.secure();
+      code = List.generate(
+        8,
+        (_) => chars[random.nextInt(chars.length)],
+      ).join();
 
       // 既存コードとの重複チェック
       final existingEvent = await _firestore

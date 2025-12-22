@@ -28,8 +28,8 @@ class JoinEventDialog extends HookConsumerWidget {
         return;
       }
 
-      // 基本的な形式チェック (evt_xxxxxxxx)
-      if (!inviteCode.startsWith('evt_') || inviteCode.length < 9) {
+      // 基本的な形式チェック (8文字の英数字)
+      if (inviteCode.length < 6) {
         errorMessage.value = '無効な参加コードです';
         return;
       }
@@ -67,9 +67,7 @@ class JoinEventDialog extends HookConsumerWidget {
 
     return Dialog(
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 400),
         padding: const EdgeInsets.all(24),
@@ -122,7 +120,7 @@ class JoinEventDialog extends HookConsumerWidget {
             // 参加コード入力
             AppInput(
               label: '参加コード',
-              placeholder: 'evt_xxxxxxxx',
+              placeholder: 'a1b2c3d4',
               controller: codeController,
               isRequired: true,
               prefixIcon: const Icon(Icons.vpn_key_outlined, size: 20),
@@ -147,11 +145,7 @@ class JoinEventDialog extends HookConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.info_outline,
-                    size: 16,
-                    color: AppTheme.infoColor,
-                  ),
+                  Icon(Icons.info_outline, size: 16, color: AppTheme.infoColor),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(

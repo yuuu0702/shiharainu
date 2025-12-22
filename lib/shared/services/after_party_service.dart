@@ -8,7 +8,7 @@ class AfterPartyService {
   final FirebaseFirestore _firestore;
 
   AfterPartyService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// 二次会イベントを作成
   Future<String> createAfterParty({
@@ -17,6 +17,7 @@ class AfterPartyService {
     String? description,
     required double totalAmount,
     required PaymentType paymentType,
+    List<String>? selectedParticipantIds,
   }) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -65,7 +66,11 @@ class AfterPartyService {
     });
 
     // 親イベントの参加者を自動的に二次会にも追加
-    await _copyParticipantsToAfterParty(parentEventId, afterPartyRef.id);
+    await _copyParticipantsToAfterParty(
+      parentEventId,
+      afterPartyRef.id,
+      selectedParticipantIds,
+    );
 
     return afterPartyRef.id;
   }
@@ -74,6 +79,7 @@ class AfterPartyService {
   Future<void> _copyParticipantsToAfterParty(
     String parentEventId,
     String afterPartyId,
+    List<String>? selectedParticipantIds,
   ) async {
     final participantsSnapshot = await _firestore
         .collection('events')
@@ -88,6 +94,11 @@ class AfterPartyService {
     final batch = _firestore.batch();
 
     for (final doc in participantsSnapshot.docs) {
+      // 選択された参加者リストが指定されていて、かつそのリストに含まれていない場合はスキップ
+      if (selectedParticipantIds != null &&
+          !selectedParticipantIds.contains(doc.data()['userId'])) {
+        continue;
+      }
       final participantRef = _firestore
           .collection('events')
           .doc(afterPartyId)
@@ -95,7 +106,13 @@ class AfterPartyService {
           .doc(doc.id);
 
       final participantData = doc.data();
-      participantData['paymentStatus'] = 'pending'; // 支払いステータスはリセット
+
+      // 主催者（作成者）は「支払い済み」、その他は「未払い」にリセット
+      final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+      final isOrganizer =
+          currentUserId != null && participantData['userId'] == currentUserId;
+
+      participantData['paymentStatus'] = isOrganizer ? 'paid' : 'unpaid';
       participantData['paymentAmount'] = 0.0;
       participantData['joinedAt'] = FieldValue.serverTimestamp();
       participantData['updatedAt'] = FieldValue.serverTimestamp();
@@ -150,6 +167,6 @@ class AfterPartyService {
       8,
       (_) => chars[random.nextInt(chars.length)],
     ).join();
-    return 'evt_$code';
+    return code;
   }
 }
