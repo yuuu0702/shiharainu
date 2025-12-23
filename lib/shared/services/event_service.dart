@@ -5,6 +5,7 @@ import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/models/participant_model.dart';
 import 'package:shiharainu/shared/services/firestore_service.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
+import 'package:shiharainu/shared/services/payment_service.dart';
 import 'package:shiharainu/shared/utils/app_logger.dart';
 
 /// イベント作成パラメータ
@@ -33,16 +34,19 @@ class EventService {
   final FirebaseAuth _auth;
   final FirestoreService _firestoreService;
   final UserService _userService;
+  final PaymentService _paymentService;
 
   EventService({
     FirebaseFirestore? firestore,
     FirebaseAuth? auth,
     required FirestoreService firestoreService,
     required UserService userService,
+    required PaymentService paymentService,
   }) : _firestore = firestore ?? FirebaseFirestore.instance,
        _auth = auth ?? FirebaseAuth.instance,
        _firestoreService = firestoreService,
-       _userService = userService;
+       _userService = userService,
+       _paymentService = paymentService;
 
   /// イベントを作成
   ///
@@ -88,6 +92,15 @@ class EventService {
         inviteCode: inviteCode,
       );
 
+      // 招待コードドキュメント
+      final inviteCodeDoc = {
+        'eventId': eventRef.id,
+        'createdBy': user.uid,
+        'createdAt':
+            now, // transaction内ではFieldValue.serverTimestamp()も使えるが、ここではnowを使う
+        'usageCount': 0,
+      };
+
       // トランザクションでイベントと主催者参加者を作成
       await _firestoreService.runTransaction((transaction) async {
         // イベントを作成
@@ -114,6 +127,12 @@ class EventService {
         transaction.set(
           participantRef,
           ParticipantModel.toFirestore(participant),
+        );
+
+        // 招待コードドキュメントを作成
+        transaction.set(
+          _firestore.collection('inviteCodes').doc(inviteCode),
+          inviteCodeDoc,
         );
       });
 
@@ -292,7 +311,7 @@ class EventService {
           .doc();
 
       final now = DateTime.now();
-      final participant = ParticipantModel(
+      var participant = ParticipantModel(
         id: participantRef.id,
         eventId: eventId,
         userId: user.uid,
@@ -308,7 +327,55 @@ class EventService {
         updatedAt: now,
       );
 
+      // 初期支払い金額を計算（整合性のため、サーバーサイドでの再計算も後で行う）
+      // ここで計算しておくことで、再計算が失敗しても自分の画面では正しい金額が表示される
+      final eventSnapshot = await _firestore
+          .collection('events')
+          .doc(eventId)
+          .get();
+      if (eventSnapshot.exists) {
+        final eventData = eventSnapshot.data()!;
+        final totalAmount =
+            (eventData['totalAmount'] as num?)?.toDouble() ?? 0.0;
+        final paymentTypeStr = eventData['paymentType'] as String?;
+        final paymentType = PaymentType.values.firstWhere(
+          (e) => e.name == paymentTypeStr,
+          orElse: () => PaymentType.equal,
+        );
+
+        if (paymentType == PaymentType.equal) {
+          final currentParticipants = await _firestore
+              .collection('events')
+              .doc(eventId)
+              .collection('participants')
+              .count()
+              .get();
+
+          final newCount = (currentParticipants.count ?? 0) + 1;
+          if (newCount > 0) {
+            participant = participant.copyWith(
+              amountToPay: totalAmount / newCount,
+            );
+          }
+        }
+      }
+
       await participantRef.set(ParticipantModel.toFirestore(participant));
+
+      // データの整合性を確保するための短い待機
+      await Future.delayed(const Duration(milliseconds: 1000));
+
+      // 支払い金額を再計算
+      try {
+        await _paymentService.calculateAndUpdatePayments(eventId);
+      } catch (e) {
+        // 再計算に失敗しても参加自体は成功とする（後で再計算可能）
+        AppLogger.warning(
+          '参加後の支払い再計算に失敗: $eventId',
+          name: 'EventService',
+          error: e,
+        );
+      }
 
       AppLogger.info('イベント参加完了: $eventId', name: 'EventService');
       return eventId;
@@ -323,10 +390,12 @@ class EventService {
 final eventServiceProvider = Provider<EventService>((ref) {
   final firestoreService = ref.watch(firestoreServiceProvider);
   final userService = ref.watch(userServiceProvider);
+  final paymentService = ref.watch(paymentServiceProvider);
 
   return EventService(
     firestoreService: firestoreService,
     userService: userService,
+    paymentService: paymentService,
   );
 });
 

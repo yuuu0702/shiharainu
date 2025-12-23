@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/services/auth_service.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
+import 'package:shiharainu/shared/services/event_service.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
 
 class AccountPage extends ConsumerWidget {
@@ -332,6 +333,12 @@ class AccountPage extends ConsumerWidget {
                 try {
                   final authService = ref.read(authServiceProvider);
                   await authService.signOut();
+
+                  // プロバイダーを無効化して古い状態をクリア
+                  ref.invalidate(userProfileProvider);
+                  ref.invalidate(userEventsStreamProvider);
+                  ref.invalidate(myParticipationsStreamProvider);
+
                   if (context.mounted) {
                     context.go('/login');
                   }
