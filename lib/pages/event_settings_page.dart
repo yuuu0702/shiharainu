@@ -129,6 +129,7 @@ class _EventSettingsForm extends HookConsumerWidget {
       }
 
       isLoading.value = true;
+      bool success = false;
 
       try {
         final eventService = ref.read(eventServiceProvider);
@@ -144,6 +145,8 @@ class _EventSettingsForm extends HookConsumerWidget {
           paymentUrl: paymentUrlController.text.trim(),
           paymentNote: paymentNoteController.text.trim(),
         );
+
+        success = true;
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -195,7 +198,8 @@ class _EventSettingsForm extends HookConsumerWidget {
           );
         }
       } finally {
-        if (context.mounted) {
+        // 成功して画面遷移した場合はローディング状態を解除しない（ウィジェットが破棄されるため）
+        if (context.mounted && !success) {
           isLoading.value = false;
         }
       }
@@ -228,10 +232,12 @@ class _EventSettingsForm extends HookConsumerWidget {
 
       if (confirmed == true) {
         isLoading.value = true;
+        bool success = false;
 
         try {
           final eventService = ref.read(eventServiceProvider);
           await eventService.deleteEvent(event.id);
+          success = true;
 
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -252,7 +258,9 @@ class _EventSettingsForm extends HookConsumerWidget {
             );
           }
         } finally {
-          isLoading.value = false;
+          if (context.mounted && !success) {
+            isLoading.value = false;
+          }
         }
       }
     }
