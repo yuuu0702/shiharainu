@@ -490,19 +490,19 @@ final currentUserParticipantProvider =
       return query.docs.first.data();
     });
 
-/// 現在のユーザーが参加している全イベントのStreamProvider（リアルタイム更新）
-final userEventsStreamProvider = StreamProvider<List<EventModel>>((ref) {
+/// 1. 参加者として登録されているイベントのストリーム（内部用）
+final _participantEventsStreamProvider = StreamProvider<List<EventModel>>((
+  ref,
+) {
   final auth = FirebaseAuth.instance;
   final currentUserId = auth.currentUser?.uid;
 
   if (currentUserId == null) {
-    AppLogger.warning('ユーザーが未ログイン', name: 'userEventsStreamProvider');
     return Stream.value([]);
   }
 
   final firestore = FirebaseFirestore.instance;
 
-  // コレクショングループクエリで現在のユーザーの参加記録を取得
   return firestore
       .collectionGroup('participants')
       .where('userId', isEqualTo: currentUserId)
@@ -518,11 +518,6 @@ final userEventsStreamProvider = StreamProvider<List<EventModel>>((ref) {
             .toSet()
             .toList();
 
-        AppLogger.debug(
-          '参加イベント数: ${eventIds.length}',
-          name: 'userEventsStreamProvider',
-        );
-
         // 各イベントの情報を取得
         final eventsCollection = ref.read(eventsCollectionProvider);
         final events = <EventModel>[];
@@ -532,26 +527,91 @@ final userEventsStreamProvider = StreamProvider<List<EventModel>>((ref) {
             final eventDoc = await eventsCollection.doc(eventId).get();
             if (eventDoc.exists) {
               final event = eventDoc.data()!;
-              // イベント一覧には二次会を表示しない（親イベント詳細からアクセス可能）
-              // isAfterPartyがtrueの場合はリストに追加しない
               if (!event.isAfterParty) {
                 events.add(event);
               }
             }
           } catch (e) {
             AppLogger.error(
-              'イベント取得エラー: $eventId',
-              name: 'userEventsStreamProvider',
+              'イベント取得エラー(参加者): $eventId',
+              name: '_participantEventsStreamProvider',
               error: e,
             );
           }
         }
-
-        // 日付順でソート（新しい順）
-        events.sort((a, b) => b.date.compareTo(a.date));
-
         return events;
       });
+});
+
+/// 2. 主催者として登録されているイベントのストリーム（内部用）
+final _organizerEventsStreamProvider = StreamProvider<List<EventModel>>((ref) {
+  final auth = FirebaseAuth.instance;
+  final currentUserId = auth.currentUser?.uid;
+
+  if (currentUserId == null) {
+    return Stream.value([]);
+  }
+
+  final firestore = FirebaseFirestore.instance;
+
+  return firestore
+      .collection('events')
+      .where('organizerIds', arrayContains: currentUserId)
+      .snapshots()
+      .map((snapshot) {
+        return snapshot.docs
+            .map((doc) => EventModel.fromFirestore(doc))
+            .where((event) => !event.isAfterParty)
+            .toList();
+      });
+});
+
+/// 現在のユーザーに関連する全イベント（参加 + 主催）を提供するプロバイダー
+///
+/// 2つの内部StreamProviderを監視し、結果を結合して返します。
+final userEventsStreamProvider = Provider<AsyncValue<List<EventModel>>>((ref) {
+  final participantEventsAsync = ref.watch(_participantEventsStreamProvider);
+  final organizerEventsAsync = ref.watch(_organizerEventsStreamProvider);
+
+  // ローディング状態のハンドリング
+  if (participantEventsAsync.isLoading || organizerEventsAsync.isLoading) {
+    return const AsyncValue.loading();
+  }
+
+  // エラーハンドリング
+  if (participantEventsAsync.hasError) {
+    return AsyncValue.error(
+      participantEventsAsync.error!,
+      participantEventsAsync.stackTrace!,
+    );
+  }
+  if (organizerEventsAsync.hasError) {
+    return AsyncValue.error(
+      organizerEventsAsync.error!,
+      organizerEventsAsync.stackTrace!,
+    );
+  }
+
+  // データの結合
+  final participantEvents = participantEventsAsync.value ?? [];
+  final organizerEvents = organizerEventsAsync.value ?? [];
+
+  final allEvents = [...participantEvents, ...organizerEvents];
+
+  // IDで重複排除
+  final uniqueEventsMap = {for (var event in allEvents) event.id: event};
+
+  final uniqueEvents = uniqueEventsMap.values.toList();
+
+  // 日付順でソート（新しい順）
+  uniqueEvents.sort((a, b) => b.date.compareTo(a.date));
+
+  AppLogger.debug(
+    'イベント一覧更新: ${uniqueEvents.length}件 (参加: ${participantEvents.length}, 主催: ${organizerEvents.length})',
+    name: 'userEventsStreamProvider',
+  );
+
+  return AsyncValue.data(uniqueEvents);
 });
 
 /// 現在のユーザーの参加状況一覧のStreamProvider（リアルタイム更新）

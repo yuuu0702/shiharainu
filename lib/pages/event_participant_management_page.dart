@@ -445,6 +445,7 @@ class _EditParticipantDialog extends HookConsumerWidget {
       }
 
       isLoading.value = true;
+      bool success = false;
 
       try {
         final participantService = ref.read(participantServiceProvider);
@@ -462,6 +463,7 @@ class _EditParticipantDialog extends HookConsumerWidget {
 
         if (context.mounted) {
           Navigator.of(context).pop();
+          success = true;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('参加者情報を更新しました'),
@@ -479,7 +481,9 @@ class _EditParticipantDialog extends HookConsumerWidget {
           );
         }
       } finally {
-        isLoading.value = false;
+        if (context.mounted && !success) {
+          isLoading.value = false;
+        }
       }
     }
 
