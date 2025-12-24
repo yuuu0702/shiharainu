@@ -180,6 +180,8 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
       _errorMessage = null;
     });
 
+    bool success = false;
+
     try {
       final userService = ref.read(userServiceProvider);
       await userService.saveUserProfile(
@@ -203,12 +205,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
             context.go('/home');
           }
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('プロフィールを保存しました！'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          success = true;
         }
       }
     } catch (e) {
@@ -219,7 +216,7 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
         );
       }
     } finally {
-      if (mounted) {
+      if (mounted && !success) {
         setState(() => _isLoading = false);
       }
     }

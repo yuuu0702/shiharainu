@@ -79,6 +79,7 @@ class InviteAcceptPage extends HookConsumerWidget {
       }
 
       isJoining.value = true;
+      bool success = false;
 
       try {
         final firestore = FirebaseFirestore.instance;
@@ -97,6 +98,8 @@ class InviteAcceptPage extends HookConsumerWidget {
           if (context.mounted) {
             context.go('/events/${eventId.value}');
           }
+          // すでに参加済みの場合は成功扱いとしてローディング解除をスキップ
+          success = true;
           return;
         }
 
@@ -122,13 +125,16 @@ class InviteAcceptPage extends HookConsumerWidget {
         await inviteService.incrementUsageCount(inviteCode);
 
         // イベント詳細ページにリダイレクト
+        success = true;
         if (context.mounted) {
           context.go('/events/${eventId.value}');
         }
       } catch (e) {
         error.value = '参加に失敗しました: $e';
       } finally {
-        isJoining.value = false;
+        if (context.mounted && !success) {
+          isJoining.value = false;
+        }
       }
     }
 

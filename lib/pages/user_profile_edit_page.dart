@@ -200,6 +200,8 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
       _errorMessage = null;
     });
 
+    bool success = false;
+
     try {
       final userService = ref.read(userServiceProvider);
 
@@ -228,6 +230,7 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
           );
 
           // アカウント画面に戻る（現在のページを置き換え）
+          success = true;
           context.pushReplacement('/account');
         }
       }
@@ -249,7 +252,7 @@ class _UserProfileEditPageState extends ConsumerState<UserProfileEditPage> {
         );
       }
     } finally {
-      if (mounted) {
+      if (mounted && !success) {
         setState(() {
           _isLoading = false;
         });
