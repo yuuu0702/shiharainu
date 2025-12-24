@@ -255,78 +255,96 @@ class _EventPaymentManagementPageState
                         color: AppTheme.primaryColor.withValues(alpha: 0.1),
                       ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
                       children: [
-                        Text(
-                          '支払い金額',
-                          style: AppTheme.bodyLarge.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.foregroundColor,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('支払い金額', style: AppTheme.bodyMedium),
+                            Text(
+                              '¥${myParticipant.amountToPay.toInt()}',
+                              style: AppTheme.headlineMedium.copyWith(
+                                color: AppTheme.primaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          '¥${myParticipant.amountToPay.toStringAsFixed(0)}',
-                          style: AppTheme.headlineMedium.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryColor,
+                        if (myParticipant.paymentStatus == PaymentStatus.paid)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.check_circle,
+                                  color: AppTheme.successColor,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '支払い済み',
+                                  style: AppTheme.labelMedium.copyWith(
+                                    color: AppTheme.successColor,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: AppTheme.spacing24),
 
-                  // 支払い方法・メモ
+                  // 支払い情報欄（QRコードなど）
                   if (hasPaymentUrl || hasPaymentNote) ...[
-                    const SizedBox(height: AppTheme.spacing16),
-                    const Divider(),
-                    const SizedBox(height: AppTheme.spacing16),
-                  ],
-
-                  if (hasPaymentUrl) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      child: AppButton.primary(
-                        text: '支払いリンクを開く (PayPayなど)',
-                        icon: const Icon(Icons.payment, size: 20),
-                        onPressed: () => _launchPaymentUrl(event.paymentUrl!),
-                      ),
-                    ),
-                    if (hasPaymentNote)
-                      const SizedBox(height: AppTheme.spacing16),
-                  ],
-
-                  if (hasPaymentNote) ...[
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(AppTheme.spacing12),
+                      padding: const EdgeInsets.all(AppTheme.spacing16),
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(
                           AppTheme.radiusMedium,
                         ),
+                        border: Border.all(color: AppTheme.mutedColor),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '支払いメモ',
-                            style: AppTheme.bodySmall.copyWith(
-                              color: AppTheme.mutedForeground,
+                            '支払い先情報',
+                            style: AppTheme.labelMedium.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: AppTheme.spacing4),
-                          SelectableText(
-                            event.paymentNote!,
-                            style: AppTheme.bodyMedium,
-                          ),
+                          const SizedBox(height: AppTheme.spacing12),
+                          if (hasPaymentNote) ...[
+                            Text(
+                              event.paymentNote!,
+                              style: AppTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: AppTheme.spacing12),
+                          ],
+                          if (hasPaymentUrl)
+                            Center(
+                              child: Column(
+                                children: [
+                                  AppButton.outline(
+                                    text: '支払いリンクを開く',
+                                    icon: const Icon(
+                                      Icons.open_in_new,
+                                      size: 16,
+                                    ),
+                                    onPressed: () =>
+                                        _launchPaymentUrl(event.paymentUrl!),
+                                  ),
+                                ],
+                              ),
+                            ),
                         ],
                       ),
                     ),
+                    const SizedBox(height: AppTheme.spacing24),
                   ],
-
-                  const SizedBox(height: AppTheme.spacing24),
 
                   // アクションボタン
                   if (myParticipant.paymentStatus == PaymentStatus.unpaid)

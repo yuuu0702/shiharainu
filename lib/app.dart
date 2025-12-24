@@ -22,6 +22,7 @@ import 'package:shiharainu/pages/user_profile_edit_page.dart';
 import 'package:shiharainu/pages/app_info_page.dart';
 import 'package:shiharainu/pages/notifications_page.dart';
 import 'package:shiharainu/pages/invite_accept_page.dart';
+import 'package:shiharainu/pages/guest_promotion_page.dart';
 import 'package:shiharainu/shared/widgets/global_navigation_wrapper.dart';
 import 'package:shiharainu/shared/animations/page_transitions.dart';
 
@@ -97,7 +98,7 @@ class App extends ConsumerWidget {
                   'プロフィール未設定、/profile-setupにリダイレクト',
                   route: currentPath,
                 );
-                return '/profile-setup';
+                return '/profile-setup?redirect=${Uri.encodeComponent(currentPath)}';
               }
               return null; // プロフィール設定ページ、招待ページは表示
             }
@@ -172,6 +173,16 @@ class App extends ConsumerWidget {
                   AppPageTransitions.buildPageWithTransition(
                     child: const HomePage(),
                     name: 'home',
+                    transitionType: PageTransitionType.slideWithFade,
+                  ),
+            ),
+            GoRoute(
+              path: '/guest/promotion',
+              name: 'guest-promotion',
+              pageBuilder: (context, state) =>
+                  AppPageTransitions.buildPageWithTransition(
+                    child: const GuestPromotionPage(),
+                    name: 'guest-promotion',
                     transitionType: PageTransitionType.slideWithFade,
                   ),
             ),

@@ -64,6 +64,56 @@ class AuthService {
     }
   }
 
+  Future<UserCredential?> signInAnonymously() async {
+    try {
+      final credential = await _auth.signInAnonymously();
+      return credential;
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'operation-not-allowed':
+          throw Exception('ゲストログインが無効になっています。管理者に連絡してください。');
+        default:
+          throw Exception('ゲストログインに失敗しました: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception('予期しないエラーが発生しました: $e');
+    }
+  }
+
+  Future<UserCredential?> linkWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw Exception('ユーザーがログインしていません');
+      }
+
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: password,
+      );
+
+      return await user.linkWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'credential-already-in-use':
+          throw Exception('このメールアドレスは既に他のアカウントで使用されています');
+        case 'email-already-in-use':
+          throw Exception('このメールアドレスは既に登録されています');
+        case 'invalid-email':
+          throw Exception('メールアドレスの形式が正しくありません');
+        case 'weak-password':
+          throw Exception('パスワードが弱すぎます');
+        default:
+          throw Exception('アカウント連携に失敗しました: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception('予期しないエラーが発生しました: $e');
+    }
+  }
+
   Future<void> signOut() async {
     try {
       await _auth.signOut();

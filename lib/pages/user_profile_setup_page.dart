@@ -1,6 +1,7 @@
 // Governed by Skill: shiharainu-general-design
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
@@ -150,20 +151,28 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
   void _handleSaveProfile() async {
     final name = _nameController.text.trim();
     final ageText = _ageController.text.trim();
+    final isGuest = FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
 
     AppLogger.info('=== プロフィール保存開始 ===', name: 'UserProfileSetup');
     if (name.isEmpty) {
       setState(() => _errorMessage = '名前を入力してください');
       return;
     }
-    if (ageText.isEmpty) {
-      setState(() => _errorMessage = '年齢を入力してください');
-      return;
-    }
-    final age = int.tryParse(ageText);
-    if (age == null || age < 1 || age > 150) {
-      setState(() => _errorMessage = '正しい年齢を入力してください');
-      return;
+
+    int? age;
+    if (!isGuest) {
+      if (ageText.isEmpty) {
+        setState(() => _errorMessage = '年齢を入力してください');
+        return;
+      }
+      age = int.tryParse(ageText);
+      if (age == null || age < 1 || age > 150) {
+        setState(() => _errorMessage = '正しい年齢を入力してください');
+        return;
+      }
+    } else {
+      // ゲストの場合は年齢不要（または0として保存）
+      age = 0;
     }
 
     setState(() {
@@ -185,7 +194,15 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
         await _waitForProfileUpdate();
 
         if (mounted) {
-          context.go('/home');
+          final state = GoRouterState.of(context);
+          final redirect = state.uri.queryParameters['redirect'];
+
+          if (redirect != null) {
+            context.go(redirect);
+          } else {
+            context.go('/home');
+          }
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('プロフィールを保存しました！'),
@@ -240,19 +257,23 @@ class _UserProfileSetupPageState extends ConsumerState<UserProfileSetupPage> {
                     prefixIcon: const Icon(Icons.person_outline, size: 20),
                   ),
                   const SizedBox(height: AppTheme.spacing16),
-                  AppInput(
-                    label: '年齢',
-                    placeholder: '例: 25',
-                    controller: _ageController,
-                    keyboardType: TextInputType.number,
-                    isRequired: true,
-                    prefixIcon: const Icon(Icons.cake_outlined, size: 20),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(3),
-                    ],
-                  ),
-                  const SizedBox(height: AppTheme.spacing16),
+                  // 年齢入力 (ゲストの場合は非表示)
+                  if (!(FirebaseAuth.instance.currentUser?.isAnonymous ??
+                      false)) ...[
+                    AppInput(
+                      label: '年齢',
+                      placeholder: '例: 25',
+                      controller: _ageController,
+                      keyboardType: TextInputType.number,
+                      isRequired: true,
+                      prefixIcon: const Icon(Icons.cake_outlined, size: 20),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(3),
+                      ],
+                    ),
+                    const SizedBox(height: AppTheme.spacing16),
+                  ],
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

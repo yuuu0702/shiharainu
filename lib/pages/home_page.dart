@@ -129,6 +129,12 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                       // 今回はSmartDashboardがメインなので、ここのリストは補助的。
                       // TODO: HomeEventsSectionをEventModel対応にリファクタリング推奨
+                      final isGuest =
+                          FirebaseAuth.instance.currentUser?.isAnonymous ??
+                          false;
+                      if (isGuest && eventDataList.isEmpty) {
+                        return const SizedBox.shrink(); // ゲストでイベントなしならセクションごと非表示
+                      }
                       return HomeEventsSection(events: eventDataList);
                     },
                     loading: () => const AppProgress.circular(),
@@ -137,7 +143,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                   const SizedBox(height: AppTheme.spacing24),
 
                   // 今月の活動サマリー
-                  const HomeActivitySummary(),
+                  // 今月の活動サマリー (ゲスト以外のみ表示)
+                  if (!(FirebaseAuth.instance.currentUser?.isAnonymous ??
+                      false))
+                    const HomeActivitySummary(),
 
                   // 下部余白
                   const SizedBox(height: AppTheme.spacing32),

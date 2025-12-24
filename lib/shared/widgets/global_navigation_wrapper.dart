@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shiharainu/shared/constants/app_breakpoints.dart';
 import 'package:shiharainu/shared/widgets/app_bottom_navigation.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 
 /// グローバルナビゲーションラッパー
 /// 全てのページで統一したボトムナビゲーションを提供
-class GlobalNavigationWrapper extends StatelessWidget {
+class GlobalNavigationWrapper extends ConsumerWidget {
   final Widget child;
 
   const GlobalNavigationWrapper({super.key, required this.child});
 
-  // グローバルナビゲーション項目（アプリ全体で統一）
-  static const List<AppBottomNavigationItem> _navigationItems = [
+  // 通常ユーザー向けナビゲーション項目
+  static const List<AppBottomNavigationItem> _userNavigationItems = [
     AppBottomNavigationItem(
       label: 'ホーム',
       icon: Icons.home_outlined,
@@ -35,10 +37,35 @@ class GlobalNavigationWrapper extends StatelessWidget {
     ),
   ];
 
+  // ゲストユーザー向けナビゲーション項目
+  static const List<AppBottomNavigationItem> _guestNavigationItems = [
+    AppBottomNavigationItem(
+      label: 'ホーム',
+      icon: Icons.home_outlined,
+      route: '/home',
+    ),
+    AppBottomNavigationItem(
+      label: 'イベント一覧',
+      icon: Icons.event_note_outlined,
+      route: '/events',
+    ),
+    AppBottomNavigationItem(
+      label: '会員登録',
+      icon: Icons.person_add_outlined,
+      route: '/guest/promotion',
+    ),
+  ];
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // 現在のルートを自動的に取得
     final currentLocation = GoRouterState.of(context).matchedLocation;
+
+    // ユーザー状態によってナビゲーション項目を切り替え
+    final isGuest = FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
+    final navigationItems = isGuest
+        ? _guestNavigationItems
+        : _userNavigationItems;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -47,20 +74,32 @@ class GlobalNavigationWrapper extends StatelessWidget {
 
         switch (navigationType) {
           case NavigationType.rail:
-            return _buildNavigationRailLayout(currentLocation);
+            return _buildNavigationRailLayout(
+              context,
+              currentLocation,
+              navigationItems,
+            );
           case NavigationType.bottom:
-            return _buildBottomNavigationLayout(currentLocation);
+            return _buildBottomNavigationLayout(
+              context,
+              currentLocation,
+              navigationItems,
+            );
         }
       },
     );
   }
 
-  Widget _buildNavigationRailLayout(String currentLocation) {
+  Widget _buildNavigationRailLayout(
+    BuildContext context,
+    String currentLocation,
+    List<AppBottomNavigationItem> items,
+  ) {
     return Scaffold(
       body: Row(
         children: [
           // 左側のNavigationRail
-          _buildNavigationRail(currentLocation),
+          _buildNavigationRail(context, currentLocation, items),
           // 右側のメインコンテンツ
           Expanded(child: child),
         ],
@@ -68,18 +107,26 @@ class GlobalNavigationWrapper extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomNavigationLayout(String currentLocation) {
+  Widget _buildBottomNavigationLayout(
+    BuildContext context,
+    String currentLocation,
+    List<AppBottomNavigationItem> items,
+  ) {
     return Scaffold(
       body: child,
       bottomNavigationBar: AppBottomNavigation(
-        items: _navigationItems,
+        items: items,
         currentRoute: currentLocation,
       ),
     );
   }
 
-  Widget _buildNavigationRail(String currentLocation) {
-    final currentIndex = _navigationItems.indexWhere(
+  Widget _buildNavigationRail(
+    BuildContext context,
+    String currentLocation,
+    List<AppBottomNavigationItem> items,
+  ) {
+    final currentIndex = items.indexWhere(
       (item) => _isRouteActive(item.route, currentLocation),
     );
 
@@ -87,8 +134,8 @@ class GlobalNavigationWrapper extends StatelessWidget {
       builder: (context) => NavigationRail(
         selectedIndex: currentIndex >= 0 ? currentIndex : 0,
         onDestinationSelected: (index) {
-          if (index < _navigationItems.length) {
-            context.go(_navigationItems[index].route);
+          if (index < items.length) {
+            context.go(items[index].route);
           }
         },
         labelType: NavigationRailLabelType.selected,
@@ -112,7 +159,7 @@ class GlobalNavigationWrapper extends StatelessWidget {
           color: AppTheme.mutedForeground,
           size: 20,
         ),
-        destinations: _navigationItems
+        destinations: items
             .map(
               (item) => NavigationRailDestination(
                 icon: Icon(item.icon),
@@ -132,11 +179,8 @@ class GlobalNavigationWrapper extends StatelessWidget {
       return true;
     }
 
-    // サブルートの場合（例: /events/abc/payments は /events としてハイライト）
-    // ただし、他のルートの一部として含まれる場合は除外
-    // 例: /account は /account-settings と一致しない
+    // サブルートの場合
     if (currentLocation.startsWith(navRoute)) {
-      // ルートの後に / が続く場合のみマッチ（例: /events/... は OK, /eventsother は NG）
       if (currentLocation.length > navRoute.length) {
         return currentLocation[navRoute.length] == '/';
       }

@@ -1,13 +1,8 @@
-// Governed by Skill: shiharainu-login-design
-// Standards: Premium Minimal, Weverse Interactive Flow
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/services/auth_service.dart';
 import 'package:shiharainu/shared/utils/debug_utils.dart';
-import 'package:shiharainu/shared/widgets/widgets.dart';
-import 'package:shiharainu/shared/widgets/auth_input.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,471 +12,509 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  bool _showLoginForm = false;
+
+  void _toggleView() {
+    setState(() {
+      _showLoginForm = !_showLoginForm;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 500),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        child: _showLoginForm
+            ? _LoginScreen(onBack: _toggleView)
+            : _StartScreen(onLoginTap: _toggleView),
+      ),
+    );
+  }
+}
+
+class _StartScreen extends ConsumerStatefulWidget {
+  final VoidCallback onLoginTap;
+  const _StartScreen({required this.onLoginTap});
+
+  @override
+  ConsumerState<_StartScreen> createState() => _StartScreenState();
+}
+
+class _StartScreenState extends ConsumerState<_StartScreen> {
+  bool _isLoading = false;
+
+  Future<void> _handleGuestLogin() async {
+    setState(() => _isLoading = true);
+    try {
+      final authService = ref.read(authServiceProvider);
+      await authService.signInAnonymously();
+      // GoRouter handles redirect
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _handleDebugLogin(String email, String password) async {
+    setState(() => _isLoading = true);
+    try {
+      final authService = ref.read(authServiceProvider);
+      await authService.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      // GoRouter handles redirect
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Reference Image Orange Color approximation
+    const backgroundColor = Color(0xFFEA9062);
+
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: Stack(
+        children: [
+          // Background Music Notes
+          Positioned(
+            top: 80,
+            left: 200,
+            child: Icon(
+              Icons.music_note,
+              color: Colors.white.withValues(alpha: 0.3),
+              size: 40,
+            ),
+          ),
+          Positioned(
+            top: 60,
+            right: 40,
+            child: Icon(
+              Icons.music_note,
+              color: Colors.white.withValues(alpha: 0.3),
+              size: 30,
+            ),
+          ),
+
+          // Dog Image (Positioned to sit behind/on the clouds)
+          Positioned(
+            top:
+                MediaQuery.of(context).size.height *
+                0.05, // Adjust based on screen height
+            left: -300,
+            right: 0,
+            child: Center(
+              child: SizedBox(
+                width: 160, // Increased size
+                height: 160,
+                child: Image.asset(
+                  'assets/images/dog.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+          ),
+
+          // Cloud & Content Layer
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height:
+                MediaQuery.of(context).size.height *
+                0.85, // Covers most of the screen
+            child: Stack(
+              children: [
+                // Cloud Shape
+                Positioned.fill(
+                  child: ClipPath(
+                    clipper: _CloudClipper(),
+                    child: Container(color: Colors.white),
+                  ),
+                ),
+                // Content
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        height: 100,
+                      ), // Push content down below the "wave" crests
+                      const Text(
+                        'しはらいぬ',
+                        style: TextStyle(
+                          fontSize: 42,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black87,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        '楽しい飲み会、まかせなさい！',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Spacer(),
+                      // Buttons
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: _handleGuestLogin,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: backgroundColor,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          child: _isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : const Text(
+                                  'ゲストとして利用する',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: widget.onLoginTap,
+                            child: const Text(
+                              'ログイン',
+                              style: TextStyle(
+                                color: backgroundColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const Text('|', style: TextStyle(color: Colors.grey)),
+                          TextButton(
+                            onPressed: () {
+                              context.push('/signup');
+                            },
+                            child: const Text(
+                              '新規登録',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (DebugUtils.isDebugMode) ...[
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () => _handleDebugLogin(
+                                      DebugUtils.testEmail,
+                                      DebugUtils.testPassword,
+                                    ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey[800],
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('DEBUG1'),
+                            ),
+                            const SizedBox(width: 16),
+                            ElevatedButton(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () => _handleDebugLogin(
+                                      DebugUtils.testEmail2,
+                                      DebugUtils.testPassword2,
+                                    ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.grey[800],
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('DEBUG2'),
+                            ),
+                          ],
+                        ),
+                      ],
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Cloud Clipper
+class _CloudClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+    path.moveTo(0, 60);
+
+    // Bump 1 (Left)
+    path.quadraticBezierTo(size.width * 0.15, 0, size.width * 0.3, 60);
+
+    // Bump 2 (Middle - larger)
+    path.quadraticBezierTo(size.width * 0.5, 10, size.width * 0.7, 60);
+
+    // Bump 3 (Right)
+    path.quadraticBezierTo(size.width * 0.85, 20, size.width, 60);
+
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}
+
+class _LoginScreen extends ConsumerStatefulWidget {
+  final VoidCallback onBack;
+  const _LoginScreen({required this.onBack});
+
+  @override
+  ConsumerState<_LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<_LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
-  bool _showLoginForm = false; // State to toggle between Landing and Form views
+  bool _obscurePassword = true;
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  void _handleLogin() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      setState(() {
-        _errorMessage = 'メールアドレスとパスワードを入力してください';
-      });
-      return;
-    }
-
-    await _performLogin(email, password);
-  }
-
-  Future<void> _performLogin(String email, String password) async {
+  Future<void> _handleLogin() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      final container = ProviderScope.containerOf(context);
-      final authService = container.read(authServiceProvider);
-
+      final authService = ref.read(authServiceProvider);
       await authService.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
-
-      if (mounted) {
-        final state = GoRouterState.of(context);
-        final redirect = state.uri.queryParameters['redirect'];
-        if (redirect != null) {
-          context.go(redirect);
-        } else {
-          context.go('/home');
-        }
-      }
+      // GoRouter handles redirect
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+          _errorMessage = e.toString().replaceAll('Exception: ', '');
         });
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
   }
 
-  void _toggleForm(bool show) {
-    setState(() {
-      _showLoginForm = show;
-      _errorMessage = null; // Clear error when switching views
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Premium Gradient Background
-    final backgroundGradient = LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [
-        Color(0xFF6366F1), // Indigo 500
-        Color(0xFF8B5CF6), // Violet 500
-        Color(0xFFEC4899), // Pink 500 (Subtle hint)
-      ],
-      stops: const [0.0, 0.5, 1.0],
-    );
+    const accentColor = Color(0xFFEA9062);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // 1. Background Layer
-          Container(decoration: BoxDecoration(gradient: backgroundGradient)),
-
-          // 2. Mesh/Noise Overlay
-          Container(color: Colors.black.withValues(alpha: 0.1)),
-
-          // 3. Content Layer
-          SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppTheme.spacing32,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Top Spacer
-                          const SizedBox(height: AppTheme.spacing48),
-
-                          // Header Section (Brand) - Always Visible
-                          Column(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(
-                                  AppTheme.spacing20,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.3),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: const Icon(
-                                  Icons.payment,
-                                  size: 48,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: AppTheme.spacing24),
-                              Text(
-                                'Shiharainu',
-                                style: AppTheme.displayLarge.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                  letterSpacing: -0.5,
-                                  fontSize: 40,
-                                ),
-                              ),
-                              const SizedBox(height: AppTheme.spacing8),
-                              Text(
-                                'Smart Event Payments',
-                                style: AppTheme.bodyLarge.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.8),
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: AppTheme.spacing48),
-
-                          // Bottom Section (Animated Switcher)
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            transitionBuilder:
-                                (Widget child, Animation<double> animation) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: SlideTransition(
-                                      position: Tween<Offset>(
-                                        begin: const Offset(0.0, 0.05),
-                                        end: Offset.zero,
-                                      ).animate(animation),
-                                      child: child,
-                                    ),
-                                  );
-                                },
-                            child: _showLoginForm
-                                ? _buildLoginForm()
-                                : _buildLandingActions(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.grey),
+          onPressed: widget.onBack,
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart_outlined, color: Colors.grey),
+            onPressed: () {},
           ),
         ],
       ),
-    );
-  }
-
-  // --- View: Landing Actions (Initial State) ---
-  Widget _buildLandingActions() {
-    return Column(
-      key: const ValueKey('landing'),
-      children: [
-        // Log In Button (Triggers Form)
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton(
-            onPressed: () => _toggleForm(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: AppTheme.primaryColor,
-              elevation: 0,
-              shape: const StadiumBorder(),
-              textStyle: AppTheme.bodyLarge.copyWith(
-                fontWeight: FontWeight.w700,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            // Avatar
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey[100],
+              ),
+              child: const Icon(Icons.pets, size: 50, color: Colors.brown),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'おかえりなさい！',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
               ),
             ),
-            child: const Text('Log In'),
-          ),
-        ),
-        const SizedBox(height: AppTheme.spacing16),
+            const SizedBox(height: 40),
 
-        // Sign Up Button (Navigates to Sign Up Page)
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: OutlinedButton(
-            onPressed: () => context.go('/signup'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.white,
-              side: BorderSide(
-                color: Colors.white.withValues(alpha: 0.5),
-                width: 1.5,
+            if (_errorMessage != null)
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
-              shape: const StadiumBorder(),
-              textStyle: AppTheme.bodyLarge.copyWith(
-                fontWeight: FontWeight.w700,
+
+            // Form
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                hintText: 'メールアドレス',
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
               ),
             ),
-            child: const Text('Sign Up'),
-          ),
-        ),
-
-        const SizedBox(height: AppTheme.spacing48),
-
-        // Debug Login (Only in Debug Mode)
-        _DebugActions(onLogin: _performLogin, isLoading: _isLoading),
-      ],
-    );
-  }
-
-  // --- View: Login Form (Secondary State) ---
-  Widget _buildLoginForm() {
-    return Column(
-      key: const ValueKey('form'),
-      children: [
-        // Error Message
-        if (_errorMessage != null)
-          Container(
-            margin: const EdgeInsets.only(bottom: AppTheme.spacing20),
-            padding: const EdgeInsets.all(AppTheme.spacing12),
-            decoration: BoxDecoration(
-              color: AppTheme.destructive.withValues(alpha: 0.9),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.error_outline, color: Colors.white, size: 20),
-                const SizedBox(width: AppTheme.spacing8),
-                Expanded(
-                  child: Text(
-                    _errorMessage!,
-                    style: const TextStyle(color: Colors.white, fontSize: 13),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _passwordController,
+              obscureText: _obscurePassword,
+              decoration: InputDecoration(
+                hintText: 'パスワード',
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey,
                   ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Remember me switch
+            Row(
+              children: [
+                const Text('パスワードを保存', style: TextStyle(color: Colors.grey)),
+                const Spacer(),
+                Switch(
+                  value: true,
+                  onChanged: (val) {},
+                  activeColor: accentColor,
                 ),
               ],
             ),
-          ),
 
-        // Inputs
-        AuthInput(
-          label: 'Email',
-          controller: _emailController,
-          keyboardType: TextInputType.emailAddress,
-          icon: Icons.email_outlined,
-        ),
-        const SizedBox(height: AppTheme.spacing20),
-        AuthInput(
-          label: 'Password',
-          controller: _passwordController,
-          obscureText: true,
-          icon: Icons.lock_outline,
-        ),
-
-        const SizedBox(height: AppTheme.spacing40),
-
-        // Actions
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton(
-            onPressed: _isLoading ? null : _handleLogin,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: AppTheme.primaryColor,
-              elevation: 0,
-              shape: const StadiumBorder(),
-              textStyle: AppTheme.bodyLarge.copyWith(
-                fontWeight: FontWeight.w700,
+            const SizedBox(height: 20),
+            TextButton(
+              onPressed: () {
+                // Forgot password
+              },
+              child: const Text(
+                'パスワードをお忘れですか？',
+                style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ),
-            child: _isLoading
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Log In'),
-          ),
-        ),
 
-        const SizedBox(height: AppTheme.spacing24),
-
-        TextButton(
-          onPressed: _showPasswordResetDialog,
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white.withValues(alpha: 0.9),
-          ),
-          child: const Text('Forgot Password?'),
-        ),
-
-        const SizedBox(height: AppTheme.spacing8),
-
-        // Back Button
-        TextButton.icon(
-          onPressed: () => _toggleForm(false),
-          icon: const Icon(Icons.arrow_back, size: 16),
-          label: const Text('Back'),
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white.withValues(alpha: 0.7),
-          ),
-        ),
-
-        // Debug Login (Only in Debug Mode)
-        const SizedBox(height: AppTheme.spacing20),
-        _DebugActions(onLogin: _performLogin, isLoading: _isLoading),
-
-        const SizedBox(height: AppTheme.spacing32),
-      ],
-    );
-  }
-
-  void _showPasswordResetDialog() {
-    final emailController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reset Password'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Enter your email to receive a reset link.'),
-            const SizedBox(height: 16),
-            AppInput(
-              label: 'Email',
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              isRequired: true,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          AppButton.primary(
-            text: 'Send',
-            onPressed: () async {
-              final email = emailController.text.trim();
-              if (email.isEmpty) return;
-
-              final container = ProviderScope.containerOf(context);
-              final navigator = Navigator.of(context);
-              final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-              try {
-                final authService = container.read(authServiceProvider);
-                await authService.sendPasswordResetEmail(email: email);
-
-                if (navigator.mounted) {
-                  navigator.pop();
-                  scaffoldMessenger.showSnackBar(
-                    const SnackBar(
-                      content: Text('Password reset email sent'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (scaffoldMessenger.mounted) {
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        e.toString().replaceFirst('Exception: ', ''),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _handleLogin,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: accentColor,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'ログイン',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
-                      backgroundColor: AppTheme.destructive,
-                    ),
-                  );
-                }
-              }
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DebugActions extends StatelessWidget {
-  const _DebugActions({required this.onLogin, required this.isLoading});
-
-  final void Function(String email, String password) onLogin;
-  final bool isLoading;
-
-  @override
-  Widget build(BuildContext context) {
-    if (!DebugUtils.isDebugMode) return const SizedBox.shrink();
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _DebugButton(
-          label: 'Debug 1',
-          onTap: isLoading
-              ? null
-              : () => onLogin(DebugUtils.testEmail, DebugUtils.testPassword),
-        ),
-        _DebugButton(
-          label: 'Debug 2',
-          onTap: isLoading
-              ? null
-              : () => onLogin(DebugUtils.testEmail2, DebugUtils.testPassword2),
-        ),
-      ],
-    );
-  }
-}
-
-class _DebugButton extends StatelessWidget {
-  const _DebugButton({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white54,
-            decoration: TextDecoration.underline,
-            fontSize: 12,
-          ),
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
         ),
       ),
     );

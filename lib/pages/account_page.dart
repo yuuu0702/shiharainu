@@ -339,9 +339,7 @@ class AccountPage extends ConsumerWidget {
                   ref.invalidate(userEventsStreamProvider);
                   ref.invalidate(myParticipationsStreamProvider);
 
-                  if (context.mounted) {
-                    context.go('/login');
-                  }
+                  // GoRouterが認証状態の変化を検知して自動的にリダイレクトします
                 } catch (e) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(

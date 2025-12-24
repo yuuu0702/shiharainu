@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/models/participant_model.dart';
 import 'package:shiharainu/pages/home/home_data_models.dart';
@@ -35,6 +36,15 @@ class SmartDashboardLogic {
     required String currentUserId,
   }) {
     if (events.isEmpty) {
+      final isGuest = FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
+      if (isGuest) {
+        return const SmartAction(
+          type: SmartActionType.join,
+          title: '招待コードをお持ちですか？',
+          subTitle: '招待リンクからイベントに参加しましょう',
+          priority: 0,
+        );
+      }
       return const SmartAction(
         type: SmartActionType.create,
         title: '新しいイベントを企画しませんか？',

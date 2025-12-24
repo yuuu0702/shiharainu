@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
@@ -19,17 +20,20 @@ class HomeQuickActions extends StatelessWidget {
         const SizedBox(height: AppTheme.spacing12),
         Row(
           children: [
-            Expanded(
-              child: _buildActionCard(
-                context,
-                icon: Icons.add,
-                title: 'イベント作成',
-                subtitle: '新しい企画',
-                color: AppTheme.primaryColor,
-                onTap: () => context.go('/events/create'),
+            // ゲスト以外のみイベント作成可能
+            if (!(FirebaseAuth.instance.currentUser?.isAnonymous ?? false)) ...[
+              Expanded(
+                child: _buildActionCard(
+                  context,
+                  icon: Icons.add,
+                  title: 'イベント作成',
+                  subtitle: '新しい企画',
+                  color: AppTheme.primaryColor,
+                  onTap: () => context.go('/events/create'),
+                ),
               ),
-            ),
-            const SizedBox(width: AppTheme.spacing12),
+              const SizedBox(width: AppTheme.spacing12),
+            ],
             Expanded(
               child: _buildActionCard(
                 context,

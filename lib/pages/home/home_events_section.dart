@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/widgets/widgets.dart';
@@ -50,24 +51,37 @@ class HomeEventsSection extends StatelessWidget {
               child: Column(
                 children: [
                   const Icon(
-                    Icons.event_busy,
+                    Icons.event_available_outlined,
                     size: 48,
                     color: AppTheme.mutedForegroundLegacy,
                   ),
                   const SizedBox(height: AppTheme.spacing12),
                   Text(
-                    '近日中のイベントはありません',
+                    (FirebaseAuth.instance.currentUser?.isAnonymous ?? false)
+                        ? '招待コードをお持ちですか？'
+                        : '近日中のイベントはありません',
                     style: AppTheme.bodyMedium.copyWith(
                       color: AppTheme.mutedForegroundAccessible,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: AppTheme.spacing16),
-                  AppButton.outline(
-                    text: 'イベントを作成',
-                    size: AppButtonSize.small,
-                    onPressed: () => context.go('/events/create'),
-                  ),
+                  (FirebaseAuth.instance.currentUser?.isAnonymous ?? false)
+                      ? AppButton.outline(
+                          text: '招待コードを入力',
+                          size: AppButtonSize.small,
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => const JoinEventDialog(),
+                            );
+                          },
+                        )
+                      : AppButton.outline(
+                          text: 'イベントを作成',
+                          size: AppButtonSize.small,
+                          onPressed: () => context.go('/events/create'),
+                        ),
                 ],
               ),
             ),
