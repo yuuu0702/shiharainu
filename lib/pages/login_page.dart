@@ -370,12 +370,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.grey),
           onPressed: widget.onBack,
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined, color: Colors.grey),
-            onPressed: () {},
-          ),
-        ],
+        actions: [],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 32),

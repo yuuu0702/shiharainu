@@ -2,9 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/services/auth_service.dart';
-import 'package:shiharainu/shared/widgets/auth_input.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -20,6 +18,8 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _isLoading = false;
   String? _errorMessage;
   bool _agreeToTerms = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void dispose() {
@@ -97,199 +97,208 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Premium Gradient Background
-    final backgroundGradient = LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [
-        Color(0xFF6366F1), // Indigo 500
-        Color(0xFF8B5CF6), // Violet 500
-        Color(0xFFEC4899), // Pink 500 (Subtle hint)
-      ],
-      stops: const [0.0, 0.5, 1.0],
-    );
-
     return Scaffold(
-      body: Stack(
-        children: [
-          // 1. Background Layer
-          Container(decoration: BoxDecoration(gradient: backgroundGradient)),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.grey),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            // Avatar
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.grey[100],
+              ),
+              child: const Icon(Icons.pets, size: 50, color: Colors.brown),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              '新規登録',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 40),
 
-          // 2. Mesh/Noise Overlay
-          Container(color: Colors.black.withValues(alpha: 0.1)),
-
-          // 3. Content Layer
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.spacing32,
-                  vertical: AppTheme.spacing24,
+            if (_errorMessage != null)
+              Container(
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    // Header
-                    Text(
-                      'Create Account',
-                      style: AppTheme.displayLarge.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
-                        fontSize: 32,
-                      ),
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 20,
                     ),
-                    const SizedBox(height: AppTheme.spacing8),
-                    Text(
-                      'Shiharainuへようこそ',
-                      style: AppTheme.bodyLarge.copyWith(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: AppTheme.spacing40),
-
-                    // Error Message
-                    if (_errorMessage != null)
-                      Container(
-                        margin: const EdgeInsets.only(
-                          bottom: AppTheme.spacing20,
-                        ),
-                        padding: const EdgeInsets.all(AppTheme.spacing12),
-                        decoration: BoxDecoration(
-                          color: AppTheme.destructive.withValues(alpha: 0.9),
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusMedium,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.error_outline,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            const SizedBox(width: AppTheme.spacing8),
-                            Expanded(
-                              child: Text(
-                                _errorMessage!,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    // Inputs
-                    AuthInput(
-                      label: 'Email',
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      icon: Icons.email_outlined,
-                    ),
-                    const SizedBox(height: AppTheme.spacing20),
-                    AuthInput(
-                      label: 'Password',
-                      controller: _passwordController,
-                      obscureText: true,
-                      icon: Icons.lock_outline,
-                    ),
-                    const SizedBox(height: AppTheme.spacing20),
-                    AuthInput(
-                      label: 'Confirm Password',
-                      controller: _confirmPasswordController,
-                      obscureText: true,
-                      icon: Icons.lock_outline,
-                    ),
-
-                    const SizedBox(height: AppTheme.spacing24),
-
-                    // Terms Checkbox
-                    Row(
-                      children: [
-                        Transform.scale(
-                          scale: 1.2,
-                          child: Checkbox(
-                            value: _agreeToTerms,
-                            onChanged: (value) {
-                              setState(() {
-                                _agreeToTerms = value ?? false;
-                              });
-                            },
-                            side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              width: 1.5,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            activeColor: Colors.white,
-                            checkColor: AppTheme.primaryColor,
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            '利用規約とプライバシーポリシーに同意します',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.9),
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: AppTheme.spacing32),
-
-                    // Sign Up Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleSignUp,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppTheme.primaryColor,
-                          elevation: 0,
-                          shape: const StadiumBorder(),
-                          textStyle: AppTheme.bodyLarge.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text('Sign Up'),
-                      ),
-                    ),
-
-                    const SizedBox(height: AppTheme.spacing24),
-
-                    // Back Link
-                    Center(
-                      child: TextButton(
-                        onPressed: () => context.pop(),
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.white.withValues(alpha: 0.7),
-                        ),
-                        child: const Text('Back to Login'),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(color: Colors.red),
                       ),
                     ),
                   ],
                 ),
               ),
+
+            // Form
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                hintText: 'メールアドレス',
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            TextField(
+              controller: _passwordController,
+              obscureText: _obscurePassword,
+              decoration: InputDecoration(
+                hintText: 'パスワード',
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _confirmPasswordController,
+              obscureText: _obscureConfirmPassword,
+              decoration: InputDecoration(
+                hintText: 'パスワード（確認）',
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureConfirmPassword
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureConfirmPassword = !_obscureConfirmPassword;
+                    });
+                  },
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Terms Checkbox
+            Row(
+              children: [
+                Transform.scale(
+                  scale: 1.1,
+                  child: Checkbox(
+                    value: _agreeToTerms,
+                    onChanged: (value) {
+                      setState(() {
+                        _agreeToTerms = value ?? false;
+                      });
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    activeColor: Theme.of(context).primaryColor,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    '利用規約とプライバシーポリシーに同意します',
+                    style: TextStyle(color: Colors.black87, fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 32),
+
+            // Sign Up Button
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _handleSignUp,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  // shape is inherited from AppTheme (25px radius)
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text('登録する'),
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }
