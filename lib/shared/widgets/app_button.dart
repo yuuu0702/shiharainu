@@ -116,9 +116,6 @@ class AppButton extends StatelessWidget {
           elevation: 0, // Figmaガイドライン: フラットデザイン
           padding: _getPadding(),
           minimumSize: _getMinimumSize(),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-          ),
           textStyle: _getTextStyle(),
         ),
         child: _buildChild(),
@@ -140,9 +137,6 @@ class AppButton extends StatelessWidget {
           ),
           padding: _getPadding(),
           minimumSize: _getMinimumSize(),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-          ),
           textStyle: _getTextStyle(),
         ),
         child: _buildChild(),
@@ -158,9 +152,6 @@ class AppButton extends StatelessWidget {
           elevation: 0,
           padding: _getPadding(),
           minimumSize: _getMinimumSize(),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-          ),
           textStyle: _getTextStyle(),
         ),
         child: _buildChild(),
@@ -177,9 +168,6 @@ class AppButton extends StatelessWidget {
         disabledForegroundColor: AppTheme.mutedForeground,
         padding: _getPadding(),
         minimumSize: _getMinimumSize(),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-        ),
         textStyle: _getTextStyle(),
       ),
       child: _buildChild(),

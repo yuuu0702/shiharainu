@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Figmaデザインガイドラインに基づくカラーパレット
-  static const Color primaryColor = Color(0xFFEA3800); // Primary: #EA3800
+  static const Color primaryColor = Color(
+    0xFFEA9062,
+  ); // Primary: #EA9062 (Soft Orange)
   static const Color primaryForeground = Color(
     0xFFFFFFFF,
   ); // Primary Foreground
@@ -67,9 +69,9 @@ class AppTheme {
         foregroundColor: primaryForeground,
         disabledBackgroundColor: mutedColor,
         disabledForegroundColor: mutedForeground,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -77,9 +79,9 @@ class AppTheme {
         elevation: 0,
         foregroundColor: Colors.black87,
         side: const BorderSide(color: mutedColor),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -98,22 +100,22 @@ class AppTheme {
       filled: true,
       fillColor: inputBackground, // #f3f3f5
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none, // 透明ボーダー
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: ringColor, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: destructiveColor, width: 2),
       ),
-      // Figmaガイドライン: px-3 py-1 = 左右12px、上下4px
-      contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+      // Figmaガイドライン: px-3 py-1 = 左右12px、上下4px -> Login Page style: vertical 16
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       hintStyle: const TextStyle(color: mutedForeground, fontSize: 14),
-      // Input高さ: 36px (h-9)
-      constraints: const BoxConstraints(minHeight: 36),
+      // Input高さ: 36px (h-9) -> Login Page style usually taller, removing constraint or increasing
+      constraints: const BoxConstraints(minHeight: 48),
     ),
     // Card設定
     cardTheme: CardThemeData(

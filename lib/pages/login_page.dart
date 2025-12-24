@@ -97,7 +97,8 @@ class _StartScreenState extends ConsumerState<_StartScreen> {
   @override
   Widget build(BuildContext context) {
     // Reference Image Orange Color approximation
-    const backgroundColor = Color(0xFFEA9062);
+    // Reference Image Orange Color approximation (Now using Token)
+    final backgroundColor = Theme.of(context).primaryColor;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -220,7 +221,7 @@ class _StartScreenState extends ConsumerState<_StartScreen> {
                         children: [
                           TextButton(
                             onPressed: widget.onLoginTap,
-                            child: const Text(
+                            child: Text(
                               'ログイン',
                               style: TextStyle(
                                 color: backgroundColor,
@@ -358,7 +359,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFFEA9062);
+    final accentColor = Theme.of(context).primaryColor;
 
     return Scaffold(
       backgroundColor: Colors.white,
