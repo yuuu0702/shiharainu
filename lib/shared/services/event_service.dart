@@ -109,21 +109,20 @@ class EventService {
 
         // 主催者を参加者として追加
         final participantRef = eventRef.collection('participants').doc();
-        final participant = ParticipantModel(
-          id: participantRef.id,
-          eventId: eventRef.id,
-          userId: user.uid,
-          displayName: userProfile.name,
-          email: user.email ?? '',
-          role: ParticipantRole.organizer,
-          age: userProfile.age,
-          gender: userProfile.gender ?? ParticipantGender.other,
-          multiplier: 1.0,
-          amountToPay: 0.0,
-          paymentStatus: PaymentStatus.paid, // 主催者は支払済（集金側）
-          joinedAt: now,
-          updatedAt: now,
-        );
+        final participant =
+            ParticipantModel.create(
+                  eventId: eventRef.id,
+                  userId: user.uid,
+                  displayName: userProfile.name,
+                  email: user.email ?? '',
+                  role: ParticipantRole.organizer,
+                  age: userProfile.age,
+                  gender: userProfile.gender ?? ParticipantGender.other,
+                ) // 主催者は支払済（集金側）にするため、paymentStatusを上書き
+                .copyWith(
+                  id: participantRef.id,
+                  paymentStatus: PaymentStatus.paid,
+                );
 
         transaction.set(
           participantRef,
@@ -317,21 +316,14 @@ class EventService {
           .doc();
 
       final now = DateTime.now();
-      var participant = ParticipantModel(
-        id: participantRef.id,
+      var participant = ParticipantModel.create(
         eventId: eventId,
         userId: user.uid,
         displayName: userProfile.name,
         email: user.email ?? '',
-        role: ParticipantRole.participant,
         age: userProfile.age,
         gender: userProfile.gender ?? ParticipantGender.other,
-        multiplier: 1.0,
-        amountToPay: 0.0,
-        paymentStatus: PaymentStatus.unpaid,
-        joinedAt: now,
-        updatedAt: now,
-      );
+      ).copyWith(id: participantRef.id);
 
       // 初期支払い金額を計算（整合性のため、サーバーサイドでの再計算も後で行う）
       // ここで計算しておくことで、再計算が失敗しても自分の画面では正しい金額が表示される
@@ -550,38 +542,15 @@ final _participantEventsStreamProvider = StreamProvider<List<EventModel>>((
       });
 });
 
-/// 2. 主催者として登録されているイベントのストリーム（内部用）
-final _organizerEventsStreamProvider = StreamProvider<List<EventModel>>((ref) {
-  final auth = FirebaseAuth.instance;
-  final currentUserId = auth.currentUser?.uid;
-
-  if (currentUserId == null) {
-    return Stream.value([]);
-  }
-
-  final firestore = FirebaseFirestore.instance;
-
-  return firestore
-      .collection('events')
-      .where('organizerIds', arrayContains: currentUserId)
-      .snapshots()
-      .map((snapshot) {
-        return snapshot.docs
-            .map((doc) => EventModel.fromFirestore(doc))
-            .where((event) => !event.isAfterParty)
-            .toList();
-      });
-});
-
-/// 現在のユーザーに関連する全イベント（参加 + 主催）を提供するプロバイダー
+/// 現在のユーザーに関連する全イベントを提供するプロバイダー
 ///
-/// 2つの内部StreamProviderを監視し、結果を結合して返します。
+/// 参加者情報（participants subcollection）からイベントを取得します。
+/// 主催者も必ず「参加者」として登録されるため、これ一つで全イベントをカバーできます。
 final userEventsStreamProvider = Provider<AsyncValue<List<EventModel>>>((ref) {
   final participantEventsAsync = ref.watch(_participantEventsStreamProvider);
-  final organizerEventsAsync = ref.watch(_organizerEventsStreamProvider);
 
   // ローディング状態のハンドリング
-  if (participantEventsAsync.isLoading || organizerEventsAsync.isLoading) {
+  if (participantEventsAsync.isLoading) {
     return const AsyncValue.loading();
   }
 
@@ -592,33 +561,14 @@ final userEventsStreamProvider = Provider<AsyncValue<List<EventModel>>>((ref) {
       participantEventsAsync.stackTrace!,
     );
   }
-  if (organizerEventsAsync.hasError) {
-    return AsyncValue.error(
-      organizerEventsAsync.error!,
-      organizerEventsAsync.stackTrace!,
-    );
-  }
 
-  // データの結合
-  final participantEvents = participantEventsAsync.value ?? [];
-  final organizerEvents = organizerEventsAsync.value ?? [];
-
-  final allEvents = [...participantEvents, ...organizerEvents];
-
-  // IDで重複排除
-  final uniqueEventsMap = {for (var event in allEvents) event.id: event};
-
-  final uniqueEvents = uniqueEventsMap.values.toList();
+  // データ取得
+  final events = participantEventsAsync.value ?? [];
 
   // 日付順でソート（新しい順）
-  uniqueEvents.sort((a, b) => b.date.compareTo(a.date));
+  events.sort((a, b) => b.date.compareTo(a.date));
 
-  AppLogger.debug(
-    'イベント一覧更新: ${uniqueEvents.length}件 (参加: ${participantEvents.length}, 主催: ${organizerEvents.length})',
-    name: 'userEventsStreamProvider',
-  );
-
-  return AsyncValue.data(uniqueEvents);
+  return AsyncValue.data(events);
 });
 
 /// 現在のユーザーの参加状況一覧のStreamProvider（リアルタイム更新）

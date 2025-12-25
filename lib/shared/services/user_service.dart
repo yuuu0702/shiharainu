@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import 'package:shiharainu/shared/services/auth_service.dart';
 import 'package:shiharainu/shared/models/user_profile.dart';
 import 'package:shiharainu/shared/utils/app_logger.dart';
 import 'package:shiharainu/shared/services/cache_service.dart';
@@ -174,34 +175,28 @@ final userServiceProvider = Provider<UserService>((ref) {
 });
 
 final userProfileProvider = StreamProvider<UserProfile?>((ref) {
-  final auth = FirebaseAuth.instance;
+  final authState = ref.watch(authStateProvider);
+  final user = authState.value;
   final firestore = FirebaseFirestore.instance;
 
-  return auth.authStateChanges().asyncMap((user) async {
-    if (user == null) return null;
+  if (user == null) {
+    return Stream.value(null);
+  }
 
-    try {
-      final doc = await firestore.collection('users').doc(user.uid).get();
-      if (!doc.exists) return null;
-      return UserProfile.fromJson(doc.data()!);
-    } catch (e) {
-      return null;
-    }
+  // スナップショットを監視してリアルタイム更新
+  return firestore.collection('users').doc(user.uid).snapshots().map((doc) {
+    if (!doc.exists) return null;
+    return UserProfile.fromJson(doc.data()!);
   });
 });
 
 final hasUserProfileProvider = StreamProvider<bool>((ref) {
-  final auth = FirebaseAuth.instance;
-  final firestore = FirebaseFirestore.instance;
+  // firestoreを直接叩かず、userProfileProviderの結果を流用する（通信削減）
+  final userProfileAsync = ref.watch(userProfileProvider);
 
-  return auth.authStateChanges().asyncMap((user) async {
-    if (user == null) return false;
-
-    try {
-      final doc = await firestore.collection('users').doc(user.uid).get();
-      return doc.exists;
-    } catch (e) {
-      return false;
-    }
-  });
+  return userProfileAsync.when(
+    data: (profile) => Stream.value(profile != null),
+    loading: () => const Stream.empty(), // ローディング中は値を流さない（あるいはfalse/true初期値を検討）
+    error: (_, __) => Stream.value(false),
+  );
 });
