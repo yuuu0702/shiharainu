@@ -315,7 +315,6 @@ class EventService {
           .collection('participants')
           .doc();
 
-      final now = DateTime.now();
       var participant = ParticipantModel.create(
         eventId: eventId,
         userId: user.uid,
