@@ -17,16 +17,9 @@ class SmartDashboard extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(AppTheme.radiusDisplay),
         border: Border.all(color: AppTheme.mutedColor, width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-            spreadRadius: 0,
-          ),
-        ],
+        boxShadow: AppTheme.elevationMedium,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,7 +61,9 @@ class SmartDashboard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: AppTheme.mutedColor,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(
+                        AppTheme.radiusMedium,
+                      ),
                     ),
                     child: Text(
                       _formatDate(action.eventDate!),
@@ -136,7 +131,7 @@ class SmartDashboard extends StatelessWidget {
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                   ),
                   textStyle: const TextStyle(
                     fontWeight: FontWeight.bold,
@@ -194,14 +189,14 @@ class SmartDashboard extends StatelessWidget {
   Color _getAccentColor(SmartActionType type) {
     switch (type) {
       case SmartActionType.pay:
-        return const Color(0xFFE11D48); // Rose 600 (Slightly darker for text)
+        return AppTheme.accentRose;
       case SmartActionType.checkStatus:
-        return const Color(0xFF7C3AED); // Violet 600
+        return AppTheme.accentViolet;
       case SmartActionType.create:
       case SmartActionType.join:
-        return const Color(0xFF2563EB); // Blue 600
+        return AppTheme.accentBlue;
       case SmartActionType.wait:
-        return const Color(0xFF059669); // Emerald 600
+        return AppTheme.accentEmerald;
     }
   }
 

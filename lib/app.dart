@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/constants/app_theme.dart';
 import 'package:shiharainu/shared/services/auth_service.dart';
-import 'package:shiharainu/shared/utils/app_logger.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
 import 'package:shiharainu/pages/login_page.dart';
 import 'package:shiharainu/pages/signup_page.dart';

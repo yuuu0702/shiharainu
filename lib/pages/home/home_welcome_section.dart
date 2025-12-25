@@ -60,11 +60,13 @@ class HomeWelcomeSection extends StatelessWidget {
                 color: AppTheme.primaryColor.withValues(alpha: 0.5),
                 width: 2,
               ),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                  color: Color(
+                    0x33EA9062,
+                  ), // Primary with ~0.2 alpha but constant for const
                   blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  offset: Offset(0, 4),
                 ),
               ],
             ),

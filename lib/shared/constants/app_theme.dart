@@ -388,7 +388,14 @@ class AppTheme {
   static const double radiusMedium = 8.0;
   static const double radiusLarge = 12.0;
   static const double radiusXLarge = 16.0;
+  static const double radiusDisplay = 24.0; // Large display elements
   static const double radiusRound = 9999.0; // Pill shape
+
+  // アクセントカラー（Smart Dashboard等で使用）
+  static const Color accentRose = Color(0xFFE11D48); // Rose 600
+  static const Color accentViolet = Color(0xFF7C3AED); // Violet 600
+  static const Color accentEmerald = Color(0xFF059669); // Emerald 600
+  static const Color accentBlue = Color(0xFF2563EB); // Blue 600
 
   // アクセシビリティ関連定義
   static const Color focusBorderColor = Color(0xFF2563EB); // フォーカス時のボーダー色
