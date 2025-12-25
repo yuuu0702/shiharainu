@@ -7,6 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/models/user_profile.dart';
 import 'package:shiharainu/shared/utils/app_logger.dart';
 import 'package:shiharainu/shared/services/cache_service.dart';
+import 'package:shiharainu/shared/exceptions/app_exception.dart';
 
 class UserService {
   final FirebaseFirestore _firestore;
@@ -31,7 +32,7 @@ class UserService {
       final user = _auth.currentUser;
       if (user == null) {
         AppLogger.auth('エラー: ユーザーがログインしていません');
-        throw Exception('ユーザーがログインしていません');
+        throw const AppAuthException('ユーザーがログインしていません', code: 'not_logged_in');
       }
 
       AppLogger.auth('ログイン中のユーザー', userId: user.uid);
@@ -68,7 +69,8 @@ class UserService {
     } catch (e) {
       AppLogger.error('エラー発生', name: 'UserService', error: e);
       AppLogger.debug('エラータイプ: ${e.runtimeType}', name: 'UserService');
-      throw Exception('ユーザー情報の保存に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('ユーザー情報の保存に失敗しました', e);
     }
   }
 
@@ -110,7 +112,8 @@ class UserService {
       return profile;
     } catch (e) {
       AppLogger.error('ユーザープロフィール取得エラー', name: 'UserService', error: e);
-      throw Exception('ユーザー情報の取得に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('ユーザー情報の取得に失敗しました', e);
     }
   }
 
@@ -137,7 +140,7 @@ class UserService {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        throw Exception('ユーザーがログインしていません');
+        throw const AppAuthException('ユーザーがログインしていません', code: 'not_logged_in');
       }
 
       await _firestore.collection('users').doc(user.uid).update({
@@ -153,7 +156,8 @@ class UserService {
         AppLogger.debug('ユーザープロフィール更新によりキャッシュをクリア', name: 'UserService');
       }
     } catch (e) {
-      throw Exception('ユーザー情報の更新に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('ユーザー情報の更新に失敗しました', e);
     }
   }
 }

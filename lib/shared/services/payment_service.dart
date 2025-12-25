@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/models/participant_model.dart';
 import 'package:shiharainu/shared/utils/app_logger.dart';
+import 'package:shiharainu/shared/exceptions/app_exception.dart';
 
 /// 支払いサービス
 /// 支払い金額の計算とステータス管理を提供
@@ -11,11 +12,9 @@ class PaymentService {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
 
-  PaymentService({
-    FirebaseFirestore? firestore,
-    FirebaseAuth? auth,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+  PaymentService({FirebaseFirestore? firestore, FirebaseAuth? auth})
+    : _firestore = firestore ?? FirebaseFirestore.instance,
+      _auth = auth ?? FirebaseAuth.instance;
 
   /// 支払い金額を一括計算・更新
   Future<void> calculateAndUpdatePayments(String eventId) async {
@@ -24,7 +23,7 @@ class PaymentService {
 
       final eventDoc = await _firestore.collection('events').doc(eventId).get();
       if (!eventDoc.exists) {
-        throw Exception('イベントが見つかりません');
+        throw const AppValidationException('イベントが見つかりません');
       }
 
       final eventData = eventDoc.data()!;
@@ -44,19 +43,24 @@ class PaymentService {
       }).toList();
 
       if (participants.isEmpty) {
-        throw Exception('参加者が見つかりません');
+        throw const AppValidationException('参加者が見つかりません');
       }
 
       if (event.paymentType == PaymentType.equal) {
         await _calculateEqualSplit(eventId, event.totalAmount, participants);
       } else {
-        await _calculateProportionalSplit(eventId, event.totalAmount, participants);
+        await _calculateProportionalSplit(
+          eventId,
+          event.totalAmount,
+          participants,
+        );
       }
 
       AppLogger.info('支払い金額計算完了: $eventId', name: 'PaymentService');
     } catch (e) {
       AppLogger.error('支払い金額計算エラー: $eventId', name: 'PaymentService', error: e);
-      throw Exception('支払い金額の計算に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('支払い金額の計算に失敗しました', e);
     }
   }
 
@@ -133,7 +137,7 @@ class PaymentService {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        throw Exception('ログインしていません');
+        throw const AppAuthException('ログインしていません', code: 'not_logged_in');
       }
 
       AppLogger.info(
@@ -155,7 +159,8 @@ class PaymentService {
       AppLogger.info('支払いステータス更新完了', name: 'PaymentService');
     } catch (e) {
       AppLogger.error('支払いステータス更新エラー', name: 'PaymentService', error: e);
-      throw Exception('支払いステータスの更新に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('支払いステータスの更新に失敗しました', e);
     }
   }
 }

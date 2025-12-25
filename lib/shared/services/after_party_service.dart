@@ -2,6 +2,8 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
+import 'package:shiharainu/shared/exceptions/app_exception.dart';
+import 'package:shiharainu/shared/utils/app_logger.dart';
 
 /// 二次会管理サービス
 class AfterPartyService {
@@ -19,60 +21,66 @@ class AfterPartyService {
     required PaymentType paymentType,
     List<String>? selectedParticipantIds,
   }) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      throw Exception('ログインしていません');
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw const AppAuthException('ログインしていません', code: 'not_logged_in');
+      }
+
+      // 親イベントの存在確認
+      final parentEventDoc = await _firestore
+          .collection('events')
+          .doc(parentEventId)
+          .get();
+
+      if (!parentEventDoc.exists) {
+        throw const AppValidationException('親イベントが見つかりません');
+      }
+
+      final parentEventData = parentEventDoc.data()!;
+
+      // 二次会イベント作成
+      final afterPartyRef = _firestore.collection('events').doc();
+      final inviteCode = _generateInviteCode();
+      final now = DateTime.now();
+
+      final afterPartyData = {
+        'title': title,
+        'description': description ?? '${parentEventData['title']}の二次会',
+        'date': parentEventData['date'],
+        'totalAmount': totalAmount,
+        'paymentType': paymentType.name,
+        'organizerIds': parentEventData['organizerIds'],
+        'status': EventStatus.planning.name,
+        'createdAt': Timestamp.fromDate(now),
+        'updatedAt': Timestamp.fromDate(now),
+        'inviteCode': inviteCode,
+        'parentEventId': parentEventId,
+        'isAfterParty': true,
+        'childEventIds': [],
+      };
+
+      await afterPartyRef.set(afterPartyData);
+
+      // 親イベントに二次会IDを追加
+      await _firestore.collection('events').doc(parentEventId).update({
+        'childEventIds': FieldValue.arrayUnion([afterPartyRef.id]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // 親イベントの参加者を自動的に二次会にも追加
+      await _copyParticipantsToAfterParty(
+        parentEventId,
+        afterPartyRef.id,
+        selectedParticipantIds,
+      );
+
+      return afterPartyRef.id;
+    } catch (e) {
+      AppLogger.error('二次会作成エラー', name: 'AfterPartyService', error: e);
+      if (e is AppException) rethrow;
+      throw AppUnknownException('二次会の作成に失敗しました', e);
     }
-
-    // 親イベントの存在確認
-    final parentEventDoc = await _firestore
-        .collection('events')
-        .doc(parentEventId)
-        .get();
-
-    if (!parentEventDoc.exists) {
-      throw Exception('親イベントが見つかりません');
-    }
-
-    final parentEventData = parentEventDoc.data()!;
-
-    // 二次会イベント作成
-    final afterPartyRef = _firestore.collection('events').doc();
-    final inviteCode = _generateInviteCode();
-    final now = DateTime.now();
-
-    final afterPartyData = {
-      'title': title,
-      'description': description ?? '${parentEventData['title']}の二次会',
-      'date': parentEventData['date'],
-      'totalAmount': totalAmount,
-      'paymentType': paymentType.name,
-      'organizerIds': parentEventData['organizerIds'],
-      'status': EventStatus.planning.name,
-      'createdAt': Timestamp.fromDate(now),
-      'updatedAt': Timestamp.fromDate(now),
-      'inviteCode': inviteCode,
-      'parentEventId': parentEventId,
-      'isAfterParty': true,
-      'childEventIds': [],
-    };
-
-    await afterPartyRef.set(afterPartyData);
-
-    // 親イベントに二次会IDを追加
-    await _firestore.collection('events').doc(parentEventId).update({
-      'childEventIds': FieldValue.arrayUnion([afterPartyRef.id]),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-
-    // 親イベントの参加者を自動的に二次会にも追加
-    await _copyParticipantsToAfterParty(
-      parentEventId,
-      afterPartyRef.id,
-      selectedParticipantIds,
-    );
-
-    return afterPartyRef.id;
   }
 
   /// 親イベントの参加者を二次会にコピー
@@ -125,38 +133,44 @@ class AfterPartyService {
 
   /// 二次会一覧を取得
   Future<List<EventModel>> getAfterParties(String parentEventId) async {
-    final parentEventDoc = await _firestore
-        .collection('events')
-        .doc(parentEventId)
-        .get();
-
-    if (!parentEventDoc.exists) {
-      return [];
-    }
-
-    final parentEventData = parentEventDoc.data()!;
-    final childEventIds = List<String>.from(
-      parentEventData['childEventIds'] ?? [],
-    );
-
-    if (childEventIds.isEmpty) {
-      return [];
-    }
-
-    final afterParties = <EventModel>[];
-
-    for (final childId in childEventIds) {
-      final afterPartyDoc = await _firestore
+    try {
+      final parentEventDoc = await _firestore
           .collection('events')
-          .doc(childId)
+          .doc(parentEventId)
           .get();
 
-      if (afterPartyDoc.exists) {
-        afterParties.add(EventModel.fromFirestore(afterPartyDoc));
+      if (!parentEventDoc.exists) {
+        return [];
       }
-    }
 
-    return afterParties;
+      final parentEventData = parentEventDoc.data()!;
+      final childEventIds = List<String>.from(
+        parentEventData['childEventIds'] ?? [],
+      );
+
+      if (childEventIds.isEmpty) {
+        return [];
+      }
+
+      final afterParties = <EventModel>[];
+
+      for (final childId in childEventIds) {
+        final afterPartyDoc = await _firestore
+            .collection('events')
+            .doc(childId)
+            .get();
+
+        if (afterPartyDoc.exists) {
+          afterParties.add(EventModel.fromFirestore(afterPartyDoc));
+        }
+      }
+
+      return afterParties;
+    } catch (e) {
+      AppLogger.error('二次会一覧取得エラー', name: 'AfterPartyService', error: e);
+      if (e is AppException) rethrow;
+      throw AppUnknownException('二次会一覧の取得に失敗しました', e);
+    }
   }
 
   /// 招待コードを生成

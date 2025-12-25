@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:shiharainu/shared/exceptions/app_exception.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -19,22 +20,33 @@ class AuthService {
       );
       return credential;
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'network-request-failed') {
+        throw AppNetworkException('ネットワークエラーが発生しました', e);
+      }
+
+      String message;
       switch (e.code) {
         case 'user-not-found':
-          throw Exception('このメールアドレスのユーザーは存在しません');
+          message = 'このメールアドレスのユーザーは存在しません';
+          break;
         case 'wrong-password':
-          throw Exception('パスワードが間違っています');
+          message = 'パスワードが間違っています';
+          break;
         case 'invalid-email':
-          throw Exception('メールアドレスの形式が正しくありません');
+          message = 'メールアドレスの形式が正しくありません';
+          break;
         case 'too-many-requests':
-          throw Exception('ログインの試行回数が多すぎます。しばらく待ってからもう一度お試しください');
-        case 'network-request-failed':
-          throw Exception('ネットワークエラーが発生しました。インターネット接続を確認してください');
+          message = 'ログインの試行回数が多すぎます。しばらく待ってからもう一度お試しください';
+          break;
+        case 'user-disabled':
+          message = 'このアカウントは無効化されています';
+          break;
         default:
-          throw Exception('ログインに失敗しました: ${e.message}');
+          message = 'ログインに失敗しました: ${e.message}';
       }
+      throw AppAuthException(message, code: e.code, originalError: e);
     } catch (e) {
-      throw Exception('予期しないエラーが発生しました: $e');
+      throw AppUnknownException('予期しないエラーが発生しました', e);
     }
   }
 
@@ -49,18 +61,27 @@ class AuthService {
       );
       return credential;
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'network-request-failed') {
+        throw AppNetworkException('ネットワークエラーが発生しました', e);
+      }
+
+      String message;
       switch (e.code) {
         case 'weak-password':
-          throw Exception('パスワードが弱すぎます');
+          message = 'パスワードが弱すぎます';
+          break;
         case 'email-already-in-use':
-          throw Exception('このメールアドレスは既に使用されています');
+          message = 'このメールアドレスは既に使用されています';
+          break;
         case 'invalid-email':
-          throw Exception('メールアドレスの形式が正しくありません');
+          message = 'メールアドレスの形式が正しくありません';
+          break;
         default:
-          throw Exception('アカウント作成に失敗しました: ${e.message}');
+          message = 'アカウント作成に失敗しました: ${e.message}';
       }
+      throw AppAuthException(message, code: e.code, originalError: e);
     } catch (e) {
-      throw Exception('予期しないエラーが発生しました: $e');
+      throw AppUnknownException('予期しないエラーが発生しました', e);
     }
   }
 
@@ -69,14 +90,21 @@ class AuthService {
       final credential = await _auth.signInAnonymously();
       return credential;
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'network-request-failed') {
+        throw AppNetworkException('ネットワークエラーが発生しました', e);
+      }
+
+      String message;
       switch (e.code) {
         case 'operation-not-allowed':
-          throw Exception('ゲストログインが無効になっています。管理者に連絡してください。');
+          message = 'ゲストログインが無効になっています。管理者に連絡してください。';
+          break;
         default:
-          throw Exception('ゲストログインに失敗しました: ${e.message}');
+          message = 'ゲストログインに失敗しました: ${e.message}';
       }
+      throw AppAuthException(message, code: e.code, originalError: e);
     } catch (e) {
-      throw Exception('予期しないエラーが発生しました: $e');
+      throw AppUnknownException('予期しないエラーが発生しました', e);
     }
   }
 
@@ -87,7 +115,7 @@ class AuthService {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        throw Exception('ユーザーがログインしていません');
+        throw AppAuthException('ユーザーがログインしていません', code: 'not_logged_in');
       }
 
       final credential = EmailAuthProvider.credential(
@@ -97,20 +125,30 @@ class AuthService {
 
       return await user.linkWithCredential(credential);
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'network-request-failed') {
+        throw AppNetworkException('ネットワークエラーが発生しました', e);
+      }
+
+      String message;
       switch (e.code) {
         case 'credential-already-in-use':
-          throw Exception('このメールアドレスは既に他のアカウントで使用されています');
+          message = 'このメールアドレスは既に他のアカウントで使用されています';
+          break;
         case 'email-already-in-use':
-          throw Exception('このメールアドレスは既に登録されています');
+          message = 'このメールアドレスは既に登録されています';
+          break;
         case 'invalid-email':
-          throw Exception('メールアドレスの形式が正しくありません');
+          message = 'メールアドレスの形式が正しくありません';
+          break;
         case 'weak-password':
-          throw Exception('パスワードが弱すぎます');
+          message = 'パスワードが弱すぎます';
+          break;
         default:
-          throw Exception('アカウント連携に失敗しました: ${e.message}');
+          message = 'アカウント連携に失敗しました: ${e.message}';
       }
+      throw AppAuthException(message, code: e.code, originalError: e);
     } catch (e) {
-      throw Exception('予期しないエラーが発生しました: $e');
+      throw AppUnknownException('予期しないエラーが発生しました', e);
     }
   }
 
@@ -118,7 +156,10 @@ class AuthService {
     try {
       await _auth.signOut();
     } catch (e) {
-      throw Exception('ログアウトに失敗しました: $e');
+      if (e is FirebaseAuthException && e.code == 'network-request-failed') {
+        throw AppNetworkException('ネットワークエラーが発生しました', e);
+      }
+      throw AppUnknownException('ログアウトに失敗しました', e);
     }
   }
 
@@ -126,16 +167,24 @@ class AuthService {
     try {
       await _auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'network-request-failed') {
+        throw AppNetworkException('ネットワークエラーが発生しました', e);
+      }
+
+      String message;
       switch (e.code) {
         case 'user-not-found':
-          throw Exception('このメールアドレスのユーザーは存在しません');
+          message = 'このメールアドレスのユーザーは存在しません';
+          break;
         case 'invalid-email':
-          throw Exception('メールアドレスの形式が正しくありません');
+          message = 'メールアドレスの形式が正しくありません';
+          break;
         default:
-          throw Exception('パスワードリセットメールの送信に失敗しました: ${e.message}');
+          message = 'パスワードリセットメールの送信に失敗しました: ${e.message}';
       }
+      throw AppAuthException(message, code: e.code, originalError: e);
     } catch (e) {
-      throw Exception('予期しないエラーが発生しました: $e');
+      throw AppUnknownException('予期しないエラーが発生しました', e);
     }
   }
 }

@@ -7,6 +7,7 @@ import 'package:shiharainu/shared/services/firestore_service.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
 import 'package:shiharainu/shared/services/payment_service.dart';
 import 'package:shiharainu/shared/utils/app_logger.dart';
+import 'package:shiharainu/shared/exceptions/app_exception.dart';
 
 /// イベント作成パラメータ
 class CreateEventParams {
@@ -58,7 +59,7 @@ class EventService {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        throw Exception('ログインしていません');
+        throw const AppAuthException('ログインしていません', code: 'not_logged_in');
       }
 
       AppLogger.info('イベント作成開始: ${params.title}', name: 'EventService');
@@ -66,7 +67,7 @@ class EventService {
       // ユーザー情報を取得
       final userProfile = await _userService.getUserProfile();
       if (userProfile == null) {
-        throw Exception('ユーザー情報が見つかりません');
+        throw const AppValidationException('ユーザー情報が見つかりません');
       }
 
       // 招待コードを生成
@@ -140,7 +141,8 @@ class EventService {
       return eventRef.id;
     } catch (e) {
       AppLogger.error('イベント作成エラー', name: 'EventService', error: e);
-      throw Exception('イベントの作成に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベントの作成に失敗しました', e);
     }
   }
 
@@ -159,7 +161,8 @@ class EventService {
       AppLogger.info('イベント更新完了: $eventId', name: 'EventService');
     } catch (e) {
       AppLogger.error('イベント更新エラー: $eventId', name: 'EventService', error: e);
-      throw Exception('イベントの更新に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベントの更新に失敗しました', e);
     }
   }
 
@@ -202,7 +205,8 @@ class EventService {
         name: 'EventService',
         error: e,
       );
-      throw Exception('イベント情報の更新に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベント情報の更新に失敗しました', e);
     }
   }
 
@@ -226,7 +230,8 @@ class EventService {
         name: 'EventService',
         error: e,
       );
-      throw Exception('イベントステータスの変更に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベントステータスの変更に失敗しました', e);
     }
   }
 
@@ -260,7 +265,8 @@ class EventService {
       AppLogger.info('イベント削除完了: $eventId', name: 'EventService');
     } catch (e) {
       AppLogger.error('イベント削除エラー: $eventId', name: 'EventService', error: e);
-      throw Exception('イベントの削除に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベントの削除に失敗しました', e);
     }
   }
 
@@ -269,7 +275,7 @@ class EventService {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        throw Exception('ログインしていません');
+        throw const AppAuthException('ログインしていません', code: 'not_logged_in');
       }
 
       AppLogger.info('招待コード経由でイベント参加: $inviteCode', name: 'EventService');
@@ -279,7 +285,7 @@ class EventService {
         inviteCode,
       );
       if (eventDoc == null) {
-        throw Exception('招待コードが無効です');
+        throw const AppValidationException('招待コードが無効です');
       }
 
       final eventId = eventDoc.id;
@@ -294,13 +300,13 @@ class EventService {
           .get();
 
       if (existingParticipant.docs.isNotEmpty) {
-        throw Exception('既にこのイベントに参加しています');
+        throw const AppValidationException('既にこのイベントに参加しています');
       }
 
       // ユーザー情報を取得
       final userProfile = await _userService.getUserProfile();
       if (userProfile == null) {
-        throw Exception('ユーザー情報が見つかりません');
+        throw const AppValidationException('ユーザー情報が見つかりません');
       }
 
       // 参加者として追加
@@ -381,7 +387,8 @@ class EventService {
       return eventId;
     } catch (e) {
       AppLogger.error('イベント参加エラー', name: 'EventService', error: e);
-      throw Exception('イベントへの参加に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベントへの参加に失敗しました', e);
     }
   }
 }
@@ -407,7 +414,7 @@ final eventStreamProvider = StreamProvider.family<EventModel, String>((
   final eventsCollection = ref.watch(eventsCollectionProvider);
   return eventsCollection.doc(eventId).snapshots().map((snapshot) {
     if (!snapshot.exists) {
-      throw Exception('イベントが存在しません');
+      throw const AppValidationException('イベントが存在しません');
     }
     return snapshot.data()!;
   });
@@ -422,7 +429,7 @@ final eventProvider = FutureProvider.family<EventModel, String>((
   final snapshot = await eventsCollection.doc(eventId).get();
 
   if (!snapshot.exists) {
-    throw Exception('イベントが存在しません');
+    throw const AppValidationException('イベントが存在しません');
   }
 
   return snapshot.data()!;

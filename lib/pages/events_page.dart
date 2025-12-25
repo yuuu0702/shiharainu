@@ -116,43 +116,9 @@ class EventsPage extends HookConsumerWidget {
         loading: () =>
             const Scaffold(body: Center(child: CircularProgressIndicator())),
         error: (error, stack) => Scaffold(
-          body: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppTheme.spacing16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: AppTheme.destructive,
-                  ),
-                  const SizedBox(height: AppTheme.spacing16),
-                  Text('イベント一覧の取得に失敗しました', style: AppTheme.headlineMedium),
-                  const SizedBox(height: AppTheme.spacing8),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey[300]!),
-                    ),
-                    child: SelectableText(
-                      error.toString(),
-                      style: AppTheme.bodySmall.copyWith(
-                        fontFamily: 'monospace',
-                        color: AppTheme.destructive,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: AppTheme.spacing24),
-                  AppButton.primary(
-                    text: '再読み込み',
-                    onPressed: () => ref.invalidate(userEventsStreamProvider),
-                  ),
-                ],
-              ),
-            ),
+          body: ErrorView(
+            error: error,
+            onRetry: () => ref.invalidate(userEventsStreamProvider),
           ),
         ),
       ),

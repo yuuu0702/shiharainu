@@ -8,10 +8,7 @@ import 'package:shiharainu/pages/event_detail/event_detail_badges.dart';
 class EventDetailParticipantsSection extends StatelessWidget {
   final List<ParticipantModel> participants;
 
-  const EventDetailParticipantsSection({
-    super.key,
-    required this.participants,
-  });
+  const EventDetailParticipantsSection({super.key, required this.participants});
 
   @override
   Widget build(BuildContext context) {
@@ -58,14 +55,20 @@ class EventDetailParticipantsSection extends StatelessWidget {
                     name: participant.displayName,
                     subtitle: isOrganizer
                         ? '主催者 - ${EventDetailBadges.getPaymentStatusText(participant.paymentStatus)}'
-                        : EventDetailBadges.getPaymentStatusText(participant.paymentStatus),
-                    initials: EventDetailUtils.getInitials(participant.displayName),
+                        : EventDetailBadges.getPaymentStatusText(
+                            participant.paymentStatus,
+                          ),
+                    initials: EventDetailUtils.getInitials(
+                      participant.displayName,
+                    ),
                     trailing: isOrganizer
                         ? const AppBadge(
                             text: '主催者',
                             variant: AppBadgeVariant.default_,
                           )
-                        : EventDetailBadges.buildPaymentStatusBadge(participant.paymentStatus),
+                        : EventDetailBadges.buildPaymentStatusBadge(
+                            participant.paymentStatus,
+                          ),
                   ),
                   if (index < sortedParticipants.length - 1) const Divider(),
                 ],

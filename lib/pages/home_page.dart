@@ -113,7 +113,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         return EventData(
                           id: e.id,
                           title: e.title,
-                          description: e.description ?? '',
+                          description: e.description,
                           date: e.date,
                           participantCount:
                               0, // ※ここを正確にするには別途取得が必要だが、一旦0かProviderで

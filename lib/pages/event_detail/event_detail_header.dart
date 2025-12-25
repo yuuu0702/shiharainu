@@ -8,10 +8,7 @@ import 'package:shiharainu/pages/event_detail/event_detail_badges.dart';
 class EventDetailHeader extends StatelessWidget {
   final EventModel event;
 
-  const EventDetailHeader({
-    super.key,
-    required this.event,
-  });
+  const EventDetailHeader({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +18,7 @@ class EventDetailHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(event.title, style: AppTheme.headlineLarge),
-              ),
+              Expanded(child: Text(event.title, style: AppTheme.headlineLarge)),
               EventDetailBadges.buildStatusBadge(event.status),
             ],
           ),
@@ -52,17 +47,11 @@ class EventDetailHeader extends StatelessWidget {
   Widget _buildInfoItem(IconData icon, String text) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: AppTheme.mutedForeground,
-        ),
+        Icon(icon, size: 20, color: AppTheme.mutedForeground),
         const SizedBox(width: AppTheme.spacing8),
         Text(
           text,
-          style: AppTheme.bodyMedium.copyWith(
-            color: AppTheme.mutedForeground,
-          ),
+          style: AppTheme.bodyMedium.copyWith(color: AppTheme.mutedForeground),
         ),
       ],
     );

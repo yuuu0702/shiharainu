@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/utils/app_logger.dart';
+import 'package:shiharainu/shared/exceptions/app_exception.dart';
 
 /// 招待リンクの生成・管理・共有を行うサービスクラス
 class InviteService {
@@ -24,7 +25,7 @@ class InviteService {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        throw Exception('ログインが必要です');
+        throw const AppAuthException('ログインが必要です', code: 'not_logged_in');
       }
 
       // ランダムな8文字の招待コードを生成
@@ -62,7 +63,8 @@ class InviteService {
         error: e,
         stackTrace: stackTrace,
       );
-      rethrow;
+      if (e is AppException) rethrow;
+      throw AppUnknownException('招待コード生成エラー', e);
     }
   }
 
@@ -76,7 +78,7 @@ class InviteService {
       final eventDoc = await _firestore.collection('events').doc(eventId).get();
 
       if (!eventDoc.exists) {
-        throw Exception('イベントが見つかりません');
+        throw const AppValidationException('イベントが見つかりません');
       }
 
       final eventData = eventDoc.data()!;
@@ -100,7 +102,8 @@ class InviteService {
         error: e,
         stackTrace: stackTrace,
       );
-      rethrow;
+      if (e is AppException) rethrow;
+      throw AppUnknownException('招待コード取得エラー', e);
     }
   }
 
@@ -230,7 +233,7 @@ class InviteService {
         return eventId;
       }
 
-      throw Exception('無効な招待コードです');
+      throw const AppValidationException('無効な招待コードです');
     } catch (e, stackTrace) {
       AppLogger.error(
         'イベントID取得エラー',
@@ -238,7 +241,8 @@ class InviteService {
         error: e,
         stackTrace: stackTrace,
       );
-      rethrow;
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベントID取得エラー', e);
     }
   }
 

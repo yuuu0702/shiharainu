@@ -125,6 +125,7 @@ class App extends ConsumerWidget {
       },
       refreshListenable: GoRouterRefreshStream([
         ref.read(authServiceProvider).authStateChanges,
+        // ignore: deprecated_member_use
         ref.read(hasUserProfileProvider.stream),
       ]),
       routes: [
@@ -173,7 +174,7 @@ class App extends ConsumerWidget {
                   AppPageTransitions.buildPageWithTransition(
                     child: const HomePage(),
                     name: 'home',
-                    transitionType: PageTransitionType.slideWithFade,
+                    transitionType: PageTransitionType.fade,
                   ),
             ),
             GoRoute(
@@ -183,7 +184,7 @@ class App extends ConsumerWidget {
                   AppPageTransitions.buildPageWithTransition(
                     child: const GuestPromotionPage(),
                     name: 'guest-promotion',
-                    transitionType: PageTransitionType.slideWithFade,
+                    transitionType: PageTransitionType.fade,
                   ),
             ),
             GoRoute(
@@ -193,7 +194,7 @@ class App extends ConsumerWidget {
                   AppPageTransitions.buildPageWithTransition(
                     child: const EventsPage(),
                     name: 'events',
-                    transitionType: PageTransitionType.slideWithFade,
+                    transitionType: PageTransitionType.fade,
                   ),
               routes: [
                 GoRoute(
@@ -265,35 +266,40 @@ class App extends ConsumerWidget {
             GoRoute(
               path: '/payment-management',
               name: 'payment-management',
-              builder: (context, state) => const Scaffold(
-                body: Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.construction,
-                          size: 64,
-                          color: AppTheme.mutedForeground,
+              pageBuilder: (context, state) =>
+                  AppPageTransitions.buildPageWithTransition(
+                    child: const Scaffold(
+                      body: Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.construction,
+                                size: 64,
+                                color: AppTheme.mutedForeground,
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                'グローバル支払い管理ページ（準備中）',
+                                style: AppTheme.headlineMedium,
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                '各イベントの支払い管理は、イベント詳細ページからアクセスできます。',
+                                style: AppTheme.bodyMedium,
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(height: 16),
-                        Text(
-                          'グローバル支払い管理ページ（準備中）',
-                          style: AppTheme.headlineMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          '各イベントの支払い管理は、イベント詳細ページからアクセスできます。',
-                          style: AppTheme.bodyMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                      ),
                     ),
+                    name: 'payment-management',
+                    transitionType: PageTransitionType.fade,
                   ),
-                ),
-              ),
             ),
             // 通知ページ
             GoRoute(
@@ -303,7 +309,7 @@ class App extends ConsumerWidget {
                   AppPageTransitions.buildPageWithTransition(
                     child: const NotificationsPage(),
                     name: 'notifications',
-                    transitionType: PageTransitionType.slide,
+                    transitionType: PageTransitionType.fade,
                   ),
             ),
             // アカウント情報ページ
@@ -314,7 +320,7 @@ class App extends ConsumerWidget {
                   AppPageTransitions.buildPageWithTransition(
                     child: const AccountPage(),
                     name: 'account',
-                    transitionType: PageTransitionType.slide,
+                    transitionType: PageTransitionType.fade,
                   ),
             ),
             // プロフィール編集ページ
@@ -332,7 +338,12 @@ class App extends ConsumerWidget {
             GoRoute(
               path: '/app-info',
               name: 'app-info',
-              builder: (context, state) => const AppInfoPage(),
+              pageBuilder: (context, state) =>
+                  AppPageTransitions.buildPageWithTransition(
+                    child: const AppInfoPage(),
+                    name: 'app-info',
+                    transitionType: PageTransitionType.slide,
+                  ),
             ),
           ],
         ),
