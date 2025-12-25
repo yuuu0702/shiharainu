@@ -8,9 +8,10 @@ final afterPartyServiceProvider = Provider<AfterPartyService>((ref) {
 });
 
 /// 二次会一覧を取得するプロバイダー
-final afterPartiesProvider = FutureProvider.family<List<EventModel>, String>(
-  (ref, parentEventId) async {
-    final afterPartyService = ref.watch(afterPartyServiceProvider);
-    return afterPartyService.getAfterParties(parentEventId);
-  },
-);
+final afterPartiesProvider = FutureProvider.family<List<EventModel>, String>((
+  ref,
+  parentEventId,
+) async {
+  final afterPartyService = ref.watch(afterPartyServiceProvider);
+  return afterPartyService.getAfterParties(parentEventId);
+});

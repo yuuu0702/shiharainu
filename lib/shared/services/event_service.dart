@@ -7,6 +7,7 @@ import 'package:shiharainu/shared/services/firestore_service.dart';
 import 'package:shiharainu/shared/services/user_service.dart';
 import 'package:shiharainu/shared/services/payment_service.dart';
 import 'package:shiharainu/shared/utils/app_logger.dart';
+import 'package:shiharainu/shared/exceptions/app_exception.dart';
 
 /// イベント作成パラメータ
 class CreateEventParams {
@@ -58,7 +59,7 @@ class EventService {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        throw Exception('ログインしていません');
+        throw const AppAuthException('ログインしていません', code: 'not_logged_in');
       }
 
       AppLogger.info('イベント作成開始: ${params.title}', name: 'EventService');
@@ -66,7 +67,7 @@ class EventService {
       // ユーザー情報を取得
       final userProfile = await _userService.getUserProfile();
       if (userProfile == null) {
-        throw Exception('ユーザー情報が見つかりません');
+        throw const AppValidationException('ユーザー情報が見つかりません');
       }
 
       // 招待コードを生成
@@ -108,21 +109,20 @@ class EventService {
 
         // 主催者を参加者として追加
         final participantRef = eventRef.collection('participants').doc();
-        final participant = ParticipantModel(
-          id: participantRef.id,
-          eventId: eventRef.id,
-          userId: user.uid,
-          displayName: userProfile.name,
-          email: user.email ?? '',
-          role: ParticipantRole.organizer,
-          age: userProfile.age,
-          gender: userProfile.gender ?? ParticipantGender.other,
-          multiplier: 1.0,
-          amountToPay: 0.0,
-          paymentStatus: PaymentStatus.paid, // 主催者は支払済（集金側）
-          joinedAt: now,
-          updatedAt: now,
-        );
+        final participant =
+            ParticipantModel.create(
+                  eventId: eventRef.id,
+                  userId: user.uid,
+                  displayName: userProfile.name,
+                  email: user.email ?? '',
+                  role: ParticipantRole.organizer,
+                  age: userProfile.age,
+                  gender: userProfile.gender ?? ParticipantGender.other,
+                ) // 主催者は支払済（集金側）にするため、paymentStatusを上書き
+                .copyWith(
+                  id: participantRef.id,
+                  paymentStatus: PaymentStatus.paid,
+                );
 
         transaction.set(
           participantRef,
@@ -140,7 +140,8 @@ class EventService {
       return eventRef.id;
     } catch (e) {
       AppLogger.error('イベント作成エラー', name: 'EventService', error: e);
-      throw Exception('イベントの作成に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベントの作成に失敗しました', e);
     }
   }
 
@@ -159,7 +160,8 @@ class EventService {
       AppLogger.info('イベント更新完了: $eventId', name: 'EventService');
     } catch (e) {
       AppLogger.error('イベント更新エラー: $eventId', name: 'EventService', error: e);
-      throw Exception('イベントの更新に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベントの更新に失敗しました', e);
     }
   }
 
@@ -202,7 +204,8 @@ class EventService {
         name: 'EventService',
         error: e,
       );
-      throw Exception('イベント情報の更新に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベント情報の更新に失敗しました', e);
     }
   }
 
@@ -226,7 +229,8 @@ class EventService {
         name: 'EventService',
         error: e,
       );
-      throw Exception('イベントステータスの変更に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベントステータスの変更に失敗しました', e);
     }
   }
 
@@ -260,7 +264,8 @@ class EventService {
       AppLogger.info('イベント削除完了: $eventId', name: 'EventService');
     } catch (e) {
       AppLogger.error('イベント削除エラー: $eventId', name: 'EventService', error: e);
-      throw Exception('イベントの削除に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベントの削除に失敗しました', e);
     }
   }
 
@@ -269,7 +274,7 @@ class EventService {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        throw Exception('ログインしていません');
+        throw const AppAuthException('ログインしていません', code: 'not_logged_in');
       }
 
       AppLogger.info('招待コード経由でイベント参加: $inviteCode', name: 'EventService');
@@ -279,7 +284,7 @@ class EventService {
         inviteCode,
       );
       if (eventDoc == null) {
-        throw Exception('招待コードが無効です');
+        throw const AppValidationException('招待コードが無効です');
       }
 
       final eventId = eventDoc.id;
@@ -294,13 +299,13 @@ class EventService {
           .get();
 
       if (existingParticipant.docs.isNotEmpty) {
-        throw Exception('既にこのイベントに参加しています');
+        throw const AppValidationException('既にこのイベントに参加しています');
       }
 
       // ユーザー情報を取得
       final userProfile = await _userService.getUserProfile();
       if (userProfile == null) {
-        throw Exception('ユーザー情報が見つかりません');
+        throw const AppValidationException('ユーザー情報が見つかりません');
       }
 
       // 参加者として追加
@@ -310,22 +315,14 @@ class EventService {
           .collection('participants')
           .doc();
 
-      final now = DateTime.now();
-      var participant = ParticipantModel(
-        id: participantRef.id,
+      var participant = ParticipantModel.create(
         eventId: eventId,
         userId: user.uid,
         displayName: userProfile.name,
         email: user.email ?? '',
-        role: ParticipantRole.participant,
         age: userProfile.age,
         gender: userProfile.gender ?? ParticipantGender.other,
-        multiplier: 1.0,
-        amountToPay: 0.0,
-        paymentStatus: PaymentStatus.unpaid,
-        joinedAt: now,
-        updatedAt: now,
-      );
+      ).copyWith(id: participantRef.id);
 
       // 初期支払い金額を計算（整合性のため、サーバーサイドでの再計算も後で行う）
       // ここで計算しておくことで、再計算が失敗しても自分の画面では正しい金額が表示される
@@ -381,7 +378,8 @@ class EventService {
       return eventId;
     } catch (e) {
       AppLogger.error('イベント参加エラー', name: 'EventService', error: e);
-      throw Exception('イベントへの参加に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベントへの参加に失敗しました', e);
     }
   }
 }
@@ -407,7 +405,7 @@ final eventStreamProvider = StreamProvider.family<EventModel, String>((
   final eventsCollection = ref.watch(eventsCollectionProvider);
   return eventsCollection.doc(eventId).snapshots().map((snapshot) {
     if (!snapshot.exists) {
-      throw Exception('イベントが存在しません');
+      throw const AppValidationException('イベントが存在しません');
     }
     return snapshot.data()!;
   });
@@ -422,7 +420,7 @@ final eventProvider = FutureProvider.family<EventModel, String>((
   final snapshot = await eventsCollection.doc(eventId).get();
 
   if (!snapshot.exists) {
-    throw Exception('イベントが存在しません');
+    throw const AppValidationException('イベントが存在しません');
   }
 
   return snapshot.data()!;
@@ -543,38 +541,15 @@ final _participantEventsStreamProvider = StreamProvider<List<EventModel>>((
       });
 });
 
-/// 2. 主催者として登録されているイベントのストリーム（内部用）
-final _organizerEventsStreamProvider = StreamProvider<List<EventModel>>((ref) {
-  final auth = FirebaseAuth.instance;
-  final currentUserId = auth.currentUser?.uid;
-
-  if (currentUserId == null) {
-    return Stream.value([]);
-  }
-
-  final firestore = FirebaseFirestore.instance;
-
-  return firestore
-      .collection('events')
-      .where('organizerIds', arrayContains: currentUserId)
-      .snapshots()
-      .map((snapshot) {
-        return snapshot.docs
-            .map((doc) => EventModel.fromFirestore(doc))
-            .where((event) => !event.isAfterParty)
-            .toList();
-      });
-});
-
-/// 現在のユーザーに関連する全イベント（参加 + 主催）を提供するプロバイダー
+/// 現在のユーザーに関連する全イベントを提供するプロバイダー
 ///
-/// 2つの内部StreamProviderを監視し、結果を結合して返します。
+/// 参加者情報（participants subcollection）からイベントを取得します。
+/// 主催者も必ず「参加者」として登録されるため、これ一つで全イベントをカバーできます。
 final userEventsStreamProvider = Provider<AsyncValue<List<EventModel>>>((ref) {
   final participantEventsAsync = ref.watch(_participantEventsStreamProvider);
-  final organizerEventsAsync = ref.watch(_organizerEventsStreamProvider);
 
   // ローディング状態のハンドリング
-  if (participantEventsAsync.isLoading || organizerEventsAsync.isLoading) {
+  if (participantEventsAsync.isLoading) {
     return const AsyncValue.loading();
   }
 
@@ -585,33 +560,14 @@ final userEventsStreamProvider = Provider<AsyncValue<List<EventModel>>>((ref) {
       participantEventsAsync.stackTrace!,
     );
   }
-  if (organizerEventsAsync.hasError) {
-    return AsyncValue.error(
-      organizerEventsAsync.error!,
-      organizerEventsAsync.stackTrace!,
-    );
-  }
 
-  // データの結合
-  final participantEvents = participantEventsAsync.value ?? [];
-  final organizerEvents = organizerEventsAsync.value ?? [];
-
-  final allEvents = [...participantEvents, ...organizerEvents];
-
-  // IDで重複排除
-  final uniqueEventsMap = {for (var event in allEvents) event.id: event};
-
-  final uniqueEvents = uniqueEventsMap.values.toList();
+  // データ取得
+  final events = participantEventsAsync.value ?? [];
 
   // 日付順でソート（新しい順）
-  uniqueEvents.sort((a, b) => b.date.compareTo(a.date));
+  events.sort((a, b) => b.date.compareTo(a.date));
 
-  AppLogger.debug(
-    'イベント一覧更新: ${uniqueEvents.length}件 (参加: ${participantEvents.length}, 主催: ${organizerEvents.length})',
-    name: 'userEventsStreamProvider',
-  );
-
-  return AsyncValue.data(uniqueEvents);
+  return AsyncValue.data(events);
 });
 
 /// 現在のユーザーの参加状況一覧のStreamProvider（リアルタイム更新）

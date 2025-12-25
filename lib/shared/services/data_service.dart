@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/services/cache_service.dart';
 import 'package:shiharainu/shared/utils/app_logger.dart';
+import 'package:shiharainu/shared/exceptions/app_exception.dart';
 
 /// 統合データ管理サービス
 /// イベント、通知などのアプリデータを効率的に管理し、
@@ -83,7 +84,8 @@ class DataService {
         }
       }
 
-      throw Exception('イベント一覧の取得に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベント一覧の取得に失敗しました', e);
     }
   }
 
@@ -153,7 +155,8 @@ class DataService {
         }
       }
 
-      throw Exception('通知一覧の取得に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('通知一覧の取得に失敗しました', e);
     }
   }
 
@@ -176,7 +179,8 @@ class DataService {
       return data;
     } catch (e) {
       AppLogger.error('イベント詳細取得エラー: $eventId', name: 'DataService', error: e);
-      throw Exception('イベント詳細の取得に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('イベント詳細の取得に失敗しました', e);
     }
   }
 
@@ -199,7 +203,8 @@ class DataService {
       AppLogger.info('全データ強制更新完了', name: 'DataService');
     } catch (e) {
       AppLogger.error('データ強制更新エラー', name: 'DataService', error: e);
-      throw Exception('データの更新に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('データの更新に失敗しました', e);
     }
   }
 

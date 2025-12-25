@@ -4,9 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import 'package:shiharainu/shared/services/auth_service.dart';
 import 'package:shiharainu/shared/models/user_profile.dart';
 import 'package:shiharainu/shared/utils/app_logger.dart';
 import 'package:shiharainu/shared/services/cache_service.dart';
+import 'package:shiharainu/shared/exceptions/app_exception.dart';
 
 class UserService {
   final FirebaseFirestore _firestore;
@@ -31,7 +33,7 @@ class UserService {
       final user = _auth.currentUser;
       if (user == null) {
         AppLogger.auth('エラー: ユーザーがログインしていません');
-        throw Exception('ユーザーがログインしていません');
+        throw const AppAuthException('ユーザーがログインしていません', code: 'not_logged_in');
       }
 
       AppLogger.auth('ログイン中のユーザー', userId: user.uid);
@@ -68,7 +70,8 @@ class UserService {
     } catch (e) {
       AppLogger.error('エラー発生', name: 'UserService', error: e);
       AppLogger.debug('エラータイプ: ${e.runtimeType}', name: 'UserService');
-      throw Exception('ユーザー情報の保存に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('ユーザー情報の保存に失敗しました', e);
     }
   }
 
@@ -110,7 +113,8 @@ class UserService {
       return profile;
     } catch (e) {
       AppLogger.error('ユーザープロフィール取得エラー', name: 'UserService', error: e);
-      throw Exception('ユーザー情報の取得に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('ユーザー情報の取得に失敗しました', e);
     }
   }
 
@@ -137,7 +141,7 @@ class UserService {
     try {
       final user = _auth.currentUser;
       if (user == null) {
-        throw Exception('ユーザーがログインしていません');
+        throw const AppAuthException('ユーザーがログインしていません', code: 'not_logged_in');
       }
 
       await _firestore.collection('users').doc(user.uid).update({
@@ -153,7 +157,8 @@ class UserService {
         AppLogger.debug('ユーザープロフィール更新によりキャッシュをクリア', name: 'UserService');
       }
     } catch (e) {
-      throw Exception('ユーザー情報の更新に失敗しました: $e');
+      if (e is AppException) rethrow;
+      throw AppUnknownException('ユーザー情報の更新に失敗しました', e);
     }
   }
 }
@@ -170,34 +175,28 @@ final userServiceProvider = Provider<UserService>((ref) {
 });
 
 final userProfileProvider = StreamProvider<UserProfile?>((ref) {
-  final auth = FirebaseAuth.instance;
+  final authState = ref.watch(authStateProvider);
+  final user = authState.value;
   final firestore = FirebaseFirestore.instance;
 
-  return auth.authStateChanges().asyncMap((user) async {
-    if (user == null) return null;
+  if (user == null) {
+    return Stream.value(null);
+  }
 
-    try {
-      final doc = await firestore.collection('users').doc(user.uid).get();
-      if (!doc.exists) return null;
-      return UserProfile.fromJson(doc.data()!);
-    } catch (e) {
-      return null;
-    }
+  // スナップショットを監視してリアルタイム更新
+  return firestore.collection('users').doc(user.uid).snapshots().map((doc) {
+    if (!doc.exists) return null;
+    return UserProfile.fromJson(doc.data()!);
   });
 });
 
 final hasUserProfileProvider = StreamProvider<bool>((ref) {
-  final auth = FirebaseAuth.instance;
-  final firestore = FirebaseFirestore.instance;
+  // firestoreを直接叩かず、userProfileProviderの結果を流用する（通信削減）
+  final userProfileAsync = ref.watch(userProfileProvider);
 
-  return auth.authStateChanges().asyncMap((user) async {
-    if (user == null) return false;
-
-    try {
-      final doc = await firestore.collection('users').doc(user.uid).get();
-      return doc.exists;
-    } catch (e) {
-      return false;
-    }
-  });
+  return userProfileAsync.when(
+    data: (profile) => Stream.value(profile != null),
+    loading: () => const Stream.empty(), // ローディング中は値を流さない（あるいはfalse/true初期値を検討）
+    error: (_, __) => Stream.value(false),
+  );
 });

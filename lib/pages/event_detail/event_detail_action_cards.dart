@@ -58,10 +58,8 @@ class EventDetailActionCards extends StatelessWidget {
         () {
           showDialog(
             context: context,
-            builder: (context) => InviteLinkDialog(
-              eventId: eventId,
-              eventTitle: event.title,
-            ),
+            builder: (context) =>
+                InviteLinkDialog(eventId: eventId, eventTitle: event.title),
           );
         },
       ),

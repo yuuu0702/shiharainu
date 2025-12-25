@@ -24,3 +24,4 @@ export 'join_event_dialog.dart';
 export 'responsive_layout.dart';
 export 'responsive_navigation.dart';
 export 'global_navigation_wrapper.dart';
+export 'error_view.dart';

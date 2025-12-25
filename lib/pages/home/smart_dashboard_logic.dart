@@ -1,9 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
 import 'package:shiharainu/shared/models/participant_model.dart';
-import 'package:shiharainu/pages/home/home_data_models.dart';
+import 'package:shiharainu/shared/exceptions/app_exception.dart';
 
 part 'smart_dashboard_logic.freezed.dart';
 
@@ -60,8 +59,8 @@ class SmartDashboardLogic {
       // 自分の参加データを検索
       final myParticipation = myParticipations.firstWhere(
         (p) => p.eventId == event.id,
-        orElse: () =>
-            throw Exception('Participation not found for event ${event.id}'),
+        // orElseは要素が見つからない場合に呼ばれる
+        orElse: () => throw const AppValidationException('参加情報が見つかりません'),
       );
 
       // 1. 支払いが必要な場合 (最優先: Priority 100)

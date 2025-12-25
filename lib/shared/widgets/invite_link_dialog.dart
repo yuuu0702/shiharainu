@@ -32,8 +32,7 @@ class InviteLinkDialog extends HookConsumerWidget {
 
       try {
         // 既存の招待コードを取得または新規生成
-        final inviteCode =
-            await inviteService.getOrCreateInviteCode(eventId);
+        final inviteCode = await inviteService.getOrCreateInviteCode(eventId);
 
         final link = inviteService.generateInviteLink(inviteCode);
 
@@ -119,9 +118,7 @@ class InviteLinkDialog extends HookConsumerWidget {
 
     return Dialog(
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 500),
         padding: const EdgeInsets.all(24),
@@ -261,8 +258,12 @@ class InviteLinkDialog extends HookConsumerWidget {
                                 : AppTheme.primaryColor,
                           ),
                           onPressed: () async {
-                            final inviteCode = inviteLink.value!.split('/').last;
-                            await inviteService.copyInviteLinkToClipboard(inviteCode);
+                            final inviteCode = inviteLink.value!
+                                .split('/')
+                                .last;
+                            await inviteService.copyInviteLinkToClipboard(
+                              inviteCode,
+                            );
                             isCopied.value = true;
                             if (context.mounted) {
                               AppToast.show(

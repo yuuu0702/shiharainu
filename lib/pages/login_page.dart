@@ -468,7 +468,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                 Switch(
                   value: true,
                   onChanged: (val) {},
-                  activeColor: accentColor,
+                  activeThumbColor: accentColor,
                 ),
               ],
             ),

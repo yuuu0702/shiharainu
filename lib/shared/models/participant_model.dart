@@ -59,6 +59,44 @@ class ParticipantModel with _$ParticipantModel {
     @TimestampConverter() required DateTime updatedAt,
   }) = _ParticipantModel;
 
+  /// 新規作成用ファクトリ（デフォルト値を設定）
+  factory ParticipantModel.create({
+    required String eventId,
+    required String userId,
+    required String displayName,
+    required String email,
+    ParticipantRole role = ParticipantRole.participant,
+    int? age,
+    String? position,
+    ParticipantGender gender = ParticipantGender.other,
+    bool isDrinker = true,
+  }) {
+    final now = DateTime.now();
+    // IDはFirestore側で自動生成されることを想定し、一時的に空文字を入れるか、呼び出し側で生成して渡す設計にする
+    // ここでは呼び出し側でIDを決定して渡す形がFreezedのrequired idと整合しやすいが、
+    // createメソッド内で uuid.v4() などを使うのも手。
+    // 今回は既存実装に合わせて、呼び出し側が ID を生成して `copyWith` するか、
+    // あるいはこのファクトリの引数に id を含める形にする。
+    // 手軽なのは引数に optional String? id を加え、なければ空文字にしておく（保存時に documentRef.id で上書き）
+    // ただし Modelの id は required なので、ここでは空文字を入れておき、
+    // Service 保存時に `participant.copyWith(id: ref.id)` するパターンを想定する。
+
+    return ParticipantModel(
+      id: '', // 保存時にIDを上書きする必要あり
+      eventId: eventId,
+      userId: userId,
+      displayName: displayName,
+      email: email,
+      role: role,
+      age: age,
+      position: position,
+      gender: gender,
+      isDrinker: isDrinker,
+      joinedAt: now,
+      updatedAt: now,
+    );
+  }
+
   factory ParticipantModel.fromJson(Map<String, dynamic> json) =>
       _$ParticipantModelFromJson(json);
 

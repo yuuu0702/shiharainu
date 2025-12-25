@@ -36,7 +36,8 @@ class PaymentModel with _$PaymentModel {
     required String participantId,
     required String userId, // ユーザーUID
     required double amount,
-    @Default(PaymentRecordStatus.pending) PaymentRecordStatus status, // 支払いステータス
+    @Default(PaymentRecordStatus.pending)
+    PaymentRecordStatus status, // 支払いステータス
     @TimestampConverter() DateTime? paidAt, // 支払い完了日時（オプション）
     @Default(PaymentMethod.cash) PaymentMethod paymentMethod,
     String? confirmedBy, // 確認者UID（主催者）
