@@ -413,6 +413,18 @@ class _EditParticipantDialog extends HookConsumerWidget {
     );
     final selectedGender = useState<ParticipantGender>(participant.gender);
     final isDrinker = useState<bool>(participant.isDrinker);
+
+    // Hybrid Payment States
+    final paymentMethod = useState<PaymentMethod>(participant.paymentMethod);
+    // manualAmount is int, controller expects string
+    final manualAmountController = useTextEditingController(
+      text: participant.manualAmount.toString(),
+    );
+    // customMultiplier is double?, controller expects string
+    final customMultiplierController = useTextEditingController(
+      text: participant.customMultiplier?.toString() ?? '',
+    );
+
     final isLoading = useState<bool>(false);
 
     Future<void> handleSave() async {
@@ -459,6 +471,12 @@ class _EditParticipantDialog extends HookConsumerWidget {
               : positionController.text.trim(),
           gender: selectedGender.value,
           isDrinker: isDrinker.value,
+          // Hybrid Payment Fields
+          paymentMethod: paymentMethod.value,
+          manualAmount: int.tryParse(manualAmountController.text.trim()) ?? 0,
+          customMultiplier: customMultiplierController.text.trim().isEmpty
+              ? null // If empty, don't update (or we technically can't unset)
+              : double.tryParse(customMultiplierController.text.trim()),
         );
 
         if (context.mounted) {
@@ -550,6 +568,59 @@ class _EditParticipantDialog extends HookConsumerWidget {
                 const Text('飲酒する'),
               ],
             ),
+
+            const SizedBox(height: AppTheme.spacing24),
+            const Divider(),
+            const SizedBox(height: AppTheme.spacing16),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '支払い設定',
+                style: AppTheme.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: AppTheme.spacing16),
+
+            // Payment Method Selection
+            AppSelect<PaymentMethod>(
+              label: '支払いモード',
+              value: paymentMethod.value,
+              items: [
+                DropdownMenuItem(
+                  value: PaymentMethod.calculated,
+                  child: const Text('自動計算 (割り勘)'),
+                ),
+                DropdownMenuItem(
+                  value: PaymentMethod.fixed,
+                  child: const Text('固定額 (免除含む)'),
+                ),
+              ],
+              onChanged: (value) {
+                if (value != null) paymentMethod.value = value;
+              },
+            ),
+            const SizedBox(height: AppTheme.spacing16),
+
+            if (paymentMethod.value == PaymentMethod.fixed) ...[
+              AppInput(
+                label: '固定支払い額 (円)',
+                controller: manualAmountController,
+                placeholder: '0 (免除)',
+                keyboardType: TextInputType.number,
+                helperText: '0円にすると支払い免除となります',
+              ),
+            ] else ...[
+              AppInput(
+                label: '係数手動設定 (現在の自動値: ${participant.calculateMultiplier()}x)',
+                controller: customMultiplierController,
+                placeholder: '例: 0.5 (半額), 2.0 (倍額)',
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                helperText: '空欄の場合は属性(年齢/役職)から自動計算されますが、入力すると強制的に上書きします。',
+              ),
+            ],
           ],
         ),
       ),

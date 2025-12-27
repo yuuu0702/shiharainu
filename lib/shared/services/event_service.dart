@@ -348,6 +348,11 @@ class EventService {
               .count()
               .get();
 
+          AppLogger.info(
+            '参加時計算: 合計金額=$totalAmount, 現在の参加者数=${currentParticipants.count}',
+            name: 'EventService',
+          );
+
           final newCount = (currentParticipants.count ?? 0) + 1;
           if (newCount > 0) {
             participant = participant.copyWith(

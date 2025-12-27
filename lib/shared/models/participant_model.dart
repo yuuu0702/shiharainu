@@ -35,6 +35,14 @@ enum PaymentStatus {
   unpaid, // 未払
 }
 
+/// 支払い方法（個別設定）
+enum PaymentMethod {
+  @JsonValue('calculated')
+  calculated, // 自動計算 (デフォルト)
+  @JsonValue('fixed')
+  fixed, // 固定額 (免除含む)
+}
+
 /// 参加者モデル
 @freezed
 class ParticipantModel with _$ParticipantModel {
@@ -52,8 +60,13 @@ class ParticipantModel with _$ParticipantModel {
     String? position, // 役職（オプション）
     @Default(ParticipantGender.other) ParticipantGender gender,
     @Default(true) bool isDrinker, // 飲酒有無（デフォルトtrue）
-    @Default(1.0) double multiplier, // 支払い比率の重み付け（デフォルト1.0）
-    @Default(0.0) double amountToPay, // 支払い額
+    @Default(1.0) double multiplier, // 最終的に適用された係数（履歴用）
+    // --- Hybrid Calculation Fields ---
+    @Default(PaymentMethod.calculated) PaymentMethod paymentMethod, // 支払い計算モード
+    @Default(0) int manualAmount, // 手動固定額 (paymentMethod == fixed の場合に使用)
+    double? customMultiplier, // 係数の手動上書き (nullの場合は自動計算)
+    // --------------------------------
+    @Default(0.0) double amountToPay, // 支払い額 (計算結果)
     @Default(PaymentStatus.unpaid) PaymentStatus paymentStatus, // 支払いステータス
     @TimestampConverter() required DateTime joinedAt,
     @TimestampConverter() required DateTime updatedAt,
@@ -106,6 +119,16 @@ class ParticipantModel with _$ParticipantModel {
   ) {
     final data = snapshot.data()!;
     data['id'] = snapshot.id;
+
+    // serverTimestamp() 使用時のローカル書き込み直後などで、
+    // タイムスタンプフィールドが存在しない、あるいはnullの場合のフォールバック
+    if (!data.containsKey('updatedAt') || data['updatedAt'] == null) {
+      data['updatedAt'] = Timestamp.now();
+    }
+    if (!data.containsKey('joinedAt') || data['joinedAt'] == null) {
+      data['joinedAt'] = Timestamp.now();
+    }
+
     return ParticipantModel.fromJson(data);
   }
 

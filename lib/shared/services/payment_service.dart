@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shiharainu/shared/models/event_model.dart';
@@ -28,7 +28,18 @@ class PaymentService {
 
       final eventData = eventDoc.data()!;
       eventData['id'] = eventDoc.id;
-      final event = EventModel.fromJson(eventData);
+
+      late final EventModel event;
+      try {
+        event = EventModel.fromJson(eventData);
+      } catch (e) {
+        AppLogger.error(
+          'イベントデータの変換エラー: $eventId',
+          name: 'PaymentService',
+          error: e,
+        );
+        throw const AppValidationException('イベント情報の形式が不正です');
+      }
 
       final participantsSnapshot = await _firestore
           .collection('events')
@@ -36,91 +47,143 @@ class PaymentService {
           .collection('participants')
           .get();
 
-      final participants = participantsSnapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return ParticipantModel.fromJson(data);
-      }).toList();
+      // 不正な参加者データがあっても全体を止めないように変更
+      final participants = <ParticipantModel>[];
+      for (final doc in participantsSnapshot.docs) {
+        try {
+          final data = doc.data();
+          data['id'] = doc.id;
+          participants.add(ParticipantModel.fromJson(data));
+        } catch (e) {
+          AppLogger.warning(
+            '参加者データの変換スキップ: ${doc.id}',
+            name: 'PaymentService',
+            error: e,
+          );
+          // スキップするが、ログに残す
+        }
+      }
 
       if (participants.isEmpty) {
-        throw const AppValidationException('参加者が見つかりません');
+        // 誰もいない場合は計算不要（エラーにはしない）
+        AppLogger.info('計算対象の参加者がいません: $eventId', name: 'PaymentService');
+        return;
       }
 
-      if (event.paymentType == PaymentType.equal) {
-        await _calculateEqualSplit(eventId, event.totalAmount, participants);
-      } else {
-        await _calculateProportionalSplit(
-          eventId,
-          event.totalAmount,
-          participants,
-        );
-      }
+      AppLogger.info(
+        '支払い計算実行: $eventId, 参加者数: ${participants.length}, 合計金額: ${event.totalAmount}',
+        name: 'PaymentService',
+      );
+
+      // Hybrid Calculation Model (全てのパターンを統合)
+      await _calculateHybridSplit(
+        eventId: eventId,
+        totalAmount: event.totalAmount,
+        participants: participants,
+        paymentType: event.paymentType,
+      );
 
       AppLogger.info('支払い金額計算完了: $eventId', name: 'PaymentService');
     } catch (e) {
       AppLogger.error('支払い金額計算エラー: $eventId', name: 'PaymentService', error: e);
+      // 再スローして呼び出し元（EventService）でもログが出るようにする
       if (e is AppException) rethrow;
       throw AppUnknownException('支払い金額の計算に失敗しました', e);
     }
   }
 
-  /// 均等割り計算
-  Future<void> _calculateEqualSplit(
-    String eventId,
-    double totalAmount,
-    List<ParticipantModel> participants,
-  ) async {
-    final amountPerPerson = totalAmount / participants.length;
+  /// ハイブリッド割り勘計算 (Hybrid Calculation Model)
+  ///
+  /// 固定額(Fixed)の設定がある場合はそれを優先し、
+  /// 残りの金額を変動(Calculated)メンバーで、係数に基づいて分配します。
+  /// [paymentType] が [PaymentType.equal] の場合、係数の自動計算は 1.0 固定となります。
+  Future<void> _calculateHybridSplit({
+    required String eventId,
+    required double totalAmount,
+    required List<ParticipantModel> participants,
+    required PaymentType paymentType,
+  }) async {
+    // 1. 固定(Fixed)と変動(Calculated)に分離
+    double fixedTotalAmount = 0;
+    final fixedParticipants = <ParticipantModel>[];
+    final calculatedParticipants = <ParticipantModel>[];
 
-    final batch = _firestore.batch();
     for (final participant in participants) {
-      final ref = _firestore
-          .collection('events')
-          .doc(eventId)
-          .collection('participants')
-          .doc(participant.id);
+      if (participant.paymentMethod == PaymentMethod.fixed) {
+        fixedTotalAmount += participant.manualAmount;
+        fixedParticipants.add(participant);
+      } else {
+        calculatedParticipants.add(participant);
+      }
+    }
 
-      batch.update(ref, {
-        'amountToPay': amountPerPerson,
-        'multiplier': 1.0,
+    // 2. 変動グループで割るべき残りの金額を算出
+    double remainingAmount = totalAmount - fixedTotalAmount;
+    if (remainingAmount < 0) {
+      // 固定額の合計が全体を超えている場合、残りは0とする
+      remainingAmount = 0;
+    }
+
+    // 3. 係数(Multiplier)の算出 (変動グループのみ)
+    final effectiveMultipliers = <String, double>{};
+    double totalWeight = 0;
+
+    for (final participant in calculatedParticipants) {
+      double multiplier;
+
+      if (participant.customMultiplier != null) {
+        // A. 手動係数が設定されている場合
+        multiplier = participant.customMultiplier!;
+      } else {
+        // B. 自動計算 (PaymentTypeに基づく)
+        if (paymentType == PaymentType.equal) {
+          multiplier = 1.0;
+        } else {
+          // Proportional (Smart)
+          multiplier = participant.calculateMultiplier();
+        }
+      }
+
+      effectiveMultipliers[participant.id] = multiplier;
+      totalWeight += multiplier;
+    }
+
+    AppLogger.info(
+      'Hybrid計算: 合計=$totalAmount, 固定計=$fixedTotalAmount, 残金=$remainingAmount, 重み計=$totalWeight',
+      name: 'PaymentService',
+    );
+
+    // 4. 更新データをバッチ作成
+    final batch = _firestore.batch();
+    final participantsCollection = _firestore
+        .collection('events')
+        .doc(eventId)
+        .collection('participants');
+
+    // A. 固定グループの更新
+    for (final participant in fixedParticipants) {
+      batch.update(participantsCollection.doc(participant.id), {
+        'amountToPay': participant.manualAmount.toDouble(),
+        'multiplier': 0.0, // 固定のため係数は0扱い
         'updatedAt': FieldValue.serverTimestamp(),
       });
     }
 
-    await batch.commit();
-  }
+    // B. 変動グループの更新
+    for (final participant in calculatedParticipants) {
+      final weight = effectiveMultipliers[participant.id]!;
+      double amount = 0.0;
 
-  /// 比例割り計算
-  Future<void> _calculateProportionalSplit(
-    String eventId,
-    double totalAmount,
-    List<ParticipantModel> participants,
-  ) async {
-    // 各参加者の係数を計算
-    final multipliers = <String, double>{};
-    double totalMultiplier = 0.0;
+      if (totalWeight > 0) {
+        amount = (weight / totalWeight) * remainingAmount;
+      }
 
-    for (final participant in participants) {
-      final multiplier = participant.calculateMultiplier();
-      multipliers[participant.id] = multiplier;
-      totalMultiplier += multiplier;
-    }
+      // 端数処理 (floor)
+      amount = amount.floorToDouble();
 
-    // 各参加者の支払い金額を計算
-    final batch = _firestore.batch();
-    for (final participant in participants) {
-      final multiplier = multipliers[participant.id]!;
-      final amount = totalAmount * (multiplier / totalMultiplier);
-
-      final ref = _firestore
-          .collection('events')
-          .doc(eventId)
-          .collection('participants')
-          .doc(participant.id);
-
-      batch.update(ref, {
+      batch.update(participantsCollection.doc(participant.id), {
         'amountToPay': amount,
-        'multiplier': multiplier,
+        'multiplier': weight, // 計算に使用した係数を保存
         'updatedAt': FieldValue.serverTimestamp(),
       });
     }

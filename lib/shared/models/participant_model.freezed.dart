@@ -33,8 +33,16 @@ mixin _$ParticipantModel {
   ParticipantGender get gender => throw _privateConstructorUsedError;
   bool get isDrinker => throw _privateConstructorUsedError; // 飲酒有無（デフォルトtrue）
   double get multiplier =>
-      throw _privateConstructorUsedError; // 支払い比率の重み付け（デフォルト1.0）
-  double get amountToPay => throw _privateConstructorUsedError; // 支払い額
+      throw _privateConstructorUsedError; // 最終的に適用された係数（履歴用）
+  // --- Hybrid Calculation Fields ---
+  PaymentMethod get paymentMethod =>
+      throw _privateConstructorUsedError; // 支払い計算モード
+  int get manualAmount =>
+      throw _privateConstructorUsedError; // 手動固定額 (paymentMethod == fixed の場合に使用)
+  double? get customMultiplier =>
+      throw _privateConstructorUsedError; // 係数の手動上書き (nullの場合は自動計算)
+  // --------------------------------
+  double get amountToPay => throw _privateConstructorUsedError; // 支払い額 (計算結果)
   PaymentStatus get paymentStatus =>
       throw _privateConstructorUsedError; // 支払いステータス
   @TimestampConverter()
@@ -71,6 +79,9 @@ abstract class $ParticipantModelCopyWith<$Res> {
     ParticipantGender gender,
     bool isDrinker,
     double multiplier,
+    PaymentMethod paymentMethod,
+    int manualAmount,
+    double? customMultiplier,
     double amountToPay,
     PaymentStatus paymentStatus,
     @TimestampConverter() DateTime joinedAt,
@@ -104,6 +115,9 @@ class _$ParticipantModelCopyWithImpl<$Res, $Val extends ParticipantModel>
     Object? gender = null,
     Object? isDrinker = null,
     Object? multiplier = null,
+    Object? paymentMethod = null,
+    Object? manualAmount = null,
+    Object? customMultiplier = freezed,
     Object? amountToPay = null,
     Object? paymentStatus = null,
     Object? joinedAt = null,
@@ -155,6 +169,18 @@ class _$ParticipantModelCopyWithImpl<$Res, $Val extends ParticipantModel>
                 ? _value.multiplier
                 : multiplier // ignore: cast_nullable_to_non_nullable
                       as double,
+            paymentMethod: null == paymentMethod
+                ? _value.paymentMethod
+                : paymentMethod // ignore: cast_nullable_to_non_nullable
+                      as PaymentMethod,
+            manualAmount: null == manualAmount
+                ? _value.manualAmount
+                : manualAmount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            customMultiplier: freezed == customMultiplier
+                ? _value.customMultiplier
+                : customMultiplier // ignore: cast_nullable_to_non_nullable
+                      as double?,
             amountToPay: null == amountToPay
                 ? _value.amountToPay
                 : amountToPay // ignore: cast_nullable_to_non_nullable
@@ -198,6 +224,9 @@ abstract class _$$ParticipantModelImplCopyWith<$Res>
     ParticipantGender gender,
     bool isDrinker,
     double multiplier,
+    PaymentMethod paymentMethod,
+    int manualAmount,
+    double? customMultiplier,
     double amountToPay,
     PaymentStatus paymentStatus,
     @TimestampConverter() DateTime joinedAt,
@@ -230,6 +259,9 @@ class __$$ParticipantModelImplCopyWithImpl<$Res>
     Object? gender = null,
     Object? isDrinker = null,
     Object? multiplier = null,
+    Object? paymentMethod = null,
+    Object? manualAmount = null,
+    Object? customMultiplier = freezed,
     Object? amountToPay = null,
     Object? paymentStatus = null,
     Object? joinedAt = null,
@@ -281,6 +313,18 @@ class __$$ParticipantModelImplCopyWithImpl<$Res>
             ? _value.multiplier
             : multiplier // ignore: cast_nullable_to_non_nullable
                   as double,
+        paymentMethod: null == paymentMethod
+            ? _value.paymentMethod
+            : paymentMethod // ignore: cast_nullable_to_non_nullable
+                  as PaymentMethod,
+        manualAmount: null == manualAmount
+            ? _value.manualAmount
+            : manualAmount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        customMultiplier: freezed == customMultiplier
+            ? _value.customMultiplier
+            : customMultiplier // ignore: cast_nullable_to_non_nullable
+                  as double?,
         amountToPay: null == amountToPay
             ? _value.amountToPay
             : amountToPay // ignore: cast_nullable_to_non_nullable
@@ -318,6 +362,9 @@ class _$ParticipantModelImpl implements _ParticipantModel {
     this.gender = ParticipantGender.other,
     this.isDrinker = true,
     this.multiplier = 1.0,
+    this.paymentMethod = PaymentMethod.calculated,
+    this.manualAmount = 0,
+    this.customMultiplier,
     this.amountToPay = 0.0,
     this.paymentStatus = PaymentStatus.unpaid,
     @TimestampConverter() required this.joinedAt,
@@ -357,11 +404,24 @@ class _$ParticipantModelImpl implements _ParticipantModel {
   @override
   @JsonKey()
   final double multiplier;
-  // 支払い比率の重み付け（デフォルト1.0）
+  // 最終的に適用された係数（履歴用）
+  // --- Hybrid Calculation Fields ---
+  @override
+  @JsonKey()
+  final PaymentMethod paymentMethod;
+  // 支払い計算モード
+  @override
+  @JsonKey()
+  final int manualAmount;
+  // 手動固定額 (paymentMethod == fixed の場合に使用)
+  @override
+  final double? customMultiplier;
+  // 係数の手動上書き (nullの場合は自動計算)
+  // --------------------------------
   @override
   @JsonKey()
   final double amountToPay;
-  // 支払い額
+  // 支払い額 (計算結果)
   @override
   @JsonKey()
   final PaymentStatus paymentStatus;
@@ -375,7 +435,7 @@ class _$ParticipantModelImpl implements _ParticipantModel {
 
   @override
   String toString() {
-    return 'ParticipantModel(id: $id, eventId: $eventId, userId: $userId, displayName: $displayName, email: $email, role: $role, age: $age, position: $position, gender: $gender, isDrinker: $isDrinker, multiplier: $multiplier, amountToPay: $amountToPay, paymentStatus: $paymentStatus, joinedAt: $joinedAt, updatedAt: $updatedAt)';
+    return 'ParticipantModel(id: $id, eventId: $eventId, userId: $userId, displayName: $displayName, email: $email, role: $role, age: $age, position: $position, gender: $gender, isDrinker: $isDrinker, multiplier: $multiplier, paymentMethod: $paymentMethod, manualAmount: $manualAmount, customMultiplier: $customMultiplier, amountToPay: $amountToPay, paymentStatus: $paymentStatus, joinedAt: $joinedAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -398,6 +458,12 @@ class _$ParticipantModelImpl implements _ParticipantModel {
                 other.isDrinker == isDrinker) &&
             (identical(other.multiplier, multiplier) ||
                 other.multiplier == multiplier) &&
+            (identical(other.paymentMethod, paymentMethod) ||
+                other.paymentMethod == paymentMethod) &&
+            (identical(other.manualAmount, manualAmount) ||
+                other.manualAmount == manualAmount) &&
+            (identical(other.customMultiplier, customMultiplier) ||
+                other.customMultiplier == customMultiplier) &&
             (identical(other.amountToPay, amountToPay) ||
                 other.amountToPay == amountToPay) &&
             (identical(other.paymentStatus, paymentStatus) ||
@@ -423,6 +489,9 @@ class _$ParticipantModelImpl implements _ParticipantModel {
     gender,
     isDrinker,
     multiplier,
+    paymentMethod,
+    manualAmount,
+    customMultiplier,
     amountToPay,
     paymentStatus,
     joinedAt,
@@ -460,6 +529,9 @@ abstract class _ParticipantModel implements ParticipantModel {
     final ParticipantGender gender,
     final bool isDrinker,
     final double multiplier,
+    final PaymentMethod paymentMethod,
+    final int manualAmount,
+    final double? customMultiplier,
     final double amountToPay,
     final PaymentStatus paymentStatus,
     @TimestampConverter() required final DateTime joinedAt,
@@ -491,9 +563,17 @@ abstract class _ParticipantModel implements ParticipantModel {
   @override
   bool get isDrinker; // 飲酒有無（デフォルトtrue）
   @override
-  double get multiplier; // 支払い比率の重み付け（デフォルト1.0）
+  double get multiplier; // 最終的に適用された係数（履歴用）
+  // --- Hybrid Calculation Fields ---
   @override
-  double get amountToPay; // 支払い額
+  PaymentMethod get paymentMethod; // 支払い計算モード
+  @override
+  int get manualAmount; // 手動固定額 (paymentMethod == fixed の場合に使用)
+  @override
+  double? get customMultiplier; // 係数の手動上書き (nullの場合は自動計算)
+  // --------------------------------
+  @override
+  double get amountToPay; // 支払い額 (計算結果)
   @override
   PaymentStatus get paymentStatus; // 支払いステータス
   @override

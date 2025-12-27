@@ -24,6 +24,7 @@ class EventPaymentManagementPage extends ConsumerStatefulWidget {
 class _EventPaymentManagementPageState
     extends ConsumerState<EventPaymentManagementPage> {
   int _selectedFilterIndex = 0; // 0: 全員, 1: 支払済, 2: 未払
+  bool _isRecalculating = false;
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +193,8 @@ class _EventPaymentManagementPageState
             child: AppButton.primary(
               text: '支払い金額を再計算',
               icon: const Icon(Icons.calculate, size: 20),
-              onPressed: () => _handleRecalculatePayments(),
+              isLoading: _isRecalculating,
+              onPressed: _isRecalculating ? null : _handleRecalculatePayments,
             ),
           ),
       ],
@@ -740,6 +742,9 @@ class _EventPaymentManagementPageState
   }
 
   Future<void> _handleRecalculatePayments() async {
+    // 処理中はボタンを押せないなどの制御はUI側で（今回はダイアログが出るのでOK）
+    if (_isRecalculating) return;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -762,6 +767,10 @@ class _EventPaymentManagementPageState
     );
 
     if (confirmed == true) {
+      setState(() {
+        _isRecalculating = true;
+      });
+
       try {
         final paymentService = ref.read(paymentServiceProvider);
         await paymentService.calculateAndUpdatePayments(widget.eventId);
@@ -782,6 +791,12 @@ class _EventPaymentManagementPageState
               backgroundColor: AppTheme.destructive,
             ),
           );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isRecalculating = false;
+          });
         }
       }
     }

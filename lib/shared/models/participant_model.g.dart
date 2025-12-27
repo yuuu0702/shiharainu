@@ -28,6 +28,11 @@ _$ParticipantModelImpl _$$ParticipantModelImplFromJson(
       ParticipantGender.other,
   isDrinker: json['isDrinker'] as bool? ?? true,
   multiplier: (json['multiplier'] as num?)?.toDouble() ?? 1.0,
+  paymentMethod:
+      $enumDecodeNullable(_$PaymentMethodEnumMap, json['paymentMethod']) ??
+      PaymentMethod.calculated,
+  manualAmount: (json['manualAmount'] as num?)?.toInt() ?? 0,
+  customMultiplier: (json['customMultiplier'] as num?)?.toDouble(),
   amountToPay: (json['amountToPay'] as num?)?.toDouble() ?? 0.0,
   paymentStatus:
       $enumDecodeNullable(_$PaymentStatusEnumMap, json['paymentStatus']) ??
@@ -50,6 +55,9 @@ Map<String, dynamic> _$$ParticipantModelImplToJson(
   'gender': _$ParticipantGenderEnumMap[instance.gender]!,
   'isDrinker': instance.isDrinker,
   'multiplier': instance.multiplier,
+  'paymentMethod': _$PaymentMethodEnumMap[instance.paymentMethod]!,
+  'manualAmount': instance.manualAmount,
+  'customMultiplier': instance.customMultiplier,
   'amountToPay': instance.amountToPay,
   'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
   'joinedAt': const TimestampConverter().toJson(instance.joinedAt),
@@ -66,6 +74,11 @@ const _$ParticipantGenderEnumMap = {
   ParticipantGender.male: 'male',
   ParticipantGender.female: 'female',
   ParticipantGender.other: 'other',
+};
+
+const _$PaymentMethodEnumMap = {
+  PaymentMethod.calculated: 'calculated',
+  PaymentMethod.fixed: 'fixed',
 };
 
 const _$PaymentStatusEnumMap = {

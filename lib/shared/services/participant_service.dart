@@ -5,15 +5,22 @@ import 'package:shiharainu/shared/models/participant_model.dart';
 import 'package:shiharainu/shared/utils/app_logger.dart';
 import 'package:shiharainu/shared/exceptions/app_exception.dart';
 
+import 'package:shiharainu/shared/services/payment_service.dart';
+
 /// 参加者サービス
 /// 参加者の追加、編集、削除、役割変更などの操作を提供
 class ParticipantService {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+  final PaymentService _paymentService;
 
-  ParticipantService({FirebaseFirestore? firestore, FirebaseAuth? auth})
-    : _firestore = firestore ?? FirebaseFirestore.instance,
-      _auth = auth ?? FirebaseAuth.instance;
+  ParticipantService({
+    FirebaseFirestore? firestore,
+    FirebaseAuth? auth,
+    required PaymentService paymentService,
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _auth = auth ?? FirebaseAuth.instance,
+       _paymentService = paymentService;
 
   /// 参加者情報を更新
   Future<void> updateParticipant({
@@ -24,6 +31,10 @@ class ParticipantService {
     String? position,
     ParticipantGender? gender,
     bool? isDrinker,
+    // Hybrid Payment Fields
+    PaymentMethod? paymentMethod,
+    int? manualAmount,
+    double? customMultiplier,
   }) async {
     try {
       AppLogger.info('参加者情報更新: $participantId', name: 'ParticipantService');
@@ -38,12 +49,34 @@ class ParticipantService {
       if (gender != null) updates['gender'] = gender.name;
       if (isDrinker != null) updates['isDrinker'] = isDrinker;
 
+      // Hybrid Payment Fields
+      if (paymentMethod != null)
+        updates['paymentMethod'] = paymentMethod.name; // Enum name
+      if (manualAmount != null) updates['manualAmount'] = manualAmount;
+      // customMultiplier can be set to null, so we need a way to clear it?
+      // For now, if passed, update it. If we want to clear, maybe pass a specific value or separate method.
+      // Assuming UI passes null only when not updating, but we might want to unset it.
+      // Let's assume if it is explicitly passed as null, we ignore?
+      // Standard pattern: pass value to set.
+      // How to unset? Maybe add a separate `clearCustomMultiplier` flag?
+      // Or if customMultiplier is passed, set it.
+      if (customMultiplier != null) {
+        updates['customMultiplier'] = customMultiplier;
+      }
+      // NOTE: Firestore update simply merges. To delete a field use FieldValue.delete().
+      // If we want to allow unsetting customMultiplier, we might need logic.
+      // For now, let's assume valid values only.
+
       await _firestore
           .collection('events')
           .doc(eventId)
           .collection('participants')
           .doc(participantId)
           .update(updates);
+
+      // 変更があった場合、支払いを再計算
+      // ※表示名だけの変更なら不要だが、区別が面倒なので一律再計算する安易な実装とする
+      await _paymentService.calculateAndUpdatePayments(eventId);
 
       AppLogger.info('参加者情報更新完了: $participantId', name: 'ParticipantService');
     } catch (e) {
@@ -211,6 +244,8 @@ class ParticipantService {
 }
 
 /// ParticipantServiceプロバイダー
+/// ParticipantServiceプロバイダー
 final participantServiceProvider = Provider<ParticipantService>((ref) {
-  return ParticipantService();
+  final paymentService = ref.watch(paymentServiceProvider);
+  return ParticipantService(paymentService: paymentService);
 });

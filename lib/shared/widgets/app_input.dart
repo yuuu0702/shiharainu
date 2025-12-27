@@ -20,12 +20,15 @@ class AppInput extends StatelessWidget {
   final Widget? prefixIcon;
   final Widget? suffixIcon;
 
+  final String? helperText;
+
   const AppInput({
     super.key,
     this.label,
     this.placeholder,
     this.initialValue,
     this.errorText,
+    this.helperText,
     this.isRequired = false,
     this.obscureText = false,
     this.keyboardType,
@@ -81,6 +84,7 @@ class AppInput extends StatelessWidget {
           decoration: InputDecoration(
             hintText: placeholder,
             errorText: errorText,
+            helperText: helperText, // Added helperText
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
             counterText: maxLength != null ? null : '',
